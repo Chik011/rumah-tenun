@@ -25,8 +25,15 @@
         <a href="program.html">Program</a>
       </nav>
       <div class="header-actions">
-        <button id="cart-button" class="outline">Tas (<span id="cart-count">0</span>)</button>
-        <button id="login-button" class="primary">Masuk ↗</button>
+        <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span id="cart-count" class="cart-badge">0</span>
+        </button>
+        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk ↗</a>
       </div>
     </div>
   </header>
@@ -47,16 +54,44 @@
     <p id="search-empty" class="notice" hidden>Kain belum ditemukan. Coba kata kunci lain.</p>
   </main>
 
-  <footer class="container">
-    <div class="footer-top">
-      <a class="brand" href="index.html">❖ rantai mawar</a>
-      <p>Merawat warisan. Membuka kesempatan.</p>
-      <a href="program.html">Program & kegiatan ↗</a>
+  <!-- FOOTER MULTI-KOLOM PREMIUM -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+        <p>Merawat warisan tenun tradisional Nusantara dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
+        <div class="footer-badge">✦ Ditenun Dengan Makna</div>
+      </div>
+      <div class="footer-col">
+        <h4>Jelajahi</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
+          <li><a href="belajar.html">Ruang Belajar Digital</a></li>
+          <li><a href="program.html">Rencana Program</a></li>
+          <li><a href="tentang.html">Tentang Koperasi</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Akses Anggota</h4>
+        <ul class="footer-links">
+          <li><a href="login.html">Masuk ke Akun</a></li>
+          <li><a href="register.html">Daftar Anggota Demo</a></li>
+          <li><a href="akun.html">Ruang Dashboard</a></li>
+          <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kemitraan</h4>
+        <p><strong>Koperasi Rantai Mawar</strong><br>Kolaborasi Penelitian & Pembinaan UMKM Tenun Perempuan bersama Dinas Terkait.</p>
+        <p class="note" style="color: var(--sekunder);">Draf usulan penelitian · 2026</p>
+      </div>
     </div>
-    <div class="footer-bottom">
-      <span>© 2026 Rantai Mawar · Konsep penelitian</span>
-      <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a>
-      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0 · diperkecil dan dipotong</a>
+    <div class="container footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep Penelitian Transformasi Digital</span>
+      <span>
+        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)
+      </span>
     </div>
   </footer>
 

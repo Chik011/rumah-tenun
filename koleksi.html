@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Koleksi kain tenun tradisional Koperasi Rantai Mawar.">
+  <title>Koleksi Tenun — Rantai Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="backend.js" defer></script>
+  <script src="common.js" defer></script>
+</head>
+<body>
+  <!-- HEADER STICKY -->
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="belajar.html">Ruang Belajar</a>
+        <a href="tentang.html">Tentang Kami</a>
+        <a href="program.html">Program</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="outline">Tas (<span id="cart-count">0</span>)</button>
+        <button id="login-button" class="primary">Masuk ↗</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container section">
+    <span class="eyebrow">KOLEKSI TENUN</span>
+    <h1>Temukan tenun<br><em>pilihan Anda.</em></h1>
+    <p class="intro">Kenali motif, warna, dan cerita dalam setiap helai karya penenun lokal.</p>
+
+    <div style="margin-bottom: 25px;">
+      <label class="search-label" for="search">Cari nama kain tenun</label>
+      <input id="search" type="search" placeholder="Contoh: Tenun Mawar, Biru Pesisir...">
+    </div>
+
+    <p class="note">Katalog contoh. Belum tersedia untuk transaksi penagihan nyata.</p>
+
+    <div id="catalog-products" class="products"></div>
+    <p id="search-empty" class="notice" hidden>Kain belum ditemukan. Coba kata kunci lain.</p>
+  </main>
+
+  <footer class="container">
+    <div class="footer-top">
+      <a class="brand" href="index.html">❖ rantai mawar</a>
+      <p>Merawat warisan. Membuka kesempatan.</p>
+      <a href="program.html">Program & kegiatan ↗</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep penelitian</span>
+      <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a>
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0 · diperkecil dan dipotong</a>
+    </div>
+  </footer>
+
+  <!-- DIALOG DETAIL PRODUK -->
+  <dialog id="product-dialog" aria-labelledby="product-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="product-title"></h2>
+    <div id="product-photo" class="detail-photo" role="img"></div>
+    <p id="product-description"></p>
+    <strong id="product-price" class="price"></strong>
+    <p class="note">Bahan, ukuran, dan stok menunggu data resmi koperasi.</p>
+    <button id="add-cart" class="primary">Tambahkan ke tas contoh</button>
+  </dialog>
+
+  <!-- DIALOG TAS BELANJA BERSAMA -->
+  <dialog id="cart-dialog" aria-labelledby="cart-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="cart-title">Tas belanja Anda</h2>
+    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <div id="cart-items"></div>
+    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
+    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <div id="payment-panel" hidden>
+      <label for="payment-method">Pilihan pembayaran</label>
+      <select id="payment-method">
+        <option>QRIS</option>
+        <option>Transfer bank</option>
+        <option>Dompet digital</option>
+      </select>
+      <p id="payment-description" class="notice"></p>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      let semuaProduk = [];
+      let produkDipilih = null;
+
+      function renderProduk(daftar) {
+        const wadah = $('catalog-products');
+        wadah.replaceChildren();
+        daftar.forEach(item => {
+          const kartu = elemen('button', 'product');
+          const foto = elemen('div', 'product-photo');
+          foto.style.backgroundPosition = item.posisi;
+          foto.append(elemen('span', '', 'Tenun tradisional'));
+          kartu.append(foto, elemen('h3', '', item.nama), elemen('strong', '', rupiah(item.harga)));
+          kartu.addEventListener('click', () => bukaDetail(item));
+          wadah.append(kartu);
+        });
+      }
+
+      function bukaDetail(item) {
+        produkDipilih = item;
+        $('product-title').textContent = item.nama;
+        $('product-description').textContent = item.deskripsi;
+        $('product-price').textContent = rupiah(item.harga);
+        $('product-photo').style.backgroundPosition = item.posisi;
+        $('product-photo').setAttribute('aria-label', 'Ilustrasi ' + item.nama);
+        $('product-dialog').showModal();
+      }
+
+      $('add-cart').addEventListener('click', () => {
+        if (!produkDipilih) return;
+        tambahKeKeranjang(produkDipilih.id);
+        $('product-dialog').close();
+        tampilIsiKeranjang();
+        $('cart-dialog').showModal();
+      });
+
+      $('search').addEventListener('input', event => {
+        const kata = event.target.value.toLowerCase().trim();
+        const hasil = semuaProduk.filter(item => item.nama.toLowerCase().includes(kata));
+        renderProduk(hasil);
+        $('search-empty').hidden = hasil.length > 0;
+      });
+
+      semuaProduk = await Backend.ambilProduk();
+      renderProduk(semuaProduk);
+    });
+  </script>
+</body>
+</html>

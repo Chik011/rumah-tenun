@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Daftar akun demo baru di Koperasi Rantai Mawar.">
+  <title>Daftar — Rantai Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="backend.js" defer></script>
+  <script src="common.js" defer></script>
+</head>
+<body>
+  <!-- HEADER STICKY -->
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="belajar.html">Ruang Belajar</a>
+        <a href="tentang.html">Tentang Kami</a>
+        <a href="program.html">Program</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="outline">Tas (<span id="cart-count">0</span>)</button>
+        <button id="login-button" class="primary">Masuk ↗</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="auth-wrapper">
+      <span class="eyebrow">RANTAI MAWAR · PENDAFTARAN</span>
+      <h1>Mari Tumbuh Bersama</h1>
+      <p class="intro" style="font-size: 1rem; margin-top: 6px;">Buat akun demo baru sebagai Pembeli untuk menjelajahi katalog dan simulasi transaksi tenun.</p>
+
+      <div class="notice" style="margin-bottom: 20px; font-size: 0.88rem;">
+        <strong>Perhatian Akun Demo:</strong> Pendaftaran demo otomatis menjadi peran <em>Pembeli</em>. Data demo tersimpan di peramban Anda. Jangan gunakan kata sandi atau data pribadi rahasia.
+      </div>
+
+      <!-- FORM REGISTER -->
+      <form id="register-form">
+        <div>
+          <label for="reg-name">Nama Lengkap / Tampilan</label>
+          <input id="reg-name" name="nama" type="text" required minlength="2" maxlength="80" placeholder="Contoh: Siti Rahayu">
+        </div>
+
+        <div>
+          <label for="reg-username">Username</label>
+          <input id="reg-username" name="username" type="text" autocomplete="username" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_]+" placeholder="3-32 huruf, angka, atau garis bawah">
+        </div>
+
+        <div>
+          <label for="reg-password">Kata Sandi</label>
+          <input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="6" maxlength="100" placeholder="Minimal 6 karakter">
+        </div>
+
+        <p id="reg-error" class="error" role="alert" style="min-height: 20px;"></p>
+        <p id="reg-success" style="color: #2a5a52; font-weight: 500; min-height: 20px; margin: 0;"></p>
+
+        <button id="reg-submit" class="primary" type="submit" style="width: 100%; margin-top: 10px;">Daftar Akun Demo ↗</button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Sudah memiliki akun? <a href="login.html" class="text-link" style="font-weight: 600;">Masuk di sini →</a></p>
+        <p style="margin-top: 10px;"><a href="index.html" class="text-link">← Kembali ke Beranda</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="container">
+    <div class="footer-top">
+      <a class="brand" href="index.html">❖ rantai mawar</a>
+      <p>Merawat warisan. Membuka kesempatan.</p>
+      <a href="program.html">Program & kegiatan ↗</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep penelitian</span>
+      <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a>
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0 · diperkecil dan dipotong</a>
+    </div>
+  </footer>
+
+  <!-- DIALOG TAS BELANJA BERSAMA -->
+  <dialog id="cart-dialog" aria-labelledby="cart-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="cart-title">Tas belanja Anda</h2>
+    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <div id="cart-items"></div>
+    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
+    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <div id="payment-panel" hidden>
+      <label for="payment-method">Pilihan pembayaran</label>
+      <select id="payment-method">
+        <option>QRIS</option>
+        <option>Transfer bank</option>
+        <option>Dompet digital</option>
+      </select>
+      <p id="payment-description" class="notice"></p>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = $('register-form');
+      const errorMsg = $('reg-error');
+      const successMsg = $('reg-success');
+      const nameInput = $('reg-name');
+      const userInput = $('reg-username');
+      const passInput = $('reg-password');
+      const submitBtn = $('reg-submit');
+
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        errorMsg.textContent = '';
+        successMsg.textContent = '';
+        submitBtn.disabled = true;
+
+        try {
+          const user = await Backend.daftar(userInput.value, passInput.value, nameInput.value);
+          successMsg.textContent = 'Pendaftaran berhasil! Selamat datang, ' + user.nama + '. Mengalihkan...';
+          setTimeout(() => {
+            window.location.href = 'akun.html';
+          }, 800);
+        } catch (err) {
+          errorMsg.textContent = err.message || 'Gagal mendaftar.';
+          submitBtn.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

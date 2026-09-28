@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ruang Anggota Koperasi Rantai Mawar.">
+  <title>Ruang Anggota — Rantai Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="backend.js" defer></script>
+  <script src="common.js" defer></script>
+</head>
+<body>
+  <!-- HEADER STICKY -->
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="belajar.html">Ruang Belajar</a>
+        <a href="tentang.html">Tentang Kami</a>
+        <a href="program.html">Program</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="outline">Tas (<span id="cart-count">0</span>)</button>
+        <button id="login-button" class="primary">Akun ↗</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container section">
+    <div class="account-page">
+      <span class="eyebrow">RUANG ANGGOTA</span>
+      <h1 id="account-title">Akun Anda.</h1>
+      
+      <div id="unauth-view" hidden>
+        <div class="notice">
+          <p><strong>Anda belum masuk.</strong> Silakan masuk terlebih dahulu untuk mengakses ruang anggota atau menggunakan fitur login cepat.</p>
+          <a href="login.html" class="primary" style="margin-top: 15px;">Masuk / Login Cepat ↗</a>
+        </div>
+      </div>
+
+      <div id="auth-view" hidden>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+          <div>
+            <div id="user-role-badge" class="role-badge"></div>
+            <p id="account-info" class="intro" style="margin: 0; font-weight: 500;"></p>
+          </div>
+          <button id="logout-button" class="outline">Keluar Akun</button>
+        </div>
+
+        <!-- PANEL SESUAI PERAN -->
+        <div id="role-panel" class="notice" style="margin-bottom: 30px;">
+          <h3 id="role-panel-title" style="margin-top: 0; color: var(--marun);"></h3>
+          <p id="role-description" style="margin-bottom: 12px;"></p>
+          <div id="role-extra-content"></div>
+        </div>
+
+        <!-- FORM SIMPAN PROFIL -->
+        <div style="background: white; border: 1px solid var(--garis); padding: 28px; margin-bottom: 30px;">
+          <h2 style="font-size: 1.5rem; margin-top: 0;">Perbarui Profil Demo</h2>
+          <p class="note">Perubahan nama disimpan di browser Anda.</p>
+          <form id="profile-form" style="margin-bottom: 0;">
+            <label for="profile-name">Nama Tampilan</label>
+            <input id="profile-name" required minlength="2" maxlength="80">
+            <button class="primary" type="submit" style="justify-self: start;">Simpan Perubahan Nama</button>
+            <p id="profile-message" role="status" style="min-height: 20px; margin: 0; font-weight: 500;"></p>
+          </form>
+        </div>
+
+        <div class="dashboard-actions">
+          <a href="koleksi.html" class="outline">← Jelajahi Koleksi Tenun</a>
+          <a href="belajar.html" class="outline">Buka Ruang Belajar ↗</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="container">
+    <div class="footer-top">
+      <a class="brand" href="index.html">❖ rantai mawar</a>
+      <p>Merawat warisan. Membuka kesempatan.</p>
+      <a href="program.html">Program & kegiatan ↗</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep penelitian</span>
+      <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a>
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0 · diperkecil dan dipotong</a>
+    </div>
+  </footer>
+
+  <!-- DIALOG TAS BELANJA BERSAMA -->
+  <dialog id="cart-dialog" aria-labelledby="cart-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="cart-title">Tas belanja Anda</h2>
+    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <div id="cart-items"></div>
+    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
+    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <div id="payment-panel" hidden>
+      <label for="payment-method">Pilihan pembayaran</label>
+      <select id="payment-method">
+        <option>QRIS</option>
+        <option>Transfer bank</option>
+        <option>Dompet digital</option>
+      </select>
+      <p id="payment-description" class="notice"></p>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const pengguna = await Backend.penggunaAktif();
+
+      if (!pengguna) {
+        $('unauth-view').hidden = false;
+        $('auth-view').hidden = true;
+        $('account-title').textContent = 'Ruang Anggota.';
+        return;
+      }
+
+      $('unauth-view').hidden = true;
+      $('auth-view').hidden = false;
+      $('account-title').textContent = 'Ruang ' + pengguna.peran + '.';
+      $('account-info').textContent = 'Selamat datang, ' + pengguna.nama + ' (@' + pengguna.username + ')';
+      $('profile-name').value = pengguna.nama;
+
+      const badge = $('user-role-badge');
+      badge.textContent = 'Peran: ' + pengguna.peran;
+      badge.className = 'role-badge ' + pengguna.peran.toLowerCase();
+
+      const roleTitle = $('role-panel-title');
+      const roleDesc = $('role-description');
+      const roleExtra = $('role-extra-content');
+
+      if (pengguna.peran === 'Admin') {
+        roleTitle.textContent = 'Panel Administrator Koperasi';
+        roleDesc.textContent = 'Anda memiliki hak akses administratif demo. Anda dapat meninjau rancangan program, mengontrol data katalog produk tenun, dan memantau akun anggota.';
+        roleExtra.innerHTML = `
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+            <a href="program.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Tinjau Rencana Anggaran & Program ↗</a>
+            <a href="koleksi.html" class="outline" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Kelola Katalog Tenun ↗</a>
+          </div>
+        `;
+      } else if (pengguna.peran === 'Penjual') {
+        roleTitle.textContent = 'Ruang Pengrajin & Penjual Tenun';
+        roleDesc.textContent = 'Selamat berkarya! Di ruang penjual ini Anda dapat melihat produk karya tenun yang dipajang di etalase digital serta simulasi pesanan masuk.';
+        roleExtra.innerHTML = `
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+            <a href="koleksi.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Cek Produk Anda di Katalog ↗</a>
+            <a href="belajar.html" class="outline" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Modul Foto Produk Ponsel ↗</a>
+          </div>
+        `;
+      } else {
+        roleTitle.textContent = 'Ruang Pembeli / Pelanggan';
+        roleDesc.textContent = 'Jelajahi keindahan kain tenun asli Nusantara dari perajin perempuan Rantai Mawar dan nikmati kemudahan simulasi pembayaran digital.';
+        roleExtra.innerHTML = `
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+            <a href="koleksi.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Mulai Belanja Tenun ↗</a>
+            <button onclick="$('cart-button').click()" class="outline" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Buka Tas Belanja</button>
+          </div>
+        `;
+      }
+
+      // Handler simpan profil
+      $('profile-form').addEventListener('submit', async event => {
+        event.preventDefault();
+        try {
+          const updated = await Backend.simpanProfil($('profile-name').value);
+          $('account-info').textContent = 'Selamat datang, ' + updated.nama + ' (@' + updated.username + ')';
+          $('profile-message').style.color = '#2a5a52';
+          $('profile-message').textContent = '✓ Profil berhasil diperbarui.';
+        } catch (err) {
+          $('profile-message').style.color = '#a21e32';
+          $('profile-message').textContent = err.message || 'Gagal menyimpan profil.';
+        }
+      });
+
+      // Handler logout
+      $('logout-button').addEventListener('click', async () => {
+        await Backend.keluar();
+        window.location.href = 'index.html';
+      });
+    });
+  </script>
+</body>
+</html>

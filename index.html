@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Rumah tenun dan ruang belajar digital Koperasi Rantai Mawar.">
+  <title>Rantai Mawar — Rumah Tenun & Cerita</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="backend.js" defer></script>
+  <script src="common.js" defer></script>
+</head>
+<body>
+  <!-- HEADER STICKY -->
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="belajar.html">Ruang Belajar</a>
+        <a href="tentang.html">Tentang Kami</a>
+        <a href="program.html">Program</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="outline">Tas (<span id="cart-count">0</span>)</button>
+        <button id="login-button" class="primary">Masuk ↗</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO BERANDA -->
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">KOPERASI RANTAI MAWAR</span>
+        <h1>Setiap helai,<br>sebuah <em>cerita.</em></h1>
+        <p>Temukan keindahan tenun tradisional.<br>Dukung perempuan berkarya, membawa warisan menuju masa depan.</p>
+        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+          <a class="primary" href="koleksi.html">Jelajahi koleksi ↗</a>
+          <a class="text-link" href="tentang.html">Kenali cerita kami →</a>
+        </div>
+        <small>DIRAWAT DENGAN HATI · DITENUN DENGAN MAKNA</small>
+      </div>
+      <figure class="hero-photo">
+        <img src="assets/tenun.jpg" alt="Kain tenun berwarna jingga, biru, merah muda, dan hijau">
+        <figcaption>
+          <span>WARISAN DALAM SETIAP BENANG</span>
+          <h2>Tradisi yang terus hidup.</h2>
+          <small>Ragam tenun Nusantara · Foto ilustrasi</small>
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- NILAI-NILAI -->
+    <section class="values container">
+      <div>
+        <strong>Karya perempuan produktif</strong>
+        <p>Ruang berkarya dan bertumbuh bersama komunitas penenun lokal.</p>
+      </div>
+      <div>
+        <strong>Tradisi yang bernilai</strong>
+        <p>Menghargai proses manual, ketelitian motif, dan keterampilan turun-temurun.</p>
+      </div>
+      <div>
+        <strong>Belajar digital bersama</strong>
+        <p>Pendampingan pemasaran digital dan pencatatan transaksi secara bertahap.</p>
+      </div>
+    </section>
+
+    <!-- PILIHAN DARI RUMAH TENUN -->
+    <section class="container section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">DARI TANGAN, SAMPAI KE HATI</span>
+          <h2>Pilihan dari rumah tenun</h2>
+        </div>
+        <a class="text-link" href="koleksi.html">Lihat semua koleksi ↗</a>
+      </div>
+      <p class="note">Produk dan harga contoh. Foto ilustrasi, bukan katalog resmi koperasi.</p>
+      <div id="featured-products" class="products"></div>
+    </section>
+
+    <!-- BANNER RUANG BELAJAR -->
+    <section class="container">
+      <div class="learning-banner">
+        <div>
+          <span class="eyebrow">MULAI BERSAMA</span>
+          <h2>Belajar hal baru,<br><em>tak harus sendiri.</em></h2>
+          <p>Panduan sederhana literasi digital & pembayaran aman, satu langkah setiap waktu.</p>
+        </div>
+        <a class="primary" href="belajar.html">Masuk ruang belajar ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <div class="footer-top">
+      <a class="brand" href="index.html">❖ rantai mawar</a>
+      <p>Merawat warisan. Membuka kesempatan.</p>
+      <a href="program.html">Program & kegiatan ↗</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep penelitian</span>
+      <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a>
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0 · diperkecil dan dipotong</a>
+    </div>
+  </footer>
+
+  <!-- DIALOG DETAIL PRODUK -->
+  <dialog id="product-dialog" aria-labelledby="product-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="product-title"></h2>
+    <div id="product-photo" class="detail-photo" role="img"></div>
+    <p id="product-description"></p>
+    <strong id="product-price" class="price"></strong>
+    <p class="note">Bahan, ukuran, dan stok menunggu data resmi koperasi.</p>
+    <button id="add-cart" class="primary">Tambahkan ke tas contoh</button>
+  </dialog>
+
+  <!-- DIALOG TAS BELANJA -->
+  <dialog id="cart-dialog" aria-labelledby="cart-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="cart-title">Tas belanja Anda</h2>
+    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <div id="cart-items"></div>
+    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
+    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <div id="payment-panel" hidden>
+      <label for="payment-method">Pilihan pembayaran</label>
+      <select id="payment-method">
+        <option>QRIS</option>
+        <option>Transfer bank</option>
+        <option>Dompet digital</option>
+      </select>
+      <p id="payment-description" class="notice"></p>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      let produkDipilih = null;
+
+      function bukaDetailProduk(item) {
+        produkDipilih = item;
+        $('product-title').textContent = item.nama;
+        $('product-description').textContent = item.deskripsi;
+        $('product-price').textContent = rupiah(item.harga);
+        $('product-photo').style.backgroundPosition = item.posisi;
+        $('product-photo').setAttribute('aria-label', 'Ilustrasi ' + item.nama);
+        $('product-dialog').showModal();
+      }
+
+      $('add-cart').addEventListener('click', () => {
+        if (!produkDipilih) return;
+        tambahKeKeranjang(produkDipilih.id);
+        $('product-dialog').close();
+        tampilIsiKeranjang();
+        $('cart-dialog').showModal();
+      });
+
+      const daftar = await Backend.ambilProduk();
+      const wadah = $('featured-products');
+      wadah.replaceChildren();
+
+      daftar.forEach(item => {
+        const kartu = elemen('button', 'product');
+        const foto = elemen('div', 'product-photo');
+        foto.style.backgroundPosition = item.posisi;
+        foto.append(elemen('span', '', 'Tenun tradisional'));
+        kartu.append(foto, elemen('h3', '', item.nama), elemen('strong', '', rupiah(item.harga)));
+        kartu.addEventListener('click', () => bukaDetailProduk(item));
+        wadah.append(kartu);
+      });
+    });
+  </script>
+</body>
+</html>

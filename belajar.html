@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ruang belajar digital Koperasi Rantai Mawar.">
+  <title>Ruang Belajar — Rantai Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="backend.js" defer></script>
+  <script src="common.js" defer></script>
+</head>
+<body>
+  <!-- HEADER STICKY -->
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="belajar.html">Ruang Belajar</a>
+        <a href="tentang.html">Tentang Kami</a>
+        <a href="program.html">Program</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="outline">Tas (<span id="cart-count">0</span>)</button>
+        <button id="login-button" class="primary">Masuk ↗</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container section">
+    <span class="eyebrow">RUANG BELAJAR DIGITAL</span>
+    <h1>Pelan-pelan,<br><em>kita bisa.</em></h1>
+    <p class="intro">Baca panduan, coba langsung langkahnya, lalu ulangi bersama pendamping secara bertahap.</p>
+
+    <div style="margin-bottom: 25px;">
+      <button id="font-button" class="outline" aria-pressed="false">Aa · Perbesar tulisan</button>
+    </div>
+
+    <div id="lesson-list" class="lesson-grid"></div>
+
+    <aside class="notice" style="margin-top: 35px;">
+      <strong>Keamanan Digital:</strong> Jangan pernah membagikan PIN, kata sandi, atau kode OTP kepada orang lain. Minta bantuan pendamping terpercaya jika ada langkah yang belum jelas.
+    </aside>
+  </main>
+
+  <footer class="container">
+    <div class="footer-top">
+      <a class="brand" href="index.html">❖ rantai mawar</a>
+      <p>Merawat warisan. Membuka kesempatan.</p>
+      <a href="program.html">Program & kegiatan ↗</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep penelitian</span>
+      <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a>
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0 · diperkecil dan dipotong</a>
+    </div>
+  </footer>
+
+  <!-- DIALOG MATERI BELAJAR LANGKAH-DEMI-LANGKAH -->
+  <dialog id="lesson-dialog" aria-labelledby="lesson-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <span id="lesson-progress" class="eyebrow"></span>
+    <h2 id="lesson-title"></h2>
+    <p id="lesson-text" class="lesson-text"></p>
+    <div class="step-actions">
+      <button id="lesson-back" class="outline">Sebelumnya</button>
+      <button id="lesson-next" class="primary">Lanjut →</button>
+    </div>
+  </dialog>
+
+  <!-- DIALOG TAS BELANJA BERSAMA -->
+  <dialog id="cart-dialog" aria-labelledby="cart-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="cart-title">Tas belanja Anda</h2>
+    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <div id="cart-items"></div>
+    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
+    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <div id="payment-panel" hidden>
+      <label for="payment-method">Pilihan pembayaran</label>
+      <select id="payment-method">
+        <option>QRIS</option>
+        <option>Transfer bank</option>
+        <option>Dompet digital</option>
+      </select>
+      <p id="payment-description" class="notice"></p>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let materiDipilih = 0;
+      let langkahAktif = 0;
+
+      function renderLangkah() {
+        const materi = materiBelajar[materiDipilih];
+        $('lesson-title').textContent = materi.judul;
+        $('lesson-progress').textContent = 'LANGKAH ' + (langkahAktif + 1) + ' DARI ' + materi.langkah.length;
+        $('lesson-text').textContent = materi.langkah[langkahAktif];
+        $('lesson-back').disabled = langkahAktif === 0;
+        $('lesson-next').textContent = langkahAktif === materi.langkah.length - 1 ? 'Selesai ✓' : 'Lanjut →';
+      }
+
+      $('lesson-back').addEventListener('click', () => {
+        if (langkahAktif > 0) {
+          langkahAktif--;
+          renderLangkah();
+        }
+      });
+
+      $('lesson-next').addEventListener('click', () => {
+        if (langkahAktif === materiBelajar[materiDipilih].langkah.length - 1) {
+          $('lesson-dialog').close();
+        } else {
+          langkahAktif++;
+          renderLangkah();
+        }
+      });
+
+      $('font-button').addEventListener('click', () => {
+        const besar = document.body.classList.toggle('large-text');
+        $('font-button').textContent = besar ? 'Aa · Tulisan biasa' : 'Aa · Perbesar tulisan';
+        $('font-button').setAttribute('aria-pressed', String(besar));
+      });
+
+      const listWadah = $('lesson-list');
+      listWadah.replaceChildren();
+
+      materiBelajar.forEach((materi, index) => {
+        const kartu = elemen('button', 'lesson-card');
+        kartu.append(
+          elemen('span', 'eyebrow', 'PANDUAN 0' + (index + 1) + ' · ' + materi.durasi),
+          elemen('h2', '', materi.judul),
+          elemen('span', 'text-link', 'Mulai belajar →')
+        );
+        kartu.addEventListener('click', () => {
+          materiDipilih = index;
+          langkahAktif = 0;
+          renderLangkah();
+          $('lesson-dialog').showModal();
+        });
+        listWadah.append(kartu);
+      });
+    });
+  </script>
+</body>
+</html>

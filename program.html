@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Rancangan program penelitian Koperasi Rantai Mawar.">
+  <title>Program & Usulan Penelitian — Rantai Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="backend.js" defer></script>
+  <script src="common.js" defer></script>
+</head>
+<body>
+  <!-- HEADER STICKY -->
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="belajar.html">Ruang Belajar</a>
+        <a href="tentang.html">Tentang Kami</a>
+        <a href="program.html">Program</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="outline">Tas (<span id="cart-count">0</span>)</button>
+        <button id="login-button" class="primary">Masuk ↗</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container section">
+    <span class="eyebrow">RANCANGAN PROGRAM PENELITIAN</span>
+    <h1>Tradisi bertemu<br><em>peluang digital.</em></h1>
+    <p class="intro">Transformasi Digital Kelompok Perempuan Produktif melalui Marketplace dan Sistem Pembayaran Digital.</p>
+
+    <div class="program-summary">
+      <div>
+        <span class="eyebrow">USULAN PENDANAAN</span>
+        <h2>Rp40.000.000</h2>
+      </div>
+      <p>Mitra sasaran: <strong>Koperasi Rantai Mawar</strong><br>Rencana kolaborasi kegiatan: <strong>Disperindag / Dinas Terkait</strong><br>Draf usulan, belum disetujui mitra atau pemberi dana.</p>
+    </div>
+
+    <h2>Rencana kegiatan</h2>
+    <div class="timeline">
+      <article>
+        <span>01</span>
+        <h3>Pemetaan kebutuhan</h3>
+        <p>Bulan 1 · Diskusi kelompok terarah dan asesmen literasi awal</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>Pelatihan digital</h3>
+        <p>Bulan 2 · Optimalisasi ponsel, foto produk kain, dan tata kelola katalog</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>Pendampingan praktik</h3>
+        <p>Bulan 3–4 · Marketplace, alur pemesanan, dan transaksi QRIS</p>
+      </article>
+      <article>
+        <span>04</span>
+        <h3>Evaluasi bersama</h3>
+        <p>Bulan 5–6 · Pengukuran peningkatan keterampilan dan serah terima sistem</p>
+      </article>
+    </div>
+
+    <h2>Rancangan anggaran</h2>
+    <p class="note">Estimasi awal. Volume dan harga satuan disesuaikan dengan ketentuan pendanaan.</p>
+    <div class="table-scroll">
+      <table>
+        <caption class="sr-only">Usulan anggaran program</caption>
+        <thead>
+          <tr>
+            <th>Kebutuhan</th>
+            <th>Anggaran</th>
+          </tr>
+        </thead>
+        <tbody id="budget-body"></tbody>
+        <tfoot>
+          <tr>
+            <th>Total</th>
+            <td>Rp40.000.000</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <article class="proposal">
+      <h2>Ringkasan usulan</h2>
+      <p><strong>Tujuan:</strong> meningkatkan kemampuan anggota koperasi dalam mengelola katalog digital mandiri, menggunakan marketplace secara efektif, dan memahami sistem pembayaran digital dengan aman.</p>
+      <p><strong>Metode:</strong> asesmen awal, pelatihan dengan bahasa yang ramah dan sederhana, latihan berulang, serta pendampingan lintas generasi.</p>
+      <p><strong>Luaran:</strong> website katalog terpadu, modul panduan praktis, dokumentasi motif tenun, serta laporan evaluasi kemampuan peserta.</p>
+      <p><strong>Evaluasi:</strong> tugas praktik mengunggah produk, menangani pesanan tiruan, dan memverifikasi notifikasi pembayaran.</p>
+      <p><strong>Keberlanjutan:</strong> penunjukan kader pendamping lokal serta penyusunan SOP tata kelola katalog.</p>
+    </article>
+
+    <div style="margin-top: 25px;">
+      <button id="letter-button" class="primary">Buka draf surat kesediaan mitra</button>
+    </div>
+  </main>
+
+  <footer class="container">
+    <div class="footer-top">
+      <a class="brand" href="index.html">❖ rantai mawar</a>
+      <p>Merawat warisan. Membuka kesempatan.</p>
+      <a href="program.html">Program & kegiatan ↗</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep penelitian</span>
+      <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a>
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0 · diperkecil dan dipotong</a>
+    </div>
+  </footer>
+
+  <!-- DIALOG SURAT KESEDIAAN MITRA -->
+  <dialog id="letter-dialog" aria-labelledby="letter-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="letter-title">Draf surat kesediaan mitra</h2>
+    <article class="letter">
+      <h3>SURAT PERNYATAAN KESEDIAAN MITRA SASARAN</h3>
+      <p>Yang bertanda tangan di bawah ini:</p>
+      <p>Nama: [nama pengurus]<br>Jabatan: [jabatan]<br>Mitra: Koperasi Rantai Mawar<br>Alamat: [alamat lengkap]</p>
+      <p>Menyatakan bersedia menjadi mitra sasaran dalam program “Transformasi Digital Kelompok Perempuan Produktif melalui Marketplace dan Sistem Pembayaran Digital” yang diusulkan oleh [nama tim/institusi].</p>
+      <p>Dukungan yang diusulkan mencakup koordinasi peserta, penyediaan data produk dengan persetujuan pemilik, partisipasi pelatihan, dan evaluasi bersama. Jadwal dan pembagian tanggung jawab akan disepakati secara tertulis.</p>
+      <p>Surat ini tidak menyatakan persetujuan pendanaan. Kesediaan berlaku setelah ditinjau, dilengkapi, dan ditandatangani perwakilan mitra yang berwenang.</p>
+      <p>[Tempat], [tanggal]<br>Perwakilan Koperasi Rantai Mawar<br><br><br>[Nama dan tanda tangan]</p>
+    </article>
+    <div style="margin-top: 20px;">
+      <button id="print-letter" class="primary">Cetak draf surat</button>
+    </div>
+  </dialog>
+
+  <!-- DIALOG TAS BELANJA BERSAMA -->
+  <dialog id="cart-dialog" aria-labelledby="cart-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="cart-title">Tas belanja Anda</h2>
+    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <div id="cart-items"></div>
+    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
+    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <div id="payment-panel" hidden>
+      <label for="payment-method">Pilihan pembayaran</label>
+      <select id="payment-method">
+        <option>QRIS</option>
+        <option>Transfer bank</option>
+        <option>Dompet digital</option>
+      </select>
+      <p id="payment-description" class="notice"></p>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const budgetBody = $('budget-body');
+      budgetBody.replaceChildren();
+
+      anggaran.forEach(item => {
+        const baris = elemen('tr');
+        baris.append(elemen('td', '', item[0]), elemen('td', '', rupiah(item[1])));
+        budgetBody.append(baris);
+      });
+
+      $('letter-button').addEventListener('click', () => {
+        $('letter-dialog').showModal();
+      });
+
+      $('print-letter').addEventListener('click', () => {
+        window.print();
+      });
+    });
+  </script>
+</body>
+</html>

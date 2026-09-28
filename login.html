@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Masuk ke ruang digital Koperasi Rantai Mawar.">
+  <title>Masuk — Rantai Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="backend.js" defer></script>
+  <script src="common.js" defer></script>
+</head>
+<body>
+  <!-- HEADER STICKY -->
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="belajar.html">Ruang Belajar</a>
+        <a href="tentang.html">Tentang Kami</a>
+        <a href="program.html">Program</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="outline">Tas (<span id="cart-count">0</span>)</button>
+        <button id="login-button" class="primary">Masuk ↗</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="auth-wrapper">
+      <span class="eyebrow">RANTAI MAWAR · AUTENTIKASI</span>
+      <h1>Selamat Datang Kembali</h1>
+      <p class="intro" style="font-size: 1rem; margin-top: 6px;">Masuk untuk mengakses ruang anggota, pesanan tenun, atau pengelolaan katalog.</p>
+
+      <!-- AKSES LOGIN CEPAT -->
+      <section class="quick-login-container" aria-labelledby="quick-login-heading">
+        <div id="quick-login-heading" class="quick-login-title">
+          <span>⚡</span> Akses Login Cepat (1-Klik)
+        </div>
+        <p class="note" style="margin: 0 0 14px 0;">Pilih peran di bawah ini untuk langsung masuk otomatis tanpa perlu mengetik kata sandi:</p>
+        
+        <div class="quick-login-grid">
+          <button type="button" class="quick-btn" id="btn-quick-admin" title="Masuk sebagai Administrator">
+            <span class="role-icon">🛡️</span>
+            <strong>Admin</strong>
+            <small>admin / 123</small>
+          </button>
+
+          <button type="button" class="quick-btn" id="btn-quick-user" title="Masuk sebagai User / Pembeli">
+            <span class="role-icon">👤</span>
+            <strong>User</strong>
+            <small>user / 123</small>
+          </button>
+
+          <button type="button" class="quick-btn" id="btn-quick-penjual" title="Masuk sebagai Penjual / Pengrajin">
+            <span class="role-icon">🛒</span>
+            <strong>Penjual</strong>
+            <small>penjual / 123</small>
+          </button>
+        </div>
+      </section>
+
+      <div class="divider">
+        <span>Atau Masuk Manual</span>
+      </div>
+
+      <!-- FORM LOGIN MANUAL -->
+      <form id="login-form">
+        <div>
+          <label for="login-username">Username</label>
+          <input id="login-username" name="username" type="text" autocomplete="username" required minlength="3" maxlength="32" placeholder="Masukkan username (contoh: user, admin)">
+        </div>
+
+        <div>
+          <label for="login-password">Kata Sandi</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100" placeholder="Masukkan kata sandi">
+        </div>
+
+        <p id="login-error" class="error" role="alert" style="min-height: 20px;"></p>
+        <p id="login-success" style="color: #2a5a52; font-weight: 500; min-height: 20px; margin: 0;"></p>
+
+        <button id="login-submit" class="primary" type="submit" style="width: 100%; margin-top: 10px;">Masuk ke Akun ↗</button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Belum memiliki akun? <a href="register.html" class="text-link" style="font-weight: 600;">Daftar Akun Baru Demo →</a></p>
+        <p style="margin-top: 10px;"><a href="index.html" class="text-link">← Kembali ke Beranda</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="container">
+    <div class="footer-top">
+      <a class="brand" href="index.html">❖ rantai mawar</a>
+      <p>Merawat warisan. Membuka kesempatan.</p>
+      <a href="program.html">Program & kegiatan ↗</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep penelitian</span>
+      <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a>
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0 · diperkecil dan dipotong</a>
+    </div>
+  </footer>
+
+  <!-- DIALOG TAS BELANJA BERSAMA -->
+  <dialog id="cart-dialog" aria-labelledby="cart-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="cart-title">Tas belanja Anda</h2>
+    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <div id="cart-items"></div>
+    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
+    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <div id="payment-panel" hidden>
+      <label for="payment-method">Pilihan pembayaran</label>
+      <select id="payment-method">
+        <option>QRIS</option>
+        <option>Transfer bank</option>
+        <option>Dompet digital</option>
+      </select>
+      <p id="payment-description" class="notice"></p>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = $('login-form');
+      const errorMsg = $('login-error');
+      const successMsg = $('login-success');
+      const userInput = $('login-username');
+      const passInput = $('login-password');
+      const submitBtn = $('login-submit');
+
+      // Cek apakah sudah login
+      Backend.penggunaAktif().then(user => {
+        if (user) {
+          successMsg.textContent = 'Anda sudah masuk sebagai ' + user.nama + ' (' + user.peran + '). Mengalihkan ke Ruang Akun...';
+          setTimeout(() => {
+            window.location.href = 'akun.html';
+          }, 900);
+        }
+      });
+
+      async function eksekusiLogin(username, password) {
+        errorMsg.textContent = '';
+        successMsg.textContent = '';
+        submitBtn.disabled = true;
+        try {
+          const user = await Backend.masuk(username, password);
+          successMsg.textContent = 'Berhasil masuk sebagai ' + user.nama + ' (' + user.peran + ')! Mengalihkan...';
+          setTimeout(() => {
+            window.location.href = 'akun.html';
+          }, 600);
+        } catch (err) {
+          errorMsg.textContent = err.message || 'Gagal masuk. Periksa kembali username dan kata sandi.';
+          submitBtn.disabled = false;
+        }
+      }
+
+      // Handler Submit Form Manual
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        eksekusiLogin(userInput.value, passInput.value);
+      });
+
+      // AKSES LOGIN CEPAT
+      $('btn-quick-admin').addEventListener('click', () => {
+        userInput.value = 'admin';
+        passInput.value = '123';
+        eksekusiLogin('admin', '123');
+      });
+
+      $('btn-quick-user').addEventListener('click', () => {
+        userInput.value = 'user';
+        passInput.value = '123';
+        eksekusiLogin('user', '123');
+      });
+
+      $('btn-quick-penjual').addEventListener('click', () => {
+        userInput.value = 'penjual';
+        passInput.value = '123';
+        eksekusiLogin('penjual', '123');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -40,7 +40,7 @@
 
   <main class="container section">
     <div class="account-page">
-      <span class="eyebrow">RUANG ANGGOTA</span>
+      <span id="account-eyebrow" class="eyebrow">RUANG ANGGOTA</span>
       <h1 id="account-title">Akun Anda.</h1>
       
       <div id="unauth-view" hidden>
@@ -60,7 +60,7 @@
         </div>
 
         <!-- PANEL SESUAI PERAN -->
-        <div id="role-panel" class="notice" style="margin-bottom: 30px; border-radius: 8px;">
+        <div id="role-panel" class="notice role-panel" style="margin-bottom: 30px; border-radius: 8px;">
           <h3 id="role-panel-title" style="margin-top: 0; color: var(--marun);"></h3>
           <p id="role-description" style="margin-bottom: 12px;"></p>
           <div id="role-extra-content"></div>
@@ -78,10 +78,6 @@
           </form>
         </div>
 
-        <div class="dashboard-actions">
-          <a href="koleksi.html" class="outline">← Jelajahi Koleksi Tenun</a>
-          <a href="belajar.html" class="outline">Buka Ruang Belajar ↗</a>
-        </div>
       </div>
     </div>
   </main>
@@ -162,6 +158,11 @@
       $('account-title').textContent = 'Ruang ' + pengguna.peran + '.';
       $('account-info').textContent = 'Selamat datang, ' + pengguna.nama + ' (@' + pengguna.username + ')';
       $('profile-name').value = pengguna.nama;
+      $('account-eyebrow').textContent = pengguna.peran === 'Admin'
+        ? 'PUSAT KENDALI KOPERASI'
+        : pengguna.peran === 'Penjual'
+          ? 'DASHBOARD PENGRAJIN'
+          : 'RUANG PEMBELI';
 
       const badge = $('user-role-badge');
       badge.textContent = 'Peran: ' + pengguna.peran;
@@ -170,6 +171,7 @@
       const roleTitle = $('role-panel-title');
       const roleDesc = $('role-description');
       const roleExtra = $('role-extra-content');
+      $('role-panel').classList.add('role-panel-' + pengguna.peran.toLowerCase());
 
       if (pengguna.peran === 'Admin') {
         roleTitle.textContent = 'Panel Administrator Koperasi';

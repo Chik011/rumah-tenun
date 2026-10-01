@@ -35,6 +35,10 @@ figure { margin: 0; }
 .outline:hover { background: var(--panel); }
 .text-link { display: inline-block; color: var(--marun); border: 0; background: none; padding: 5px 0; font-size: .95rem; }
 .notice { background: var(--panel); padding: 20px; border-left: 3px solid #9a704e; color: #62554a; }
+.role-panel { padding: 26px; }
+.role-panel-admin { background: #f2e5e3; border-color: #702c3b; }
+.role-panel-penjual { background: #e9eee6; border-color: #58704d; }
+.role-panel-pembeli { background: #f2ece1; border-color: #9a704e; }
 input, select { width: 100%; padding: 12px; min-height: 48px; background: white; border: 1px solid #b7a79a; color: var(--teks); }
 form { display: grid; gap: 12px; margin-block: 20px; }
 .error { color: #a21e32; margin: 0; }

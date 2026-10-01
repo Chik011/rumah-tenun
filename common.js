@@ -251,6 +251,43 @@ async function setupHeaderActions() {
   if (!actionsContainer) return;
 
   const user = await Backend.penggunaAktif();
+  const navigation = $('navigation');
+  if (navigation && user && user.peran !== 'Pembeli') {
+    const linksByRole = {
+      Admin: [
+        ['akun.html', 'Dashboard Admin'],
+        ['program.html', 'Program'],
+        ['koleksi.html', 'Katalog']
+      ],
+      Penjual: [
+        ['akun.html', 'Dashboard Penjual'],
+        ['koleksi.html', 'Etalase Produk'],
+        ['belajar.html', 'Panduan Usaha']
+      ]
+    };
+    const links = linksByRole[user.peran] || linksByRole.Pembeli;
+    navigation.replaceChildren(...links.map(([href, label]) => {
+      const link = elemen('a', '', label);
+      link.href = href;
+      return link;
+    }));
+
+    const footerColumns = document.querySelectorAll('.site-footer .footer-col');
+    if (footerColumns.length >= 3) {
+      footerColumns[1].querySelector('h4').textContent = user.peran === 'Admin' ? 'Menu Admin' : 'Menu Penjual';
+      const footerList = footerColumns[1].querySelector('ul');
+      footerList.replaceChildren();
+      footerColumns[2].querySelector('ul').replaceChildren();
+      links.forEach(([href, label]) => {
+        const item = elemen('li');
+        const link = elemen('a', '', label);
+        link.href = href;
+        item.append(link);
+        footerList.append(item);
+      });
+      footerColumns[2].hidden = true;
+    }
+  }
 
   // 1. PASTIKAN TOMBOL TAS MENGGUNAKAN ICON TAS ELEGAN
   let cartBtn = $('cart-button');
@@ -261,6 +298,7 @@ async function setupHeaderActions() {
   } else {
     cartBtn.className = 'icon-btn';
   }
+  cartBtn.hidden = Boolean(user && user.peran !== 'Pembeli');
   cartBtn.setAttribute('aria-label', 'Tas Belanja');
   cartBtn.setAttribute('title', 'Buka Tas Belanja');
   cartBtn.innerHTML = `

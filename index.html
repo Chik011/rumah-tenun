@@ -15,7 +15,6 @@
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
-  <div class="announcement">Warisan Nusantara, untuk keseharian Anda <span>✦</span> Dari rumah tenun</div>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
     <div class="header">
@@ -166,19 +165,7 @@
     </div>
   </footer>
 
-  <!-- DIALOG DETAIL PRODUK -->
-  <dialog id="product-dialog" aria-labelledby="product-title">
-    <button class="close-button" data-close aria-label="Tutup">×</button>
-    <h2 id="product-title"></h2>
-    <div id="product-photo" class="detail-photo" role="img"></div>
-    <p id="product-description"></p>
-    <p id="product-specs" class="product-meta"></p>
-    <p id="product-seller" class="product-seller"></p>
-    <strong id="product-price" class="price"></strong>
-    <button id="add-cart" class="primary">Tambahkan ke tas</button>
-  </dialog>
-
-  <!-- DIALOG TAS BELANJA -->
+<!-- DIALOG TAS BELANJA -->
   <dialog id="cart-dialog" aria-labelledby="cart-title">
     <button class="close-button" data-close aria-label="Tutup">×</button>
     <h2 id="cart-title">Tas belanja Anda</h2>
@@ -199,34 +186,12 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      let produkDipilih = null;
-
-      function bukaDetailProduk(item) {
-        produkDipilih = item;
-        $('product-title').textContent = item.nama;
-        $('product-description').textContent = item.deskripsi;
-        $('product-specs').textContent = [item.motif, item.ukuran, item.bahan, 'Stok ' + item.stok].filter(Boolean).join(' · ');
-        $('product-price').textContent = rupiah(item.harga);
-        $('product-photo').style.backgroundImage = item.imageUrl ? `url("${item.imageUrl}")` : '';
-        $('product-photo').style.backgroundSize = item.imageUrl ? 'cover' : '';
-        $('product-photo').style.backgroundPosition = item.imageUrl ? 'center' : item.posisi;
-        $('product-photo').setAttribute('aria-label', 'Ilustrasi ' + item.nama);
-        $('product-seller').textContent = item.sellerName ? 'Penjual: ' + item.sellerName : 'Penjual: Koperasi Rantai Mawar';
-        $('product-dialog').showModal();
-      }
-
-      $('add-cart').addEventListener('click', () => {
-        if (!produkDipilih) return;
-        tambahKeKeranjang(produkDipilih.id);
-        window.location.href = 'keranjang.html';
-      });
-
       const daftar = await Backend.ambilProduk();
       const wadah = $('featured-products');
       wadah.replaceChildren();
 
       daftar.slice(0, 4).forEach(item => {
-        const kartu = elemen('button', 'product');
+        const kartu = elemen('a', 'product');
         const foto = elemen('div', 'product-photo');
         if (item.imageUrl) {
           foto.style.backgroundImage = `url("${item.imageUrl}")`;
@@ -243,7 +208,7 @@
           elemen('strong', '', rupiah(item.harga)),
           elemen('small', 'product-seller', 'Stok ' + item.stok + ' · ' + (item.sellerName || 'Koperasi Rantai Mawar'))
         );
-        kartu.addEventListener('click', () => bukaDetailProduk(item));
+        kartu.href = 'produk.html?id=' + encodeURIComponent(item.id);
         wadah.append(kartu);
       });
     });

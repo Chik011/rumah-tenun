@@ -51,6 +51,15 @@
       <p class="notice" style="margin-bottom: 24px;">Masuk dengan email dan kata sandi akun Anda. Akun penjual dibuat oleh admin koperasi.</p>
       <button type="button" class="outline" id="btn-quick-guest" style="margin-bottom: 24px;">Jelajahi sebagai tamu</button>
 
+      <section class="quick-login" aria-labelledby="quick-login-title">
+        <h2 id="quick-login-title">Login cepat</h2>
+        <p class="note">Pilih akun yang sudah disiapkan, lalu masukkan kata sandinya.</p>
+        <div class="quick-login-options">
+          <button type="button" class="outline" data-quick-email="pembeli@rumah-tenun.example">User / Pembeli</button>
+          <button type="button" class="outline" data-quick-email="admin@rumah-tenun.example">Admin</button>
+          <button type="button" class="outline" data-quick-email="penjual@rumah-tenun.example">Penjual</button>
+        </div>
+      </section>
       <!-- FORM LOGIN MANUAL -->
       <form id="login-form">
         <div class="auth-form-group">
@@ -150,14 +159,15 @@
       const submitBtn = $('login-submit');
       const tujuanSetelahMasuk = tujuanLoginAman(new URLSearchParams(window.location.search).get('next'));
 
-      // Cek apakah sudah login
-      Backend.penggunaAktif().then(user => {
-        if (user && user.peran !== 'Guest') {
-          successMsg.textContent = '✓ Anda sudah masuk sebagai ' + user.nama + ' (' + user.peran + '). Mengalihkan...';
-          setTimeout(() => {
-            window.location.href = tujuanSetelahMasuk;
-          }, 800);
-        }
+      document.querySelectorAll('[data-quick-email]').forEach(button => {
+        button.addEventListener('click', () => {
+          userInput.value = button.dataset.quickEmail;
+          passInput.value = '';
+          errorMsg.textContent = '';
+          successMsg.textContent = 'Akun ' + button.textContent + ' dipilih. Masukkan kata sandi untuk masuk.';
+          document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+          passInput.focus();
+        });
       });
 
       async function eksekusiLogin(username, password) {
@@ -180,15 +190,6 @@
         event.preventDefault();
         eksekusiLogin(userInput.value, passInput.value);
       });
-
-      // Guest mode is local browsing only.
-      if (tujuanSetelahMasuk === 'akun.html') {
-        Backend.penggunaAktif().then(user => {
-          if (user && user.peran === 'Guest') {
-            window.location.href = 'index.html';
-          }
-        });
-      }
 
       $('btn-quick-guest').addEventListener('click', async () => {
         await Backend.masukGuest();

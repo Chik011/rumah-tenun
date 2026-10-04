@@ -43,6 +43,13 @@ function ubahBentukProduk(item) {
 }
 
 const Backend = {
+  async ambilDetailProduk(id) {
+    const { data, error } = await supabaseClient.from('products')
+      .select('id, name, price, image_position, description, image_url, seller_id, motif, size, material, stock, status, profiles!products_seller_id_fkey(display_name)')
+      .eq('id', id).eq('status', 'approved').maybeSingle();
+    if (error) throw error;
+    return data ? ubahBentukProduk(data) : null;
+  },
   async pembayaranXendit(action, orderId) {
     const { data, error } = await supabaseClient.functions.invoke('xendit-payment', {
       body: { action, orderId }

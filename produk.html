@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Koleksi kain tenun tradisional Koperasi Rantai Mawar.">
-  <title>Koleksi Tenun — Rantai Mawar</title>
+  <meta name="description" content="Detail kain, harga, dan penjual tenun pilihan Rantai Mawar.">
+  <title>Detail Tenun — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
   <link rel="stylesheet" href="studio.css?v=studio-1">
@@ -40,20 +40,27 @@
     </div>
   </header>
 
-  <main id="main-content" class="container section">
-    <span class="eyebrow">KOLEKSI TENUN</span>
-    <h1>Temukan tenun<br><em>pilihan Anda.</em></h1>
-    <p class="intro">Kenali motif, warna, dan cerita dalam setiap helai karya penenun lokal.</p>
-
-    <div class="catalog-tools"><div>
-      <label class="search-label" for="search">Cari nama kain tenun</label>
-      <input id="search" type="search" placeholder="Cari nama atau motif tenun…">
-    </div><span id="catalog-count" class="catalog-count" role="status"></span></div>
-
-    <p class="note">Produk baru tampil setelah diverifikasi koperasi. Lanjutkan pembayaran melalui Xendit saat checkout.</p>
-
-    <div id="catalog-products" class="products"></div>
-    <p id="search-empty" class="notice" hidden>Kain belum ditemukan. Coba kata kunci lain.</p>
+  <main id="main-content" class="container section product-page">
+    <nav class="breadcrumbs" aria-label="Jejak halaman"><a href="index.html">Beranda</a><span>/</span><a href="koleksi.html">Koleksi tenun</a><span>/</span><span id="product-breadcrumb">Detail produk</span></nav>
+    <p id="product-state" class="notice" role="status">Memuat detail kain…</p>
+    <article id="product-detail" class="product-detail-layout" hidden>
+      <figure class="product-detail-figure"><div id="product-photo" class="product-detail-photo" role="img"></div><figcaption id="product-caption">Foto ilustrasi kain tenun.</figcaption></figure>
+      <div class="product-detail-info">
+        <span class="eyebrow">DARI RUMAH TENUN</span>
+        <h1 id="product-title"></h1>
+        <p id="product-seller" class="product-seller"></p>
+        <strong id="product-price" class="product-detail-price"></strong><span class="note"> / kain</span>
+        <p id="product-description" class="intro"></p>
+        <dl id="product-specs" class="product-detail-specs"></dl>
+        <label for="product-quantity">Jumlah kain</label>
+        <input id="product-quantity" type="number" min="1" step="1" value="1">
+        <p id="product-stock" class="note"></p>
+        <div class="product-detail-actions"><button id="product-add" type="button" class="primary">Tambahkan ke tas ↗</button><button id="product-buy" type="button" class="outline">Beli sekarang</button></div>
+        <p id="product-feedback" role="status"></p>
+        <a id="product-cart-link" class="text-link" href="keranjang.html" hidden>Lihat tas belanja →</a>
+        <p class="note product-shipping-note">Harga di atas adalah harga produk. Pengiriman disepakati dengan koperasi saat checkout.</p>
+      </div>
+    </article>
   </main>
 
   <!-- FOOTER MULTI-KOLOM PREMIUM -->
@@ -117,51 +124,6 @@
     </div>
   </dialog>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      let semuaProduk = [];
-      function renderProduk(daftar) {
-        const wadah = $('catalog-products');
-        $('catalog-count').textContent = daftar.length + ' helai dalam koleksi';
-        wadah.replaceChildren();
-        daftar.forEach(item => {
-          const kartu = elemen('a', 'product');
-          const foto = elemen('div', 'product-photo');
-          if (item.imageUrl) {
-            foto.style.backgroundImage = `url("${item.imageUrl}")`;
-            foto.style.backgroundSize = 'cover';
-            foto.style.backgroundPosition = 'center';
-          } else {
-            foto.style.backgroundPosition = item.posisi;
-          }
-          foto.append(elemen('span', '', 'Tenun tradisional'));
-          kartu.append(foto, elemen('h3', '', item.nama));
-          const meta = [item.motif, item.ukuran].filter(Boolean).join(' · ');
-          if (meta) kartu.append(elemen('small', 'product-meta', meta));
-          kartu.append(
-            elemen('strong', '', rupiah(item.harga)),
-            elemen('small', 'product-seller', 'Stok ' + item.stok + ' · ' + (item.sellerName || 'Koperasi Rantai Mawar'))
-          );
-          kartu.href = 'produk.html?id=' + encodeURIComponent(item.id);
-          wadah.append(kartu);
-        });
-      }
-
-      $('search').addEventListener('input', event => {
-        const kata = event.target.value.toLowerCase().trim();
-        const hasil = semuaProduk.filter(item => [item.nama, item.motif, item.bahan].join(' ').toLowerCase().includes(kata));
-        renderProduk(hasil);
-        $('search-empty').hidden = hasil.length > 0;
-      });
-
-      try {
-        semuaProduk = await Backend.ambilProduk();
-        renderProduk(semuaProduk);
-      } catch (_) {
-        $('search-empty').hidden = false;
-        $('search-empty').textContent = 'Koleksi belum dapat dimuat. Periksa koneksi Anda, lalu muat ulang halaman.';
-      }
-    });
-  </script>
+  <script src="product.js" defer></script>
 </body>
 </html>

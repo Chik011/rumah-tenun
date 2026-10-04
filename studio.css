@@ -182,3 +182,26 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
   .header { gap: 6px; } .brand small { letter-spacing: .1em; }
   .checkout-steps { gap: 10px; } .checkout-steps li { font-size: .56rem; }
 }
+/* Detail kain dan pemilihan akun. */
+.product { text-decoration: none; color: inherit; }
+.breadcrumbs { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:32px; font-size:.88rem; }
+.product-detail-layout { display:grid; grid-template-columns:1.05fr 1fr; gap:clamp(28px,5vw,72px); align-items:start; }
+.product-detail-layout[hidden] { display:none; }
+.product-detail-figure { margin:0; }
+.product-detail-photo { background-image:url('assets/tenun.jpg'); background-size:auto 100%; aspect-ratio:4/5; border-radius:4px; }
+.product-detail-figure figcaption { margin-top:12px; font-size:.8rem; color:var(--sekunder); }
+.product-detail-info h1 { font-size:clamp(2.8rem,5vw,4.6rem); margin:16px 0; }
+.product-detail-price { display:inline-block; font-size:2rem; color:var(--marun); margin:18px 0 8px; }
+.product-detail-specs { display:grid; grid-template-columns:100px 1fr; gap:12px; padding:22px 0; border-block:1px solid #d7d5cb; margin-bottom:24px; }
+.product-detail-specs dt { color:var(--sekunder); }
+.product-detail-specs dd { margin:0; }
+.product-detail-info label { display:block; margin-bottom:8px; }
+#product-quantity { max-width:100px; }
+.product-detail-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
+.product-shipping-note { border-top:1px solid #d7d5cb; padding-top:20px; margin-top:28px; }
+.quick-login { padding:20px 0; border-block:1px solid #d7d5cb; margin-bottom:24px; }
+.quick-login h2 { font-size:1.4rem; margin:0 0 8px; }
+.quick-login-options { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.quick-login-options button { padding:10px 14px; font-size:.85rem; }
+.quick-login-options [aria-pressed="true"] { color:white; background:var(--hijau); }
+@media(max-width:760px) { .product-detail-layout { grid-template-columns:1fr; } .product-detail-photo { aspect-ratio:1; } .product-detail-actions > * { flex:1; } }

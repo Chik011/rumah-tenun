@@ -6,17 +6,19 @@
   <meta name="description" content="Daftar akun pembeli di Koperasi Rantai Mawar.">
   <title>Daftar — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css?v=atelier-5">
+  <link rel="stylesheet" href="style.css?v=studio-1">
+  <link rel="stylesheet" href="studio.css?v=studio-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Langsung ke konten</a>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
     <div class="header">
-      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
@@ -38,7 +40,7 @@
     </div>
   </header>
 
-  <main class="container auth-page-container">
+  <main id="main-content" class="container auth-page-container">
     <div class="auth-wrapper">
       <div class="auth-header">
         <span class="eyebrow">❖ PENDAFTARAN ANGGOTA</span>
@@ -87,7 +89,7 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-col">
-        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
         <p>Merawat warisan tenun tradisional Nusantara dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
         <div class="footer-badge">✦ Ditenun Dengan Makna</div>
       </div>
@@ -132,7 +134,7 @@
     <p class="note">Belanja contoh. Tidak ada penagihan.</p>
     <div id="cart-items"></div>
     <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
-    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <button id="checkout-button" class="primary">Lanjut ke checkout →</button>
     <div id="payment-panel" hidden>
       <label for="payment-method">Pilihan pembayaran</label>
       <select id="payment-method">
@@ -153,9 +155,7 @@
       const userInput = $('reg-username');
       const passInput = $('reg-password');
       const submitBtn = $('reg-submit');
-      const tujuanSetelahDaftar = new URLSearchParams(window.location.search).get('next') === 'checkout.html'
-        ? 'checkout.html'
-        : 'akun.html';
+      const tujuanSetelahDaftar = tujuanLoginAman(new URLSearchParams(window.location.search).get('next'));
 
       form.addEventListener('submit', async event => {
         event.preventDefault();

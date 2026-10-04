@@ -43,6 +43,18 @@ function ubahBentukProduk(item) {
 }
 
 const Backend = {
+  async pembayaranXendit(action, orderId) {
+    const { data, error } = await supabaseClient.functions.invoke('xendit-payment', {
+      body: { action, orderId }
+    });
+    if (error) {
+      let message = 'Pembayaran belum tersedia. Coba lagi dari pesanan Anda.';
+      try { const body = await error.context.json(); message = body.error || message; } catch (_) {}
+      throw new Error(message);
+    }
+    if (data.error) throw new Error(data.error);
+    return data;
+  },
   async ambilProduk() {
     const { data, error } = await supabaseClient
       .from('products')
@@ -69,11 +81,12 @@ const Backend = {
     if (error) throw error;
   },
 
-  async buatPesanan(detail, keranjang) {
+  async buatPesanan(detail, keranjang, requestId) {
     const items = Object.entries(keranjang)
       .filter(([, quantity]) => quantity > 0)
       .map(([productId, quantity]) => ({ product_id: Number(productId), quantity: Number(quantity) }));
-    const { data, error } = await supabaseClient.rpc('create_order', {
+    const { data, error } = await supabaseClient.rpc('create_checkout_order', {
+      p_request_id: requestId,
       p_buyer_name: detail.nama,
       p_phone: detail.telepon,
       p_shipping_address: detail.alamat,
@@ -86,7 +99,7 @@ const Backend = {
 
   async pesananSaya() {
     const { data, error } = await supabaseClient.from('orders')
-      .select('id, buyer_name, payment_method, payment_status, order_status, total, created_at, order_items(item_name, unit_price, quantity, image_url)')
+      .select('id, buyer_name, payment_method, payment_status, order_status, payment_provider, payment_url, payment_mode, payment_expires_at, total, created_at, order_items(item_name, unit_price, quantity, image_url)')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;
@@ -94,7 +107,7 @@ const Backend = {
 
   async semuaPesanan() {
     const { data, error } = await supabaseClient.from('orders')
-      .select('id, buyer_name, phone, shipping_address, payment_method, payment_status, order_status, total, created_at, order_items(item_name, unit_price, quantity, image_url)')
+      .select('id, buyer_name, phone, shipping_address, payment_method, payment_status, order_status, payment_provider, payment_mode, total, created_at, order_items(item_name, unit_price, quantity, image_url)')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;

@@ -1,6 +1,8 @@
-# Rantai Mawar — HTML, CSS, dan JavaScript sederhana
+# Rantai Mawar — Rumah Tenun & Pembayaran Xendit
 
 Website HTML/CSS/JavaScript dengan Supabase Auth dan database. Upload foto seller memakai Cloudinary.
+
+Tampilan diperbarui dengan tema studio tenun, katalog responsif, dan checkout Xendit Payment Sessions. Migrasi, fungsi, secrets server, dan webhook sudah dipasang pada proyek Supabase tertaut dalam **mode Test**. Pembayaran saat ini merupakan simulasi, tanpa uang nyata. Panduan operasional: [XENDIT-SETUP.md](XENDIT-SETUP.md).
 
 ## Cara membuka
 
@@ -21,13 +23,15 @@ Website memerlukan koneksi internet untuk Supabase dan Cloudinary.
 | `register.html` | Pendaftaran akun Pembeli. Akun Penjual dibuat oleh Admin. |
 | `akun.html` | Dashboard, pembuatan akun seller oleh admin, upload produk seller. |
 | `keranjang.html` | Halaman tas belanja dengan kontrol jumlah dan ringkasan. |
-| `checkout.html` | Halaman checkout demo dengan data penerima dan metode pembayaran. |
+| `checkout.html` | Data penerima dan pembuatan pesanan sebelum pembayaran Xendit. |
+| `pembayaran.html`, `payment.js` | Tautan checkout Xendit, mode uji coba, dan pemeriksaan status pembayaran. |
+| `studio.css` | Tema studio tenun, katalog, formulir, dan tampilan ponsel. |
 | `style.css` | Styling desain, warna, tata letak, dan navbar sticky. |
 | `common.js` | Helper navigasi, keranjang lokal, dan katalog dari Supabase. |
 | `data.js` | Salinan data awal; katalog, materi, dan anggaran aktif dibaca dari Supabase. |
 | `backend.js` | Adapter Supabase Auth, database, dan upload bertanda tangan Cloudinary. |
 | `supabase/migrations/` | Skema, RLS, dan data awal. |
-| `supabase/functions/` | Fungsi admin membuat seller dan tanda tangan upload Cloudinary. |
+| `supabase/functions/` | Fungsi admin membuat seller, tanda tangan upload Cloudinary, serta pembayaran dan webhook Xendit. |
 | `assets/` | Foto tenun dan favicon. |
 
 ## Supabase & Cloudinary
@@ -46,7 +50,7 @@ Migrasi database telah diterapkan dan dua Edge Function telah di-deploy ke proje
 2. Di Supabase Dashboard, buka Edge Functions Secrets dan tambahkan `CLOUDINARY_API_KEY` serta `CLOUDINARY_API_SECRET`. Jangan masukkan kedua nilai itu ke berkas aplikasi atau chat.
 3. Seller masuk, lalu isi foto, nama, motif, ukuran, bahan, harga, stok, dan deskripsi. Foto diunggah ke folder `rumah-tenun/products`; produk menunggu review admin sebelum muncul di katalog.
 
-Produk awal dan materi belajar tersimpan di tabel Supabase. Checkout membuat order dan item order, memvalidasi serta mengurangi stok secara atomik. Admin mengonfirmasi laporan pembayaran, memproses pemeriksaan, pengemasan, dan pengiriman; buyer mengonfirmasi barang diterima. Pilihan QRIS/transfer/dompet digital hanya mencatat metode. Pembayaran uang nyata dan integrasi gateway belum tersedia. Keranjang tetap lokal di browser.
+Produk awal dan materi belajar tersimpan di tabel Supabase. Checkout membuat order dan item order, memvalidasi serta mengurangi stok secara atomik. Pada pesanan Xendit, server membaca status pembayaran dari Xendit dan memperbarui pesanan; admin kemudian memproses pemeriksaan, pengemasan, dan pengiriman. Pembeli mengonfirmasi barang diterima. Pesanan manual lama mempertahankan alur sebelumnya. Keranjang tetap lokal di browser. Kunci development hanya memproses simulasi; pembayaran nyata memerlukan konfigurasi Live yang sesuai.
 
 Untuk perubahan skema berikutnya, buat migrasi baru dan jalankan `npx supabase db push --linked`. Untuk deploy ulang function gunakan `npx supabase functions deploy <nama-function> --project-ref lsewgdyamxfblzcjkwti`.
 
@@ -54,11 +58,15 @@ Untuk perubahan skema berikutnya, buat migrasi baru dan jalankan `npx supabase d
 
 - Navigasi halaman dan menu ponsel.
 - Koleksi, pencarian, detail produk, status review, stok, dan tas belanja.
-- Order Supabase dengan status pembayaran/pengiriman, tanpa pemrosesan uang nyata.
+- Order Supabase dengan status pembayaran/pengiriman dan integrasi Xendit setelah aktivasi server.
 - Login Supabase, pendaftaran pembeli, pembuatan akun penjual oleh admin, dan edit profil.
 - Panduan belajar bertahap dan perbesar tulisan.
 
 Proposal, kegiatan, katalog, serta profil koperasi adalah rancangan/contoh yang perlu dikonfirmasi. Paket ini adalah versi kode sederhana terpisah; tautan web sebelumnya tidak diubah.
+
+## Pengujian
+
+Jalankan `npm install` lalu `npm test`. Tes meliputi transaksi PostgreSQL lokal, pencegahan pesanan/session ganda, hak akses, verifikasi nilai pembayaran, webhook palsu, status pembayaran, pengembalian stok, serta pemeriksaan skrip halaman. Tes memakai respons Xendit tiruan; uji sandbox nyata dilakukan setelah server diaktifkan.
 
 ## Kredit foto
 

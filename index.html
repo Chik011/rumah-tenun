@@ -6,17 +6,20 @@
   <meta name="description" content="Rumah tenun dan ruang belajar digital Koperasi Rantai Mawar.">
   <title>Rantai Mawar — Rumah Tenun & Cerita</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css?v=atelier-5">
+  <link rel="stylesheet" href="style.css?v=studio-1">
+  <link rel="stylesheet" href="studio.css?v=studio-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Langsung ke konten</a>
+  <div class="announcement">Warisan Nusantara, untuk keseharian Anda <span>✦</span> Dari rumah tenun</div>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
     <div class="header">
-      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
@@ -38,25 +41,26 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <!-- HERO BERANDA -->
     <section class="hero">
       <div class="hero-copy">
-        <span class="eyebrow">KOPERASI RANTAI MAWAR</span>
-        <h1>Setiap helai,<br>sebuah <em>cerita.</em></h1>
-        <p>Temukan keindahan tenun tradisional.<br>Dukung perempuan berkarya, membawa warisan menuju masa depan.</p>
-        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+        <span class="eyebrow">TENUN, TRADISI & KESEHARIAN</span>
+        <h1>Warisan yang<br>bisa Anda<br><em>kenakan.</em></h1>
+        <p>Tenun yang menghubungkan tangan, tradisi, dan cerita. Temukan helai pilihan Anda, dan ikut merawat karya perempuan penenun.</p>
+        <div class="hero-cta">
           <a class="primary" href="koleksi.html">Belanja tenun ↗</a>
           <a class="text-link" href="tentang.html">Kenali cerita kami →</a>
         </div>
         <small>DIRAWAT DENGAN HATI · DITENUN DENGAN MAKNA</small>
       </div>
       <figure class="hero-photo">
-        <img src="assets/tenun.jpg" alt="Kain tenun berwarna jingga, biru, merah muda, dan hijau">
+        <div class="hero-stamp" aria-hidden="true">DARI TANGAN<strong>ke hati</strong>RANTAI MAWAR</div>
+        <img src="assets/tenun-background.jpg" alt="Penenun Sasak bekerja dengan alat tenun tradisional di dekat pantai" fetchpriority="high">
         <figcaption>
-          <span>WARISAN DALAM SETIAP BENANG</span>
+          <span>PELAN, TELITI, SEPENUH HATI</span>
           <h2>Tradisi yang terus hidup.</h2>
-          <small>Ragam tenun Nusantara · Foto ilustrasi</small>
+          <small>Proses menenun di Lombok · Foto ilustrasi</small>
         </figcaption>
       </figure>
     </section>
@@ -83,7 +87,7 @@
         <div class="container section-heading">
           <div>
             <span class="eyebrow">DARI TANGAN, SAMPAI KE HATI</span>
-            <h2>Pilihan dari rumah tenun</h2>
+            <h2>Helai pilihan, cerita istimewa.</h2>
           </div>
           <a class="text-link" href="koleksi.html">Lihat semua koleksi ↗</a>
         </div>
@@ -94,6 +98,19 @@
       </div>
     </section>
 
+    <section class="container story-section">
+      <figure class="story-photo">
+        <img src="assets/tenun.jpg" alt="Detail warna dan susunan benang pada kain tenun Lombok" loading="lazy">
+        <figcaption>Ragam kain tenun Lombok · Foto ilustrasi</figcaption>
+      </figure>
+      <div class="story-copy">
+        <span class="eyebrow">LEBIH DARI SEHELAI KAIN</span>
+        <h2>Ditenun perlahan.<br><em>Dirawat bersama.</em></h2>
+        <p>Di balik setiap motif, ada ketelitian dan pengetahuan yang diwariskan. Rantai Mawar menjadi ruang untuk merawat tradisi itu, sekaligus membuka kesempatan baru bagi perempuan penenun.</p>
+        <a class="text-link" href="tentang.html">Kenali rumah dan cerita kami ↗</a>
+        <div class="story-detail"><span>Tradisi yang hidup</span><span>Komunitas yang bertumbuh</span></div>
+      </div>
+    </section>
     <!-- BANNER RUANG BELAJAR -->
     <section class="container">
       <div class="learning-banner">
@@ -111,7 +128,7 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-col">
-        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
         <p>Merawat warisan tenun tradisional Nusantara dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
         <div class="footer-badge">✦ Ditenun Dengan Makna</div>
       </div>
@@ -165,10 +182,10 @@
   <dialog id="cart-dialog" aria-labelledby="cart-title">
     <button class="close-button" data-close aria-label="Tutup">×</button>
     <h2 id="cart-title">Tas belanja Anda</h2>
-    <p class="note">Pilih jumlah barang. Pembayaran dan pengiriman belum terhubung ke layanan otomatis.</p>
+    <p class="note">Pilih kain, periksa jumlah, lalu lanjutkan ke checkout.</p>
     <div id="cart-items"></div>
     <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
-    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <button id="checkout-button" class="primary">Lanjut ke checkout →</button>
     <div id="payment-panel" hidden>
       <label for="payment-method">Pilihan pembayaran</label>
       <select id="payment-method">

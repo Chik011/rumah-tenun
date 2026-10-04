@@ -6,16 +6,18 @@
   <meta name="description" content="Checkout kain tenun dari katalog Rantai Mawar.">
   <title>Checkout — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css?v=atelier-5">
+  <link rel="stylesheet" href="style.css?v=studio-1">
+  <link rel="stylesheet" href="studio.css?v=studio-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Langsung ke konten</a>
   <header class="header-wrapper">
     <div class="header">
-      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
@@ -37,11 +39,12 @@
     </div>
   </header>
 
-  <main class="container section checkout-page">
+  <main id="main-content" class="container section checkout-page">
     <a class="cart-back-link" href="keranjang.html">← Kembali ke tas</a>
     <span class="eyebrow">LANGKAH TERAKHIR</span>
-    <h1>Checkout.</h1>
-    <p class="intro">Lengkapi penerima, pilih cara bayar, lalu pantau proses pesanan Anda.</p>
+    <h1>Selangkah lagi,<br><em>menjadi milik Anda.</em></h1>
+    <p class="intro">Lengkapi alamat, lalu lanjutkan ke halaman pembayaran Xendit.</p>
+    <ol class="checkout-steps" aria-label="Langkah belanja"><li>Tas belanja</li><li aria-current="step">Detail pengiriman</li><li>Pembayaran</li></ol>
 
     <div id="checkout-login-required" class="checkout-message" hidden>
       <span class="eyebrow">AKUN DIPERLUKAN</span>
@@ -75,11 +78,12 @@
 
         <section class="checkout-section">
           <span class="eyebrow">02 / PEMBAYARAN</span>
-          <h2>Pilih metode pembayaran</h2>
+          <h2>Bayar dengan cara Anda</h2>
           <label class="payment-option"><input type="radio" name="payment-method" value="QRIS" checked><span><strong>QRIS</strong><small>Bank atau dompet digital</small></span></label>
-          <label class="payment-option"><input type="radio" name="payment-method" value="Transfer bank"><span><strong>Transfer bank</strong><small>Instruksi transfer ditampilkan setelah konfirmasi</small></span></label>
+          <label class="payment-option"><input type="radio" name="payment-method" value="Transfer bank"><span><strong>Transfer bank</strong><small>Virtual account pada bank yang tersedia</small></span></label>
           <label class="payment-option"><input type="radio" name="payment-method" value="Dompet digital"><span><strong>Dompet digital</strong><small>Pembayaran melalui aplikasi pilihan Anda</small></span></label>
-          <p class="notice checkout-demo-note">Pembayaran belum terhubung ke gateway. Order tercatat di sistem; konfirmasi pembayaran dilakukan manual oleh admin.</p>
+          <p class="payment-assurance">↗ Pembayaran melalui Xendit. Pilihan di atas adalah preferensi; metode akhir dipilih pada halaman pembayaran sesuai kanal yang tersedia.</p>
+          <p id="checkout-test-note" class="notice" hidden>Mode uji coba: pembayaran simulasi, tanpa pemotongan uang nyata.</p>
         </section>
       </form>
 
@@ -88,11 +92,11 @@
         <h2>Pesanan Anda</h2>
         <div id="checkout-items" class="checkout-items"></div>
         <div class="cart-summary-line"><span>Subtotal</span><strong id="checkout-subtotal"></strong></div>
-        <div class="cart-summary-line"><span>Pengiriman</span><span>Dikonfirmasi kemudian</span></div>
-        <div class="cart-summary-total"><span>Total sementara</span><strong id="checkout-total"></strong></div>
+        <div class="cart-summary-line"><span>Ongkir ditagihkan di sini</span><span>Rp0</span></div>
+        <div class="cart-summary-total"><span>Total pembayaran</span><strong id="checkout-total"></strong></div>
         <p id="checkout-submit-error" class="error" role="alert"></p>
-        <button id="checkout-submit" class="primary checkout-submit" type="submit" form="checkout-form">Buat pesanan <span aria-hidden="true">→</span></button>
-        <p class="note">Stok akan dikunci saat order dibuat dan dikembalikan jika admin membatalkannya.</p>
+        <button id="checkout-submit" class="primary checkout-submit" type="submit" form="checkout-form">Lanjut ke pembayaran <span aria-hidden="true">→</span></button>
+        <p class="note">Total ini mencakup produk saja. Biaya pengiriman tambahan, jika ada, harus disepakati dengan koperasi sebelum melanjutkan.</p>
       </aside>
     </div>
 
@@ -101,8 +105,7 @@
       <span class="eyebrow">PESANAN TERCATAT</span>
       <h2>Terima kasih sudah mendukung penenun.</h2>
       <p id="checkout-order-number" class="order-number"></p>
-      <p>Pesanan tersimpan dan menunggu pembayaran. Tidak ada uang yang diproses oleh situs ini.</p>
-      <p>Setelah membayar melalui cara yang disepakati dengan koperasi, laporkan dari dashboard agar admin dapat memeriksa pesanan.</p>
+      <p>Pesanan tersimpan. Lanjutkan pembayaran dari halaman status pesanan.</p>
       <a class="outline" href="akun.html">Lihat status pesanan</a>
       <a class="primary" href="koleksi.html">Kembali ke koleksi</a>
     </section>
@@ -111,7 +114,7 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-col">
-        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
         <p>Merawat warisan tenun tradisional Nusantara dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
         <div class="footer-badge">✦ Ditenun Dengan Makna</div>
       </div>

@@ -3,6 +3,12 @@
 // ============================================================
 const $ = id => document.getElementById(id);
 
+function tujuanLoginAman(value, fallback = 'akun.html') {
+  if (value === 'checkout.html') return value;
+  if (/^pembayaran\.html\?order=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value || '')) return value;
+  return fallback;
+}
+
 function rupiah(nilai) {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency', currency: 'IDR', maximumFractionDigits: 0
@@ -176,6 +182,10 @@ function initKeranjang() {
   const checkoutForm = $('checkout-form');
   if (!checkoutForm) return;
 
+  Backend.pembayaranXendit('ready').then(config => {
+    $('checkout-test-note').hidden = config.mode !== 'test';
+  }).catch(() => {});
+
   Backend.penggunaAktif().then(user => {
     const jumlahItem = Object.values(bacaKeranjang()).reduce((jumlah, banyak) => jumlah + banyak, 0);
     if (!jumlahItem) return;
@@ -190,31 +200,44 @@ function initKeranjang() {
     renderRingkasanCheckout();
   });
 
+  let submitting = false;
   checkoutForm.addEventListener('submit', async event => {
     event.preventDefault();
-    if (!checkoutForm.reportValidity()) return;
+    if (submitting || !checkoutForm.reportValidity()) return;
+    submitting = true;
     const submit = $('checkout-submit');
     const errorMessage = $('checkout-submit-error');
     submit.disabled = true;
+    submit.textContent = 'Menyiapkan pembayaran…';
     errorMessage.textContent = '';
     try {
-      const orderId = await Backend.buatPesanan({
+      await Backend.pembayaranXendit('ready');
+      const detail = {
         nama: $('checkout-customer-name').value,
         telepon: $('checkout-phone').value,
         alamat: $('checkout-address').value,
         metode: checkoutForm.querySelector('input[name="payment-method"]:checked').value
-      }, bacaKeranjang());
-      $('checkout-order-number').textContent = 'Nomor pesanan: ' + orderId.slice(0, 8).toUpperCase();
-      $('checkout-content').hidden = true;
-      $('checkout-success').hidden = false;
+      };
+      const cart = bacaKeranjang();
+      const fingerprint = JSON.stringify({ detail, cart });
+      let pending;
+      try { pending = JSON.parse(sessionStorage.getItem('rm_checkout_request')); } catch (_) {}
+      if (!pending || pending.fingerprint !== fingerprint) {
+        pending = { id: crypto.randomUUID(), fingerprint };
+        sessionStorage.setItem('rm_checkout_request', JSON.stringify(pending));
+      }
+      const orderId = await Backend.buatPesanan(detail, cart, pending.id);
+      // Once an order exists, retries happen on that order, never by making a second order.
       localStorage.removeItem(STORAGE_KEY_CART);
+      sessionStorage.removeItem('rm_checkout_request');
       updateBadgeKeranjang();
-      renderKeranjangHalaman();
-      renderRingkasanCheckout();
+      window.location.href = 'pembayaran.html?order=' + encodeURIComponent(orderId);
     } catch (error) {
       errorMessage.textContent = error.message || 'Pesanan gagal disimpan. Keranjang Anda tetap tersimpan.';
     } finally {
+      submitting = false;
       submit.disabled = false;
+      submit.textContent = 'Lanjut ke pembayaran →';
     }
   });
 }

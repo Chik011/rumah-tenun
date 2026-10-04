@@ -6,17 +6,19 @@
   <meta name="description" content="Ruang Anggota Koperasi Rantai Mawar.">
   <title>Ruang Anggota — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css?v=atelier-5">
+  <link rel="stylesheet" href="style.css?v=studio-1">
+  <link rel="stylesheet" href="studio.css?v=studio-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Langsung ke konten</a>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
     <div class="header">
-      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
@@ -38,7 +40,7 @@
     </div>
   </header>
 
-  <main class="container section">
+  <main id="main-content" class="container section">
     <div class="account-page">
       <span id="account-eyebrow" class="eyebrow">RUANG ANGGOTA</span>
       <h1 id="account-title">Akun Anda.</h1>
@@ -86,7 +88,7 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-col">
-        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
         <p>Merawat warisan tenun tradisional Nusantara dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
         <div class="footer-badge">✦ Ditenun Dengan Makna</div>
       </div>
@@ -131,7 +133,7 @@
     <p class="note">Keranjang lokal; order baru disimpan saat checkout.</p>
     <div id="cart-items"></div>
     <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
-    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <button id="checkout-button" class="primary">Lanjut ke checkout →</button>
     <div id="payment-panel" hidden>
       <label for="payment-method">Pilihan pembayaran</label>
       <select id="payment-method">
@@ -182,7 +184,7 @@
         waiting: 'Menunggu pembayaran',
         submitted: 'Menunggu konfirmasi admin',
         confirmed: 'Pembayaran dikonfirmasi',
-        rejected: 'Pembayaran ditolak'
+        rejected: 'Pembayaran berakhir / ditolak'
       }[status] || status);
       const labelStatusPesanan = status => ({
         awaiting_payment: 'Menunggu pembayaran',
@@ -215,7 +217,7 @@
           </section>
           <section class="workflow-section">
             <h3>Pesanan dan pembayaran</h3>
-            <p class="note">Pembayaran pada situs ini masih simulasi. Konfirmasi hanya mencatat status, bukan memproses uang.</p>
+            <p class="note">Pembayaran Xendit diverifikasi otomatis. Pesanan bertanda uji coba tidak memproses uang nyata. Konfirmasi manual hanya untuk pesanan lama.</p>
             <p id="admin-order-status" class="note" role="status"></p>
             <div id="admin-orders" class="workflow-list"></div>
           </section>
@@ -324,6 +326,7 @@
                 elemen('p', '', 'Metode: ' + order.payment_method + ' · Total: ' + rupiah(order.total)),
                 elemen('span', 'workflow-status', labelStatusPembayaran(order.payment_status) + ' · ' + labelStatusPesanan(order.order_status))
               );
+              if (order.payment_mode === 'test') details.append(elemen('p', 'payment-test', 'Uji coba · Tanpa uang nyata'));
               (order.order_items || []).forEach(item => {
                 details.append(elemen('p', 'workflow-order-item', item.item_name + ' × ' + item.quantity));
               });
@@ -343,10 +346,10 @@
                 });
                 actions.append(button);
               };
-              if (order.payment_status === 'submitted') {
+              if (order.payment_provider !== 'xendit' && order.payment_status === 'submitted') {
                 act('confirmed', 'checking', 'Konfirmasi pembayaran');
                 act('rejected', 'cancelled', 'Tolak dan batalkan');
-              } else if (order.payment_status === 'waiting' && order.order_status === 'awaiting_payment') {
+              } else if (order.payment_provider !== 'xendit' && order.payment_status === 'waiting' && order.order_status === 'awaiting_payment') {
                 act('rejected', 'cancelled', 'Batalkan pesanan');
               } else if (order.order_status === 'checking') {
                 act(order.payment_status, 'packaging', 'Lanjut ke pengemasan');
@@ -464,7 +467,7 @@
         });
       } else {
         roleTitle.textContent = 'Ruang Pembeli / Pelanggan';
-        roleDesc.textContent = 'Lihat status pembayaran dan pengiriman pesanan Anda. Konfirmasi pembayaran di sini masih berupa simulasi manual.';
+        roleDesc.textContent = 'Lihat perjalanan pesanan Anda, lanjutkan pembayaran, dan pantau pengirimannya.';
         roleExtra.innerHTML = `
           <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
             <a href="koleksi.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Mulai Belanja Tenun ↗</a>
@@ -502,8 +505,14 @@
                 details.append(elemen('p', 'workflow-order-item', item.item_name + ' × ' + item.quantity));
               });
               const actions = elemen('div', 'workflow-actions');
-              if (order.order_status === 'awaiting_payment' && ['waiting', 'rejected'].includes(order.payment_status)) {
-                const report = elemen('button', 'primary', 'Saya sudah membayar (simulasi)');
+              if (order.payment_mode === 'test') details.append(elemen('p', 'payment-test', 'Uji coba · Tanpa uang nyata'));
+              if (order.payment_provider === 'xendit' && order.order_status === 'awaiting_payment') {
+                const link = elemen('a', 'primary', 'Bayar / periksa status ↗');
+                link.href = 'pembayaran.html?order=' + encodeURIComponent(order.id);
+                actions.append(link);
+              }
+              if (order.payment_provider !== 'xendit' && order.order_status === 'awaiting_payment' && ['waiting', 'rejected'].includes(order.payment_status)) {
+                const report = elemen('button', 'primary', 'Laporkan pembayaran manual');
                 report.type = 'button';
                 report.addEventListener('click', async () => {
                   report.disabled = true;

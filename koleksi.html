@@ -6,17 +6,19 @@
   <meta name="description" content="Koleksi kain tenun tradisional Koperasi Rantai Mawar.">
   <title>Koleksi Tenun — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css?v=atelier-5">
+  <link rel="stylesheet" href="style.css?v=studio-1">
+  <link rel="stylesheet" href="studio.css?v=studio-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Langsung ke konten</a>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
     <div class="header">
-      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
@@ -38,17 +40,17 @@
     </div>
   </header>
 
-  <main class="container section">
+  <main id="main-content" class="container section">
     <span class="eyebrow">KOLEKSI TENUN</span>
     <h1>Temukan tenun<br><em>pilihan Anda.</em></h1>
     <p class="intro">Kenali motif, warna, dan cerita dalam setiap helai karya penenun lokal.</p>
 
-    <div style="margin-bottom: 25px;">
+    <div class="catalog-tools"><div>
       <label class="search-label" for="search">Cari nama kain tenun</label>
-      <input id="search" type="search" placeholder="Contoh: Tenun Mawar, Biru Pesisir...">
-    </div>
+      <input id="search" type="search" placeholder="Cari nama atau motif tenun…">
+    </div><span id="catalog-count" class="catalog-count" role="status"></span></div>
 
-    <p class="note">Produk baru tampil setelah diverifikasi koperasi. Pembayaran belum terhubung ke gateway.</p>
+    <p class="note">Produk baru tampil setelah diverifikasi koperasi. Lanjutkan pembayaran melalui Xendit saat checkout.</p>
 
     <div id="catalog-products" class="products"></div>
     <p id="search-empty" class="notice" hidden>Kain belum ditemukan. Coba kata kunci lain.</p>
@@ -58,7 +60,7 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-col">
-        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
         <p>Merawat warisan tenun tradisional Nusantara dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
         <div class="footer-badge">✦ Ditenun Dengan Makna</div>
       </div>
@@ -112,10 +114,10 @@
   <dialog id="cart-dialog" aria-labelledby="cart-title">
     <button class="close-button" data-close aria-label="Tutup">×</button>
     <h2 id="cart-title">Tas belanja Anda</h2>
-    <p class="note">Pilih jumlah barang. Order disimpan saat checkout; pembayaran masih manual.</p>
+    <p class="note">Pilih jumlah barang. Order disimpan saat checkout. Pembayaran dilanjutkan melalui Xendit.</p>
     <div id="cart-items"></div>
     <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
-    <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
+    <button id="checkout-button" class="primary">Lanjut ke checkout →</button>
     <div id="payment-panel" hidden>
       <label for="payment-method">Pilihan pembayaran</label>
       <select id="payment-method">
@@ -134,6 +136,7 @@
 
       function renderProduk(daftar) {
         const wadah = $('catalog-products');
+        $('catalog-count').textContent = daftar.length + ' helai dalam koleksi';
         wadah.replaceChildren();
         daftar.forEach(item => {
           const kartu = elemen('button', 'product');
@@ -180,13 +183,18 @@
 
       $('search').addEventListener('input', event => {
         const kata = event.target.value.toLowerCase().trim();
-        const hasil = semuaProduk.filter(item => item.nama.toLowerCase().includes(kata));
+        const hasil = semuaProduk.filter(item => [item.nama, item.motif, item.bahan].join(' ').toLowerCase().includes(kata));
         renderProduk(hasil);
         $('search-empty').hidden = hasil.length > 0;
       });
 
-      semuaProduk = await Backend.ambilProduk();
-      renderProduk(semuaProduk);
+      try {
+        semuaProduk = await Backend.ambilProduk();
+        renderProduk(semuaProduk);
+      } catch (_) {
+        $('search-empty').hidden = false;
+        $('search-empty').textContent = 'Koleksi belum dapat dimuat. Periksa koneksi Anda, lalu muat ulang halaman.';
+      }
     });
   </script>
 </body>

@@ -249,6 +249,11 @@ async function initNavigasiBersama() {
   // Mobile menu button
   const menuBtn = $('menu-button');
   const nav = $('navigation');
+  if (nav) {
+    const accountLink = elemen('a', 'mobile-account-link', 'Akun & pesanan ↗');
+    accountLink.href = 'akun.html';
+    nav.append(accountLink);
+  }
   if (menuBtn && nav) {
     menuBtn.addEventListener('click', () => {
       const terbuka = nav.classList.toggle('open');

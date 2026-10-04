@@ -21,6 +21,7 @@ h2 { letter-spacing: -.035em; font-size: clamp(2rem, 3.3vw, 3.4rem); }
 .brand small { font-size: .52rem; letter-spacing: .18em; }
 .brand-mark { display: inline-grid; place-items: center; width: 35px; height: 35px; border: 1px solid currentColor; border-radius: 50%; font-size: 24px; }
 nav { gap: 30px; }
+.mobile-account-link { display: none; }
 nav a { font-size: .76rem; padding: 10px 0; }
 nav a.active, nav a[aria-current=page] { border-color: var(--marun); color: var(--teks); }
 .icon-btn { background: transparent; border: 0; color: var(--hijau); box-shadow: none; }
@@ -151,6 +152,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
   .header-actions .primary { display: none; }
   .menu-button { grid-column: 2; min-height: 40px; padding: 7px 10px; font-size: .7rem; }
   nav { grid-column: 1 / -1; gap: 0; } nav a { padding: 12px; }
+  .mobile-account-link { display: block; }
   .hero { margin-top: 18px; width: 92%; grid-template-columns: 1fr; }
   .hero-copy { padding: 40px 8%; min-height: 0; }
   .hero-copy h1 { font-size: 3.7rem; } .hero-copy small { margin-top: 25px; font-size: .53rem; }

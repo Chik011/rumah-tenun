@@ -6,8 +6,9 @@
   <meta name="description" content="Koleksi kain tenun tradisional Koperasi Rantai Mawar.">
   <title>Koleksi Tenun — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=atelier-5">
   <script src="data.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
@@ -19,10 +20,9 @@
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
-        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="koleksi.html">Belanja Tenun</a>
         <a href="belajar.html">Ruang Belajar</a>
         <a href="tentang.html">Tentang Kami</a>
-        <a href="program.html">Program</a>
       </nav>
       <div class="header-actions">
         <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
@@ -48,7 +48,7 @@
       <input id="search" type="search" placeholder="Contoh: Tenun Mawar, Biru Pesisir...">
     </div>
 
-    <p class="note">Katalog contoh. Belum tersedia untuk transaksi penagihan nyata.</p>
+    <p class="note">Produk baru tampil setelah diverifikasi koperasi. Pembayaran belum terhubung ke gateway.</p>
 
     <div id="catalog-products" class="products"></div>
     <p id="search-empty" class="notice" hidden>Kain belum ditemukan. Coba kata kunci lain.</p>
@@ -68,7 +68,6 @@
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
           <li><a href="belajar.html">Ruang Belajar Digital</a></li>
-          <li><a href="program.html">Rencana Program</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -76,7 +75,7 @@
         <h4>Akses Anggota</h4>
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
-          <li><a href="register.html">Daftar Anggota Demo</a></li>
+          <li><a href="register.html">Daftar Akun Pembeli</a></li>
           <li><a href="akun.html">Ruang Dashboard</a></li>
           <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
         </ul>
@@ -90,7 +89,9 @@
     <div class="container footer-bottom">
       <span>© 2026 Rantai Mawar · Konsep Penelitian Transformasi Digital</span>
       <span>
-        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)
+        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Menenun_kain_khas_suku_Sasak.jpg" target="_blank" rel="noreferrer">Latar: Suryasriyama / Wikimedia Commons</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg" target="_blank" rel="noreferrer">Motif Mega Mendung: Gunarta / Wikimedia Commons</a> (CC BY-SA 4.0)
       </span>
     </div>
   </footer>
@@ -101,16 +102,17 @@
     <h2 id="product-title"></h2>
     <div id="product-photo" class="detail-photo" role="img"></div>
     <p id="product-description"></p>
+    <p id="product-specs" class="product-meta"></p>
+    <p id="product-seller" class="product-seller"></p>
     <strong id="product-price" class="price"></strong>
-    <p class="note">Bahan, ukuran, dan stok menunggu data resmi koperasi.</p>
-    <button id="add-cart" class="primary">Tambahkan ke tas contoh</button>
+    <button id="add-cart" class="primary">Tambahkan ke tas</button>
   </dialog>
 
   <!-- DIALOG TAS BELANJA BERSAMA -->
   <dialog id="cart-dialog" aria-labelledby="cart-title">
     <button class="close-button" data-close aria-label="Tutup">×</button>
     <h2 id="cart-title">Tas belanja Anda</h2>
-    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <p class="note">Pilih jumlah barang. Order disimpan saat checkout; pembayaran masih manual.</p>
     <div id="cart-items"></div>
     <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
     <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
@@ -136,9 +138,21 @@
         daftar.forEach(item => {
           const kartu = elemen('button', 'product');
           const foto = elemen('div', 'product-photo');
-          foto.style.backgroundPosition = item.posisi;
+          if (item.imageUrl) {
+            foto.style.backgroundImage = `url("${item.imageUrl}")`;
+            foto.style.backgroundSize = 'cover';
+            foto.style.backgroundPosition = 'center';
+          } else {
+            foto.style.backgroundPosition = item.posisi;
+          }
           foto.append(elemen('span', '', 'Tenun tradisional'));
-          kartu.append(foto, elemen('h3', '', item.nama), elemen('strong', '', rupiah(item.harga)));
+          kartu.append(foto, elemen('h3', '', item.nama));
+          const meta = [item.motif, item.ukuran].filter(Boolean).join(' · ');
+          if (meta) kartu.append(elemen('small', 'product-meta', meta));
+          kartu.append(
+            elemen('strong', '', rupiah(item.harga)),
+            elemen('small', 'product-seller', 'Stok ' + item.stok + ' · ' + (item.sellerName || 'Koperasi Rantai Mawar'))
+          );
           kartu.addEventListener('click', () => bukaDetail(item));
           wadah.append(kartu);
         });
@@ -148,18 +162,20 @@
         produkDipilih = item;
         $('product-title').textContent = item.nama;
         $('product-description').textContent = item.deskripsi;
+        $('product-specs').textContent = [item.motif, item.ukuran, item.bahan, 'Stok ' + item.stok].filter(Boolean).join(' · ');
         $('product-price').textContent = rupiah(item.harga);
-        $('product-photo').style.backgroundPosition = item.posisi;
+        $('product-photo').style.backgroundImage = item.imageUrl ? `url("${item.imageUrl}")` : '';
+        $('product-photo').style.backgroundSize = item.imageUrl ? 'cover' : '';
+        $('product-photo').style.backgroundPosition = item.imageUrl ? 'center' : item.posisi;
         $('product-photo').setAttribute('aria-label', 'Ilustrasi ' + item.nama);
+        $('product-seller').textContent = item.sellerName ? 'Penjual: ' + item.sellerName : 'Penjual: Koperasi Rantai Mawar';
         $('product-dialog').showModal();
       }
 
       $('add-cart').addEventListener('click', () => {
         if (!produkDipilih) return;
         tambahKeKeranjang(produkDipilih.id);
-        $('product-dialog').close();
-        tampilIsiKeranjang();
-        $('cart-dialog').showModal();
+        window.location.href = 'keranjang.html';
       });
 
       $('search').addEventListener('input', event => {

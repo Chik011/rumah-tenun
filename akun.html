@@ -6,8 +6,9 @@
   <meta name="description" content="Ruang Anggota Koperasi Rantai Mawar.">
   <title>Ruang Anggota — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=atelier-5">
   <script src="data.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
@@ -19,10 +20,9 @@
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
-        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="koleksi.html">Belanja Tenun</a>
         <a href="belajar.html">Ruang Belajar</a>
         <a href="tentang.html">Tentang Kami</a>
-        <a href="program.html">Program</a>
       </nav>
       <div class="header-actions">
         <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
@@ -45,8 +45,8 @@
       
       <div id="unauth-view" hidden>
         <div class="notice" style="border-left: 3px solid #702c3b;">
-          <p><strong>Anda belum masuk.</strong> Silakan masuk terlebih dahulu untuk mengakses ruang anggota atau menggunakan fitur login cepat.</p>
-          <a href="login.html" class="primary" style="margin-top: 15px;">Masuk / Akses Login Cepat ↗</a>
+          <p><strong>Anda belum masuk.</strong> Silakan masuk untuk mengakses ruang anggota.</p>
+          <a href="login.html" class="primary" style="margin-top: 15px;">Masuk ↗</a>
         </div>
       </div>
 
@@ -68,8 +68,8 @@
 
         <!-- FORM SIMPAN PROFIL -->
         <div style="background: white; border: 1px solid var(--garis); border-radius: 8px; padding: 28px; margin-bottom: 30px;">
-          <h2 style="font-size: 1.5rem; margin-top: 0;">Perbarui Profil Demo</h2>
-          <p class="note">Perubahan nama disimpan di browser Anda.</p>
+          <h2 style="font-size: 1.5rem; margin-top: 0;">Perbarui Profil</h2>
+          <p class="note">Nama tampilan disimpan pada profil Supabase Anda.</p>
           <form id="profile-form" style="margin-bottom: 0;">
             <label for="profile-name">Nama Tampilan</label>
             <input id="profile-name" required minlength="2" maxlength="80">
@@ -96,7 +96,6 @@
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
           <li><a href="belajar.html">Ruang Belajar Digital</a></li>
-          <li><a href="program.html">Rencana Program</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -104,7 +103,7 @@
         <h4>Akses Anggota</h4>
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
-          <li><a href="register.html">Daftar Anggota Demo</a></li>
+          <li><a href="register.html">Daftar Akun Pembeli</a></li>
           <li><a href="akun.html">Ruang Dashboard</a></li>
           <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
         </ul>
@@ -118,7 +117,9 @@
     <div class="container footer-bottom">
       <span>© 2026 Rantai Mawar · Konsep Penelitian Transformasi Digital</span>
       <span>
-        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)
+        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Menenun_kain_khas_suku_Sasak.jpg" target="_blank" rel="noreferrer">Latar: Suryasriyama / Wikimedia Commons</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg" target="_blank" rel="noreferrer">Motif Mega Mendung: Gunarta / Wikimedia Commons</a> (CC BY-SA 4.0)
       </span>
     </div>
   </footer>
@@ -127,7 +128,7 @@
   <dialog id="cart-dialog" aria-labelledby="cart-title">
     <button class="close-button" data-close aria-label="Tutup">×</button>
     <h2 id="cart-title">Tas belanja Anda</h2>
-    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
+    <p class="note">Keranjang lokal; order baru disimpan saat checkout.</p>
     <div id="cart-items"></div>
     <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
     <button id="checkout-button" class="primary">Coba alur pembayaran →</button>
@@ -172,34 +173,373 @@
       const roleDesc = $('role-description');
       const roleExtra = $('role-extra-content');
       $('role-panel').classList.add('role-panel-' + pengguna.peran.toLowerCase());
+      const labelStatusProduk = status => ({
+        pending: 'Menunggu verifikasi',
+        approved: 'Tayang di katalog',
+        needs_revision: 'Perlu perbaikan'
+      }[status] || status);
+      const labelStatusPembayaran = status => ({
+        waiting: 'Menunggu pembayaran',
+        submitted: 'Menunggu konfirmasi admin',
+        confirmed: 'Pembayaran dikonfirmasi',
+        rejected: 'Pembayaran ditolak'
+      }[status] || status);
+      const labelStatusPesanan = status => ({
+        awaiting_payment: 'Menunggu pembayaran',
+        checking: 'Pemeriksaan pesanan',
+        packaging: 'Pengemasan',
+        shipping: 'Dalam pengiriman',
+        delivered: 'Telah diterima',
+        completed: 'Selesai',
+        cancelled: 'Dibatalkan'
+      }[status] || status);
 
       if (pengguna.peran === 'Admin') {
         roleTitle.textContent = 'Panel Administrator Koperasi';
-        roleDesc.textContent = 'Anda memiliki hak akses administratif demo. Anda dapat meninjau rancangan program, mengontrol data katalog produk tenun, dan memantau akun anggota.';
+        roleDesc.textContent = 'Buat akun penjual resmi koperasi. Peran penjual ditetapkan oleh server dan tidak dapat dipilih saat pendaftaran.';
         roleExtra.innerHTML = `
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-            <a href="program.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Tinjau Rencana Anggaran & Program ↗</a>
-            <a href="koleksi.html" class="outline" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Kelola Katalog Tenun ↗</a>
-          </div>
+          <form id="create-seller-form" class="backend-form">
+            <label for="seller-name">Nama penjual</label>
+            <input id="seller-name" required minlength="2" maxlength="80" autocomplete="name">
+            <label for="seller-email">Email penjual</label>
+            <input id="seller-email" type="email" required maxlength="254" autocomplete="email">
+            <label for="seller-password">Kata sandi awal (minimal 10 karakter)</label>
+            <input id="seller-password" type="password" required minlength="10" maxlength="100" autocomplete="new-password">
+            <button class="primary" type="submit">Buat akun penjual</button>
+            <p id="create-seller-status" role="status" aria-live="polite"></p>
+          </form>
+          <section class="workflow-section">
+            <h3>Verifikasi produk penjual</h3>
+            <p id="admin-review-status" class="note" role="status"></p>
+            <div id="admin-product-review" class="workflow-list"></div>
+          </section>
+          <section class="workflow-section">
+            <h3>Pesanan dan pembayaran</h3>
+            <p class="note">Pembayaran pada situs ini masih simulasi. Konfirmasi hanya mencatat status, bukan memproses uang.</p>
+            <p id="admin-order-status" class="note" role="status"></p>
+            <div id="admin-orders" class="workflow-list"></div>
+          </section>
         `;
+        $('create-seller-form').addEventListener('submit', async event => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const status = $('create-seller-status');
+          const submit = form.querySelector('button[type="submit"]');
+          submit.disabled = true;
+          status.textContent = '';
+          try {
+            const seller = await Backend.buatAkunPenjual(
+              $('seller-email').value,
+              $('seller-password').value,
+              $('seller-name').value
+            );
+            form.reset();
+            status.textContent = 'Akun penjual dibuat: ' + seller.displayName + ' (' + seller.email + '). Sampaikan kata sandi awal secara aman.';
+          } catch (error) {
+            status.textContent = error.message || 'Gagal membuat akun penjual.';
+          } finally {
+            submit.disabled = false;
+          }
+        });
+
+        async function renderProductReview() {
+          const host = $('admin-product-review');
+          const status = $('admin-review-status');
+          host.replaceChildren();
+          status.textContent = '';
+          try {
+            const products = await Backend.produkPerluReview();
+            if (!products.length) {
+              status.textContent = 'Tidak ada produk yang menunggu pemeriksaan.';
+              return;
+            }
+            products.forEach(product => {
+              const card = elemen('article', 'workflow-card');
+              if (product.imageUrl) {
+                const image = elemen('img', 'workflow-thumb');
+                image.src = product.imageUrl;
+                image.alt = '';
+                card.append(image);
+              }
+              const details = elemen('div', 'workflow-details');
+              details.append(
+                elemen('strong', '', product.nama),
+                elemen('p', '', 'Penjual: ' + (product.sellerName || 'Penjual')),
+                elemen('p', '', 'Motif ' + product.motif + ' · ' + product.ukuran + ' · ' + product.bahan),
+                elemen('p', '', rupiah(product.harga) + ' · Stok ' + product.stok),
+                elemen('p', '', product.deskripsi),
+                elemen('span', 'workflow-status status-' + product.status, labelStatusProduk(product.status))
+              );
+              const note = elemen('textarea', 'workflow-review-note');
+              note.rows = 2;
+              note.maxLength = 300;
+              note.placeholder = 'Catatan untuk penjual jika perlu perbaikan';
+              note.value = product.catatanReview || '';
+              const actions = elemen('div', 'workflow-actions');
+              const approve = elemen('button', 'primary', 'Setujui dan tayangkan');
+              const revise = elemen('button', 'outline', 'Minta perbaikan');
+              approve.type = 'button';
+              revise.type = 'button';
+              const saveReview = async (nextStatus, button) => {
+                button.disabled = true;
+                status.textContent = '';
+                try {
+                  await Backend.ubahStatusProduk(product.id, nextStatus, note.value);
+                  await renderProductReview();
+                } catch (error) {
+                  status.textContent = error.message || 'Gagal menyimpan hasil review.';
+                  button.disabled = false;
+                }
+              };
+              approve.addEventListener('click', () => saveReview('approved', approve));
+              revise.addEventListener('click', () => saveReview('needs_revision', revise));
+              actions.append(approve, revise);
+              details.append(note, actions);
+              card.append(details);
+              host.append(card);
+            });
+          } catch (error) {
+            status.textContent = error.message || 'Gagal memuat antrean produk.';
+          }
+        }
+
+        async function renderAdminOrders() {
+          const host = $('admin-orders');
+          const status = $('admin-order-status');
+          host.replaceChildren();
+          status.textContent = '';
+          try {
+            const orders = await Backend.semuaPesanan();
+            if (!orders.length) {
+              status.textContent = 'Belum ada pesanan masuk.';
+              return;
+            }
+            orders.forEach(order => {
+              const card = elemen('article', 'workflow-card order-workflow-card');
+              const details = elemen('div', 'workflow-details');
+              details.append(
+                elemen('strong', '', 'Pesanan #' + order.id.slice(0, 8)),
+                elemen('p', '', order.buyer_name + ' · ' + order.phone),
+                elemen('p', '', order.shipping_address),
+                elemen('p', '', 'Metode: ' + order.payment_method + ' · Total: ' + rupiah(order.total)),
+                elemen('span', 'workflow-status', labelStatusPembayaran(order.payment_status) + ' · ' + labelStatusPesanan(order.order_status))
+              );
+              (order.order_items || []).forEach(item => {
+                details.append(elemen('p', 'workflow-order-item', item.item_name + ' × ' + item.quantity));
+              });
+              const actions = elemen('div', 'workflow-actions');
+              const act = async (paymentStatus, orderStatus, text) => {
+                const button = elemen('button', 'outline', text);
+                button.type = 'button';
+                button.addEventListener('click', async () => {
+                  button.disabled = true;
+                  try {
+                    await Backend.ubahStatusPesanan(order.id, paymentStatus, orderStatus);
+                    await renderAdminOrders();
+                  } catch (error) {
+                    status.textContent = error.message || 'Gagal memperbarui pesanan.';
+                    button.disabled = false;
+                  }
+                });
+                actions.append(button);
+              };
+              if (order.payment_status === 'submitted') {
+                act('confirmed', 'checking', 'Konfirmasi pembayaran');
+                act('rejected', 'cancelled', 'Tolak dan batalkan');
+              } else if (order.payment_status === 'waiting' && order.order_status === 'awaiting_payment') {
+                act('rejected', 'cancelled', 'Batalkan pesanan');
+              } else if (order.order_status === 'checking') {
+                act(order.payment_status, 'packaging', 'Lanjut ke pengemasan');
+              } else if (order.order_status === 'packaging') {
+                act(order.payment_status, 'shipping', 'Tandai dikirim');
+              } else if (order.order_status === 'shipping') {
+                act(order.payment_status, 'delivered', 'Tandai telah diterima');
+              }
+              card.append(details, actions);
+              host.append(card);
+            });
+          } catch (error) {
+            status.textContent = error.message || 'Gagal memuat pesanan.';
+          }
+        }
+
+        await renderProductReview();
+        await renderAdminOrders();
       } else if (pengguna.peran === 'Penjual') {
         roleTitle.textContent = 'Ruang Pengrajin & Penjual Tenun';
-        roleDesc.textContent = 'Selamat berkarya! Di ruang penjual ini Anda dapat melihat produk karya tenun yang dipajang di etalase digital serta simulasi pesanan masuk.';
+        roleDesc.textContent = 'Tambahkan produk karya Anda. Gambar disimpan di Cloudinary dan detail produk serta pemiliknya disimpan di Supabase.';
         roleExtra.innerHTML = `
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-            <a href="koleksi.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Cek Produk Anda di Katalog ↗</a>
-            <a href="belajar.html" class="outline" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Modul Foto Produk Ponsel ↗</a>
-          </div>
+          <form id="seller-product-form" class="backend-form">
+            <label for="product-name">Nama produk</label>
+            <input id="product-name" required minlength="2" maxlength="120">
+            <label for="product-motif">Motif</label>
+            <input id="product-motif" required maxlength="100">
+            <label for="product-size">Ukuran</label>
+            <input id="product-size" required maxlength="80" placeholder="Contoh: 200 × 110 cm">
+            <label for="product-material">Bahan</label>
+            <input id="product-material" required maxlength="100">
+            <label for="product-price">Harga (rupiah)</label>
+            <input id="product-price" type="number" required min="1" step="1000">
+            <label for="product-stock">Stok tersedia</label>
+            <input id="product-stock" type="number" required min="1" step="1">
+            <label for="product-description">Deskripsi</label>
+            <textarea id="product-description" required minlength="5" maxlength="1000" rows="4"></textarea>
+            <label for="product-image">Gambar produk</label>
+            <input id="product-image" type="file" accept="image/jpeg,image/png,image/webp" required>
+            <button class="primary" type="submit">Kirim untuk verifikasi</button>
+            <p id="seller-product-status" role="status" aria-live="polite"></p>
+          </form>
+          <h3>Produk milik Anda</h3>
+          <div id="seller-products" class="seller-product-list"></div>
         `;
+        const productForm = $('seller-product-form');
+        const sellerProducts = $('seller-products');
+        async function renderSellerProducts() {
+          sellerProducts.replaceChildren();
+          const sellerList = await Backend.ambilProduk();
+          sellerList.filter(item => item.sellerId === pengguna.id).forEach(item => {
+            const row = elemen('article', 'seller-product-row');
+            if (item.imageUrl) {
+              const image = elemen('img', 'seller-product-thumb');
+              image.src = item.imageUrl;
+              image.alt = '';
+              row.append(image);
+            }
+            const details = elemen('div');
+            details.append(
+              elemen('strong', '', item.nama),
+              elemen('p', '', 'Motif ' + item.motif + ' · ' + item.ukuran + ' · ' + item.bahan),
+              elemen('p', '', rupiah(item.harga) + ' · Stok ' + item.stok),
+              elemen('span', 'workflow-status status-' + item.status, labelStatusProduk(item.status))
+            );
+            if (item.catatanReview) details.append(elemen('p', 'workflow-note', 'Catatan admin: ' + item.catatanReview));
+            if (item.status === 'needs_revision') {
+              const edit = elemen('button', 'outline', 'Perbaiki dan kirim ulang');
+              edit.type = 'button';
+              edit.addEventListener('click', () => {
+                productForm.dataset.editingId = item.id;
+                $('product-name').value = item.nama;
+                $('product-motif').value = item.motif;
+                $('product-size').value = item.ukuran;
+                $('product-material').value = item.bahan;
+                $('product-price').value = item.harga;
+                $('product-stock').value = item.stok;
+                $('product-description').value = item.deskripsi;
+                $('seller-product-status').textContent = 'Perbarui data sesuai catatan admin, pilih foto terbaru, lalu kirim ulang.';
+                productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              });
+              details.append(edit);
+            }
+            row.append(details);
+            sellerProducts.append(row);
+          });
+        }
+        await renderSellerProducts();
+        productForm.addEventListener('submit', async event => {
+          event.preventDefault();
+          const status = $('seller-product-status');
+          const submit = productForm.querySelector('button[type="submit"]');
+          const image = $('product-image').files[0];
+          submit.disabled = true;
+          status.textContent = '';
+          try {
+            await Backend.unggahProduk(image, {
+              nama: $('product-name').value,
+              motif: $('product-motif').value,
+              ukuran: $('product-size').value,
+              bahan: $('product-material').value,
+              harga: $('product-price').value,
+              stok: $('product-stock').value,
+              deskripsi: $('product-description').value
+            }, productForm.dataset.editingId);
+            delete productForm.dataset.editingId;
+            productForm.reset();
+            await renderSellerProducts();
+            status.textContent = 'Produk dikirim ke admin untuk diverifikasi. Produk belum tampil di katalog.';
+          } catch (error) {
+            status.textContent = error.message || 'Gagal mengunggah produk.';
+          } finally {
+            submit.disabled = false;
+          }
+        });
       } else {
         roleTitle.textContent = 'Ruang Pembeli / Pelanggan';
-        roleDesc.textContent = 'Jelajahi keindahan kain tenun asli Nusantara dari perajin perempuan Rantai Mawar dan nikmati kemudahan simulasi pembayaran digital.';
+        roleDesc.textContent = 'Lihat status pembayaran dan pengiriman pesanan Anda. Konfirmasi pembayaran di sini masih berupa simulasi manual.';
         roleExtra.innerHTML = `
           <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
             <a href="koleksi.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Mulai Belanja Tenun ↗</a>
             <button onclick="$('cart-button').click()" class="outline" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Buka Tas Belanja</button>
           </div>
+          <section class="workflow-section">
+            <h3>Pesanan saya</h3>
+            <p id="buyer-order-status" class="note" role="status"></p>
+            <div id="buyer-orders" class="workflow-list"></div>
+          </section>
         `;
+      }
+
+      if (pengguna.peran === 'Pembeli') {
+        async function renderBuyerOrders() {
+          const host = $('buyer-orders');
+          const status = $('buyer-order-status');
+          host.replaceChildren();
+          status.textContent = '';
+          try {
+            const orders = await Backend.pesananSaya();
+            if (!orders.length) {
+              status.textContent = 'Pesanan Anda akan muncul di sini setelah checkout.';
+              return;
+            }
+            orders.forEach(order => {
+              const card = elemen('article', 'workflow-card');
+              const details = elemen('div', 'workflow-details');
+              details.append(
+                elemen('strong', '', 'Pesanan #' + order.id.slice(0, 8)),
+                elemen('p', '', 'Total ' + rupiah(order.total) + ' · ' + order.payment_method),
+                elemen('span', 'workflow-status', labelStatusPembayaran(order.payment_status) + ' · ' + labelStatusPesanan(order.order_status))
+              );
+              (order.order_items || []).forEach(item => {
+                details.append(elemen('p', 'workflow-order-item', item.item_name + ' × ' + item.quantity));
+              });
+              const actions = elemen('div', 'workflow-actions');
+              if (order.order_status === 'awaiting_payment' && ['waiting', 'rejected'].includes(order.payment_status)) {
+                const report = elemen('button', 'primary', 'Saya sudah membayar (simulasi)');
+                report.type = 'button';
+                report.addEventListener('click', async () => {
+                  report.disabled = true;
+                  try {
+                    await Backend.laporPembayaran(order.id);
+                    await renderBuyerOrders();
+                  } catch (error) {
+                    status.textContent = error.message || 'Gagal melaporkan pembayaran.';
+                    report.disabled = false;
+                  }
+                });
+                actions.append(report);
+              }
+              if (order.order_status === 'delivered' && order.payment_status === 'confirmed') {
+                const received = elemen('button', 'primary', 'Konfirmasi produk diterima');
+                received.type = 'button';
+                received.addEventListener('click', async () => {
+                  received.disabled = true;
+                  try {
+                    await Backend.ubahStatusPesanan(order.id, 'confirmed', 'completed');
+                    await renderBuyerOrders();
+                  } catch (error) {
+                    status.textContent = error.message || 'Gagal menyelesaikan pesanan.';
+                    received.disabled = false;
+                  }
+                });
+                actions.append(received);
+              }
+              card.append(details, actions);
+              host.append(card);
+            });
+          } catch (error) {
+            status.textContent = error.message || 'Gagal memuat pesanan.';
+          }
+        }
+        await renderBuyerOrders();
       }
 
       $('profile-form').addEventListener('submit', async event => {
@@ -208,7 +548,7 @@
           const updated = await Backend.simpanProfil($('profile-name').value);
           $('account-info').textContent = 'Selamat datang, ' + updated.nama + ' (@' + updated.username + ')';
           $('profile-message').style.color = '#2a5a52';
-          $('profile-message').textContent = '✓ Profil berhasil diperbarui.';
+          $('profile-message').textContent = 'Profil berhasil diperbarui.';
         } catch (err) {
           $('profile-message').style.color = '#a21e32';
           $('profile-message').textContent = err.message || 'Gagal menyimpan profil.';

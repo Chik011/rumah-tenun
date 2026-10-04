@@ -20,6 +20,7 @@ function elemen(tag, kelas, teks) {
 // SISTEM KERANJANG PERSISTEN (LOCALSTORAGE)
 // ============================================================
 const STORAGE_KEY_CART = 'rm_cart_items';
+let katalogProduk = [];
 
 function bacaKeranjang() {
   try {
@@ -62,7 +63,8 @@ function ubahJumlahKeranjang(id, delta) {
     keranjang[id] = baru;
   }
   simpanKeranjang(keranjang);
-  tampilIsiKeranjang();
+  renderKeranjangHalaman();
+  renderRingkasanCheckout();
 }
 
 function tambahKeKeranjang(id) {
@@ -71,18 +73,13 @@ function tambahKeKeranjang(id) {
   simpanKeranjang(keranjang);
 }
 
-function tampilIsiKeranjang() {
-  const wadah = $('cart-items');
+function renderKeranjangHalaman() {
+  const wadah = $('cart-page-items');
   if (!wadah) return;
   wadah.replaceChildren();
 
-  // Reset notice login & payment panel setiap buka tas
-  const loginNotice = $('checkout-login-notice');
-  if (loginNotice) loginNotice.hidden = true;
-  if ($('payment-panel')) $('payment-panel').hidden = true;
-
   const keranjang = bacaKeranjang();
-  const daftarProduk = typeof produkContoh !== 'undefined' ? produkContoh : [];
+  const daftarProduk = katalogProduk;
   let jumlah = 0;
   let total = 0;
 
@@ -92,108 +89,140 @@ function tampilIsiKeranjang() {
     jumlah += banyak;
     total += banyak * item.harga;
 
-    const baris = elemen('div', 'cart-row');
-    const info = elemen('div');
-    info.append(elemen('strong', '', item.nama), elemen('p', '', rupiah(item.harga)));
-    const kontrol = elemen('div', 'quantity');
+    const baris = elemen('article', 'cart-page-row');
+    const foto = elemen('div', 'cart-page-photo');
+    if (item.imageUrl) {
+      foto.style.backgroundImage = `url("${item.imageUrl}")`;
+      foto.style.backgroundSize = 'cover';
+      foto.style.backgroundPosition = 'center';
+    } else {
+      foto.style.backgroundPosition = item.posisi;
+    }
+    foto.setAttribute('role', 'img');
+    foto.setAttribute('aria-label', 'Ilustrasi ' + item.nama);
+
+    const info = elemen('div', 'cart-page-info');
+    info.append(elemen('h2', '', item.nama), elemen('p', '', rupiah(item.harga) + ' / kain'));
+    if (item.sellerName) info.append(elemen('p', 'product-seller', 'Penjual: ' + item.sellerName));
+
+    const kontrol = elemen('div', 'quantity cart-page-quantity');
     const kurang = elemen('button', '', '−');
     const tambah = elemen('button', '', '+');
+    const hapus = elemen('button', 'cart-remove', 'Hapus');
+    kurang.type = 'button';
+    tambah.type = 'button';
+    hapus.type = 'button';
     kurang.setAttribute('aria-label', 'Kurangi ' + item.nama);
     tambah.setAttribute('aria-label', 'Tambah ' + item.nama);
     kurang.addEventListener('click', () => ubahJumlahKeranjang(item.id, -1));
     tambah.addEventListener('click', () => ubahJumlahKeranjang(item.id, 1));
-    kontrol.append(kurang, elemen('span', '', banyak), tambah);
-    baris.append(info, kontrol);
+    hapus.addEventListener('click', () => ubahJumlahKeranjang(item.id, -banyak));
+    kontrol.append(kurang, elemen('span', '', banyak), tambah, hapus);
+
+    baris.append(foto, info, kontrol, elemen('strong', 'cart-page-line-total', rupiah(banyak * item.harga)));
     wadah.append(baris);
   });
 
-  if (!jumlah) {
-    wadah.append(elemen('p', '', 'Tas masih kosong. Silakan pilih kain dari halaman koleksi.'));
-  }
-
-  if ($('cart-count')) $('cart-count').textContent = jumlah;
-  if ($('cart-total')) $('cart-total').textContent = rupiah(total);
-  if ($('checkout-button')) $('checkout-button').disabled = jumlah === 0;
+  const kosong = $('cart-page-empty');
+  const layout = $('cart-page-layout');
+  if (kosong) kosong.hidden = jumlah > 0;
+  if (layout) layout.hidden = jumlah === 0;
+  if ($('cart-page-count')) $('cart-page-count').textContent = `${jumlah} kain`;
+  if ($('cart-page-subtotal')) $('cart-page-subtotal').textContent = rupiah(total);
+  if ($('cart-page-total')) $('cart-page-total').textContent = rupiah(total);
 }
 
-function initKeranjangDialog() {
+function renderRingkasanCheckout() {
+  const wadah = $('checkout-items');
+  if (!wadah) return;
+  wadah.replaceChildren();
+
+  const keranjang = bacaKeranjang();
+  const daftarProduk = katalogProduk;
+  let jumlah = 0;
+  let total = 0;
+
+  daftarProduk.forEach(item => {
+    const banyak = keranjang[item.id] || 0;
+    if (!banyak) return;
+    jumlah += banyak;
+    total += banyak * item.harga;
+    const baris = elemen('div', 'checkout-item');
+    baris.append(
+      elemen('span', '', `${item.nama} × ${banyak}`),
+      elemen('strong', '', rupiah(item.harga * banyak))
+    );
+    wadah.append(baris);
+  });
+
+  if ($('checkout-subtotal')) $('checkout-subtotal').textContent = rupiah(total);
+  if ($('checkout-total')) $('checkout-total').textContent = rupiah(total);
+  if ($('checkout-submit')) $('checkout-submit').disabled = jumlah === 0;
+  if ($('checkout-empty')) $('checkout-empty').hidden = jumlah > 0;
+  if ($('checkout-content')) $('checkout-content').hidden = jumlah === 0;
+}
+
+function initKeranjang() {
   const tombolTas = $('cart-button');
-  const dialogTas = $('cart-dialog');
-  if (tombolTas && dialogTas) {
+  if (tombolTas) {
     tombolTas.addEventListener('click', () => {
-      tampilIsiKeranjang();
-      dialogTas.showModal();
+      window.location.href = 'keranjang.html';
     });
   }
 
-  const tombolCheckout = $('checkout-button');
-  if (tombolCheckout) {
-    tombolCheckout.addEventListener('click', async () => {
-      // WAJIB LOGIN DULU SEBELUM CHECKOUT
-      const user = await Backend.penggunaAktif();
-      let loginNotice = $('checkout-login-notice');
+  renderKeranjangHalaman();
+  renderRingkasanCheckout();
 
-      if (!user) {
-        // Buat atau tampilkan notice jika belum ada
-        if (!loginNotice) {
-          loginNotice = elemen('div', 'notice');
-          loginNotice.id = 'checkout-login-notice';
-          loginNotice.style.cssText = 'margin-top: 18px; border-left: 3px solid #702c3b; background: #fdf5f6;';
-          loginNotice.innerHTML = `
-            <p style="margin: 0 0 10px; color: #54212c;"><strong>🔒 Wajib Masuk Akun:</strong> Anda harus masuk terlebih dahulu untuk melanjutkan proses pembayaran tenun.</p>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-              <a href="login.html" class="primary" style="font-size: 0.85rem; min-height: 38px; padding: 6px 14px;">Masuk / Login Cepat ↗</a>
-              <a href="register.html" class="outline" style="font-size: 0.85rem; min-height: 38px; padding: 6px 14px;">Daftar Demo</a>
-            </div>
-          `;
-          $('cart-dialog').append(loginNotice);
-        }
-        loginNotice.hidden = false;
-        if ($('payment-panel')) $('payment-panel').hidden = true;
-        loginNotice.scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
+  const checkoutForm = $('checkout-form');
+  if (!checkoutForm) return;
 
-      // Jika sudah login, izinkan alur checkout
-      if (loginNotice) loginNotice.hidden = true;
-      if ($('payment-panel')) {
-        $('payment-panel').hidden = false;
-        tampilPembayaranSimulasi(user);
-        $('payment-panel').scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }
+  Backend.penggunaAktif().then(user => {
+    const jumlahItem = Object.values(bacaKeranjang()).reduce((jumlah, banyak) => jumlah + banyak, 0);
+    if (!jumlahItem) return;
+    if (!user || user.peran === 'Guest') {
+      $('checkout-login-required').hidden = false;
+      $('checkout-content').hidden = true;
+      return;
+    }
+    $('checkout-customer-name').value = user.nama;
+    $('checkout-login-required').hidden = true;
+    $('checkout-content').hidden = false;
+    renderRingkasanCheckout();
+  });
 
-  const pilihanBayar = $('payment-method');
-  if (pilihanBayar) {
-    pilihanBayar.addEventListener('change', async () => {
-      const user = await Backend.penggunaAktif();
-      tampilPembayaranSimulasi(user);
-    });
-  }
-}
-
-function tampilPembayaranSimulasi(user) {
-  const select = $('payment-method');
-  const desc = $('payment-description');
-  if (!select || !desc) return;
-  const cara = select.value;
-  const namaPemesan = user ? `${user.nama} (${user.peran})` : 'Tamu';
-  const penjelasan = {
-    'QRIS': 'Pindai kode QRIS resmi koperasi melalui aplikasi bank atau dompet digital Anda.',
-    'Transfer bank': 'Periksa nomor rekening tujuan, nama penerima Koperasi Rantai Mawar, dan nominal.',
-    'Dompet digital': 'Periksa saldo dan konfirmasi notifikasi tagihan pada dompet digital Anda.'
-  };
-  desc.innerHTML = `
-    <strong>Pemesan Terkonfirmasi:</strong> ${namaPemesan}<br>
-    ${penjelasan[cara] || ''} <em>(Ini simulasi; transaksi tidak melakukan penagihan riil).</em>
-  `;
+  checkoutForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!checkoutForm.reportValidity()) return;
+    const submit = $('checkout-submit');
+    const errorMessage = $('checkout-submit-error');
+    submit.disabled = true;
+    errorMessage.textContent = '';
+    try {
+      const orderId = await Backend.buatPesanan({
+        nama: $('checkout-customer-name').value,
+        telepon: $('checkout-phone').value,
+        alamat: $('checkout-address').value,
+        metode: checkoutForm.querySelector('input[name="payment-method"]:checked').value
+      }, bacaKeranjang());
+      $('checkout-order-number').textContent = 'Nomor pesanan: ' + orderId.slice(0, 8).toUpperCase();
+      $('checkout-content').hidden = true;
+      $('checkout-success').hidden = false;
+      localStorage.removeItem(STORAGE_KEY_CART);
+      updateBadgeKeranjang();
+      renderKeranjangHalaman();
+      renderRingkasanCheckout();
+    } catch (error) {
+      errorMessage.textContent = error.message || 'Pesanan gagal disimpan. Keranjang Anda tetap tersimpan.';
+    } finally {
+      submit.disabled = false;
+    }
+  });
 }
 
 // ============================================================
 // HEADER & NAVIGASI STICKY BERSAMA (ICON TAS & ICON USER)
 // ============================================================
-function initNavigasiBersama() {
+async function initNavigasiBersama() {
   // Mobile menu button
   const menuBtn = $('menu-button');
   const nav = $('navigation');
@@ -243,7 +272,6 @@ function initNavigasiBersama() {
   }
 
   updateBadgeKeranjang();
-  initKeranjangDialog();
 }
 
 async function setupHeaderActions() {
@@ -252,11 +280,11 @@ async function setupHeaderActions() {
 
   const user = await Backend.penggunaAktif();
   const navigation = $('navigation');
-  if (navigation && user && user.peran !== 'Pembeli') {
+  const isStaff = user && ['Admin', 'Penjual'].includes(user.peran);
+  if (navigation && isStaff) {
     const linksByRole = {
       Admin: [
         ['akun.html', 'Dashboard Admin'],
-        ['program.html', 'Program'],
         ['koleksi.html', 'Katalog']
       ],
       Penjual: [
@@ -298,7 +326,7 @@ async function setupHeaderActions() {
   } else {
     cartBtn.className = 'icon-btn';
   }
-  cartBtn.hidden = Boolean(user && user.peran !== 'Pembeli');
+  cartBtn.hidden = Boolean(isStaff);
   cartBtn.setAttribute('aria-label', 'Tas Belanja');
   cartBtn.setAttribute('title', 'Buka Tas Belanja');
   cartBtn.innerHTML = `
@@ -406,8 +434,13 @@ async function setupHeaderActions() {
     }
   }
 
+  try {
+    katalogProduk = await Backend.ambilProduk();
+  } catch (error) {
+    console.error('Gagal memuat katalog untuk keranjang:', error);
+  }
   updateBadgeKeranjang();
-  initKeranjangDialog();
+  initKeranjang();
 }
 
-document.addEventListener('DOMContentLoaded', initNavigasiBersama);
+document.addEventListener('DOMContentLoaded', () => initNavigasiBersama());

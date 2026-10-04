@@ -29,7 +29,7 @@ function elemen(tag, kelas, teks) {
 // ============================================================
 function tampilHalaman() {
   let tujuan = location.hash.slice(1) || 'beranda';
-  const daftarHalaman = ['beranda', 'koleksi', 'belajar', 'tentang', 'program', 'akun'];
+  const daftarHalaman = ['beranda', 'koleksi', 'belajar', 'tentang', 'akun'];
   if (!daftarHalaman.includes(tujuan)) tujuan = 'beranda';
   if (tujuan === 'akun' && !pengguna) {
     tujuan = 'beranda';
@@ -283,11 +283,6 @@ async function mulai() {
       $('lesson-dialog').showModal();
     });
     $('lesson-list').append(kartu);
-  });
-  anggaran.forEach(item => {
-    const baris = elemen('tr');
-    baris.append(elemen('td', '', item[0]), elemen('td', '', rupiah(item[1])));
-    $('budget-body').append(baris);
   });
   try {
     produk = await Backend.ambilProduk();

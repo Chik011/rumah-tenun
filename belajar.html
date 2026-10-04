@@ -6,8 +6,9 @@
   <meta name="description" content="Ruang belajar digital Koperasi Rantai Mawar.">
   <title>Ruang Belajar — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=atelier-5">
   <script src="data.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
@@ -19,10 +20,9 @@
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
-        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="koleksi.html">Belanja Tenun</a>
         <a href="belajar.html">Ruang Belajar</a>
         <a href="tentang.html">Tentang Kami</a>
-        <a href="program.html">Program</a>
       </nav>
       <div class="header-actions">
         <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
@@ -68,7 +68,6 @@
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
           <li><a href="belajar.html">Ruang Belajar Digital</a></li>
-          <li><a href="program.html">Rencana Program</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -76,7 +75,7 @@
         <h4>Akses Anggota</h4>
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
-          <li><a href="register.html">Daftar Anggota Demo</a></li>
+          <li><a href="register.html">Daftar Akun Pembeli</a></li>
           <li><a href="akun.html">Ruang Dashboard</a></li>
           <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
         </ul>
@@ -90,7 +89,9 @@
     <div class="container footer-bottom">
       <span>© 2026 Rantai Mawar · Konsep Penelitian Transformasi Digital</span>
       <span>
-        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)
+        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Menenun_kain_khas_suku_Sasak.jpg" target="_blank" rel="noreferrer">Latar: Suryasriyama / Wikimedia Commons</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg" target="_blank" rel="noreferrer">Motif Mega Mendung: Gunarta / Wikimedia Commons</a> (CC BY-SA 4.0)
       </span>
     </div>
   </footer>
@@ -127,9 +128,17 @@
   </dialog>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       let materiDipilih = 0;
       let langkahAktif = 0;
+      let materiBelajar;
+
+      try {
+        materiBelajar = await Backend.ambilMateri();
+      } catch (error) {
+        $('lesson-list').textContent = 'Materi belum dapat dimuat: ' + error.message;
+        return;
+      }
 
       function renderLangkah() {
         const materi = materiBelajar[materiDipilih];

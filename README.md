@@ -1,15 +1,13 @@
 # Rantai Mawar — HTML, CSS, dan JavaScript sederhana
 
-Versi 28 September 2026. Tanpa React, TypeScript, npm, SQL, atau framework.
+Website HTML/CSS/JavaScript dengan Supabase Auth dan database. Upload foto seller memakai Cloudinary.
 
 ## Cara membuka
 
-1. Ekstrak ZIP.
-2. Buka folder `rantai-mawar-html`.
-3. Klik dua kali `index.html` untuk membuka website di browser modern.
-4. Untuk mengedit, buka folder ini di VS Code. Live Server boleh digunakan, tetapi tidak wajib.
+1. Jalankan website melalui Live Server atau server HTTP lain; Supabase Auth tidak berjalan dari `file://`.
+2. Untuk mengedit, buka folder ini di VS Code.
 
-Semua gambar, CSS, dan JavaScript sudah ada di folder ini. Tidak perlu internet untuk mencoba demo.
+Website memerlukan koneksi internet untuk Supabase dan Cloudinary.
 
 ## Mulai membaca kode dari sini
 
@@ -19,65 +17,46 @@ Semua gambar, CSS, dan JavaScript sudah ada di folder ini. Tidak perlu internet 
 | `koleksi.html` | Halaman Koleksi Tenun (katalog produk lengkap, pencarian motif). |
 | `belajar.html` | Halaman Ruang Belajar (panduan digital bertahap, perbesar font). |
 | `tentang.html` | Halaman Tentang Kami (profil dan misi Koperasi Rantai Mawar). |
-| `program.html` | Halaman Program Penelitian (timeline, rincian anggaran, cetak surat mitra). |
-| `login.html` | Halaman Masuk dengan Akses Login Cepat (1-Klik) Admin, User, dan Penjual. |
-| `register.html` | Halaman Pendaftaran Akun Demo Baru. |
-| `akun.html` | Ruang Anggota & Dashboard sesuai peran (Admin, Penjual, Pembeli). |
+| `login.html` | Masuk dengan email Supabase Auth atau lanjut sebagai Guest. |
+| `register.html` | Pendaftaran akun Pembeli. Akun Penjual dibuat oleh Admin. |
+| `akun.html` | Dashboard, pembuatan akun seller oleh admin, upload produk seller. |
+| `keranjang.html` | Halaman tas belanja dengan kontrol jumlah dan ringkasan. |
+| `checkout.html` | Halaman checkout demo dengan data penerima dan metode pembayaran. |
 | `style.css` | Styling desain, warna, tata letak, dan navbar sticky. |
-| `common.js` | Helper navigasi sticky, sinkronisasi sesi & tas belanja di localStorage. |
-| `data.js` | Produk contoh, panduan belajar, dan anggaran. |
-| `backend.js` | Login, daftar, profil demo persisten di peramban. Siap disambungkan ke Firebase/Supabase. |
+| `common.js` | Helper navigasi, keranjang lokal, dan katalog dari Supabase. |
+| `data.js` | Salinan data awal; katalog, materi, dan anggaran aktif dibaca dari Supabase. |
+| `backend.js` | Adapter Supabase Auth, database, dan upload bertanda tangan Cloudinary. |
+| `supabase/migrations/` | Skema, RLS, dan data awal. |
+| `supabase/functions/` | Fungsi admin membuat seller dan tanda tangan upload Cloudinary. |
 | `assets/` | Foto tenun dan favicon. |
 
-## Akun Demo & Akses Login Cepat
+## Supabase & Cloudinary
 
-Di halaman `login.html`, tersedia tombol **Akses Login Cepat (1-Klik)** untuk langsung mencoba masing-masing peran:
+Migrasi database telah diterapkan dan dua Edge Function telah di-deploy ke project Supabase tertaut. Kunci publishable Supabase berada di kode browser dan memang dirancang untuk penggunaan publik; jangan pernah menaruh service-role key atau Cloudinary API secret di sana.
 
-| Peran | Username | Kata Sandi | Kegunaan Demo |
-| --- | --- | --- | --- |
-| **Admin** | admin | 123 | Manajemen program, rancangan anggaran, dan pengawasan katalog. |
-| **User (Pembeli)** | user | 123 | Menjelajahi katalog tenun dan simulasi tas belanja/checkout. |
-| **Penjual** | penjual | 123 | Etalase karya tenun, panduan foto produk, dan simulasi pesanan. |
+### Siapkan admin pertama
 
-Sesi login dan tas belanja disimpan di `localStorage` peramban sehingga tidak hilang saat Anda berpindah-pindah halaman HTML. Sesi dapat direset kapan saja dengan menekan tombol **Keluar Akun** di `akun.html`.
+1. Buka `register.html` lewat server lokal dan buat akun memakai email admin. Konfirmasi email jika Supabase memintanya.
+2. Buka `supabase/bootstrap-admin.example.sql`, ganti `REPLACE_WITH_ADMIN_EMAIL`, lalu jalankan SQL tersebut di Supabase SQL Editor sebagai pemilik project. Ini tindakan satu kali.
+3. Masuk memakai email dan kata sandi admin. Dari dashboard, admin dapat membuat akun Penjual.
 
-Ini bukan autentikasi produksi: kode akun demo bisa dibaca dan keadaan halaman bisa diubah dari browser. Tidak ada data rahasia yang dilindungi oleh demo ini. Jangan masukkan data pribadi atau password asli. Peran admin dan penjual saat ini hanya membuka tampilan sesuai peran; fitur pengelolaan pengguna, produk, dan pesanan belum dibuat.
+### Aktifkan upload Cloudinary
 
-## Menyambungkan Firebase atau Supabase nanti
+1. Di Cloudinary Dashboard, ambil API Key dan API Secret. Cloud name yang dikonfigurasi adalah `w7kqjyeq`.
+2. Di Supabase Dashboard, buka Edge Functions Secrets dan tambahkan `CLOUDINARY_API_KEY` serta `CLOUDINARY_API_SECRET`. Jangan masukkan kedua nilai itu ke berkas aplikasi atau chat.
+3. Seller masuk, lalu isi foto, nama, motif, ukuran, bahan, harga, stok, dan deskripsi. Foto diunggah ke folder `rumah-tenun/products`; produk menunggu review admin sebelum muncul di katalog.
 
-Paket ini BELUM terhubung ke layanan mana pun dan tidak berisi SDK atau konfigurasi akun layanan. Anda bisa memilih salah satu backend tanpa mengubah keseluruhan tampilan.
+Produk awal dan materi belajar tersimpan di tabel Supabase. Checkout membuat order dan item order, memvalidasi serta mengurangi stok secara atomik. Admin mengonfirmasi laporan pembayaran, memproses pemeriksaan, pengemasan, dan pengiriman; buyer mengonfirmasi barang diterima. Pilihan QRIS/transfer/dompet digital hanya mencatat metode. Pembayaran uang nyata dan integrasi gateway belum tersedia. Keranjang tetap lokal di browser.
 
-Semua akses data di `script.js` melalui objek `Backend` dari `backend.js`:
-
-| Fungsi | Masukan | Hasil yang diharapkan |
-| --- | --- | --- |
-| `ambilProduk()` | Tidak ada | Array produk: id, nama, harga, posisi, deskripsi |
-| `masuk(username, password)` | Kredensial | Profil: username, nama, peran |
-| `daftar(username, password)` | Data akun baru | Profil: username, nama, peran |
-| `penggunaAktif()` | Tidak ada | Profil atau null |
-| `simpanProfil(nama)` | Nama tampilan | Profil terbaru |
-| `keluar()` | Tidak ada | Sesi berakhir |
-
-Langkah integrasi:
-
-1. Buat proyek pada layanan yang dipilih.
-2. Ganti implementasi demo di `backend.js` dengan autentikasi dan akses data layanan tersebut.
-3. Pertahankan nama fungsi di atas; fungsi dapat memakai `await` dan melempar `Error` agar pesan muncul di halaman.
-4. Jika memakai login email, ubah label, tipe input, dan validasi username pada `index.html` dan adapter Anda. Jangan menyimpan password di tabel/collection profil; gunakan layanan autentikasi.
-5. Atur akses data pada backend. Peran Admin/Penjual harus ditetapkan dan diverifikasi secara tepercaya di backend, bukan ditentukan dari pilihan pengguna atau variabel JavaScript.
-6. Jangan menaruh private key atau kunci administrator/service-role pada kode browser.
-7. Setelah backend terpasang dan diuji, hapus akun demo, pemberitahuan demo, dan sesuaikan pesan penyimpanan profil.
-
-Tidak ada SQL yang harus dijalankan untuk membuka paket ini. Konfigurasi database, autentikasi, dan izin pada layanan pilihan Anda tetap diperlukan saat integrasi nyata.
+Untuk perubahan skema berikutnya, buat migrasi baru dan jalankan `npx supabase db push --linked`. Untuk deploy ulang function gunakan `npx supabase functions deploy <nama-function> --project-ref lsewgdyamxfblzcjkwti`.
 
 ## Fitur yang sudah bisa dicoba
 
 - Navigasi halaman dan menu ponsel.
-- Koleksi, pencarian, detail produk, jumlah barang, dan total tas belanja.
-- Simulasi pilihan pembayaran; tidak ada penagihan atau QRIS aktif.
-- Login tiga peran, daftar demo, edit nama profil demo, dan logout.
+- Koleksi, pencarian, detail produk, status review, stok, dan tas belanja.
+- Order Supabase dengan status pembayaran/pengiriman, tanpa pemrosesan uang nyata.
+- Login Supabase, pendaftaran pembeli, pembuatan akun penjual oleh admin, dan edit profil.
 - Panduan belajar bertahap dan perbesar tulisan.
-- Rancangan anggaran Rp40 juta dan cetak draf surat mitra.
 
 Proposal, kegiatan, katalog, serta profil koperasi adalah rancangan/contoh yang perlu dikonfirmasi. Paket ini adalah versi kode sederhana terpisah; tautan web sebelumnya tidak diubah.
 
@@ -87,3 +66,11 @@ Foto: Meithyra Melviana Simatupang / Wikimedia Commons.
 Sumber: https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg
 Lisensi: https://creativecommons.org/licenses/by-sa/4.0/
 Foto diperkecil, dikompres, dan dipotong dalam tampilan CSS. Foto hasil perubahan tetap CC BY-SA 4.0.
+
+Latar foto: Suryasriyama / Wikimedia Commons.
+Sumber: https://commons.wikimedia.org/wiki/File:Menenun_kain_khas_suku_Sasak.jpg
+Lisensi: https://creativecommons.org/licenses/by-sa/4.0/
+
+Motif Mega Mendung: Gunarta / Wikimedia Commons.
+Sumber: https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg
+Lisensi: https://creativecommons.org/licenses/by-sa/4.0/

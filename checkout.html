@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Checkout kain tenun dari katalog Rantai Mawar.">
+  <title>Checkout — Rantai Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css?v=atelier-5">
+  <script src="data.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="backend.js" defer></script>
+  <script src="common.js" defer></script>
+</head>
+<body>
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Belanja Tenun</a>
+        <a href="belajar.html">Ruang Belajar</a>
+        <a href="tentang.html">Tentang Kami</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span id="cart-count" class="cart-badge">0</span>
+        </button>
+        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container section checkout-page">
+    <a class="cart-back-link" href="keranjang.html">← Kembali ke tas</a>
+    <span class="eyebrow">LANGKAH TERAKHIR</span>
+    <h1>Checkout.</h1>
+    <p class="intro">Lengkapi penerima, pilih cara bayar, lalu pantau proses pesanan Anda.</p>
+
+    <div id="checkout-login-required" class="checkout-message" hidden>
+      <span class="eyebrow">AKUN DIPERLUKAN</span>
+      <h2>Masuk untuk melanjutkan pesanan</h2>
+      <p>Masuk ke akun pembeli untuk menyimpan pesanan dan melacak statusnya.</p>
+      <div class="checkout-message-actions">
+        <a class="primary" href="login.html?next=checkout.html">Masuk ke akun</a>
+        <a class="outline" href="register.html?next=checkout.html">Buat akun pembeli</a>
+      </div>
+    </div>
+
+    <div id="checkout-empty" class="cart-empty" hidden>
+      <span class="cart-empty-mark" aria-hidden="true">0</span>
+      <h2>Belum ada barang untuk dibayar</h2>
+      <p>Tas belanja Anda kosong. Pilih kain sebelum melanjutkan.</p>
+      <a class="primary" href="koleksi.html">Pilih kain tenun</a>
+    </div>
+
+    <div id="checkout-content" class="checkout-grid" hidden>
+      <form id="checkout-form" class="checkout-form">
+        <section class="checkout-section">
+          <span class="eyebrow">01 / PENERIMA</span>
+          <h2>Informasi pembeli</h2>
+          <label for="checkout-customer-name">Nama lengkap</label>
+          <input id="checkout-customer-name" name="nama" required minlength="2" maxlength="80" autocomplete="name">
+          <label for="checkout-phone">Nomor WhatsApp</label>
+          <input id="checkout-phone" name="telepon" type="tel" required minlength="8" maxlength="20" autocomplete="tel" placeholder="08xx xxxx xxxx">
+          <label for="checkout-address">Alamat pengiriman</label>
+          <textarea id="checkout-address" name="alamat" required minlength="10" maxlength="300" autocomplete="street-address" rows="4" placeholder="Jalan, desa/kelurahan, kecamatan, kabupaten/kota"></textarea>
+        </section>
+
+        <section class="checkout-section">
+          <span class="eyebrow">02 / PEMBAYARAN</span>
+          <h2>Pilih metode pembayaran</h2>
+          <label class="payment-option"><input type="radio" name="payment-method" value="QRIS" checked><span><strong>QRIS</strong><small>Bank atau dompet digital</small></span></label>
+          <label class="payment-option"><input type="radio" name="payment-method" value="Transfer bank"><span><strong>Transfer bank</strong><small>Instruksi transfer ditampilkan setelah konfirmasi</small></span></label>
+          <label class="payment-option"><input type="radio" name="payment-method" value="Dompet digital"><span><strong>Dompet digital</strong><small>Pembayaran melalui aplikasi pilihan Anda</small></span></label>
+          <p class="notice checkout-demo-note">Pembayaran belum terhubung ke gateway. Order tercatat di sistem; konfirmasi pembayaran dilakukan manual oleh admin.</p>
+        </section>
+      </form>
+
+      <aside class="checkout-summary">
+        <span class="eyebrow">RINGKASAN PESANAN</span>
+        <h2>Pesanan Anda</h2>
+        <div id="checkout-items" class="checkout-items"></div>
+        <div class="cart-summary-line"><span>Subtotal</span><strong id="checkout-subtotal"></strong></div>
+        <div class="cart-summary-line"><span>Pengiriman</span><span>Dikonfirmasi kemudian</span></div>
+        <div class="cart-summary-total"><span>Total sementara</span><strong id="checkout-total"></strong></div>
+        <p id="checkout-submit-error" class="error" role="alert"></p>
+        <button id="checkout-submit" class="primary checkout-submit" type="submit" form="checkout-form">Buat pesanan <span aria-hidden="true">→</span></button>
+        <p class="note">Stok akan dikunci saat order dibuat dan dikembalikan jika admin membatalkannya.</p>
+      </aside>
+    </div>
+
+    <section id="checkout-success" class="checkout-success" hidden>
+      <span class="checkout-success-mark" aria-hidden="true">✓</span>
+      <span class="eyebrow">PESANAN TERCATAT</span>
+      <h2>Terima kasih sudah mendukung penenun.</h2>
+      <p id="checkout-order-number" class="order-number"></p>
+      <p>Pesanan tersimpan dan menunggu pembayaran. Tidak ada uang yang diproses oleh situs ini.</p>
+      <p>Setelah membayar melalui cara yang disepakati dengan koperasi, laporkan dari dashboard agar admin dapat memeriksa pesanan.</p>
+      <a class="outline" href="akun.html">Lihat status pesanan</a>
+      <a class="primary" href="koleksi.html">Kembali ke koleksi</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;">❖ <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+        <p>Merawat warisan tenun tradisional Nusantara dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
+        <div class="footer-badge">✦ Ditenun Dengan Makna</div>
+      </div>
+      <div class="footer-col">
+        <h4>Jelajahi</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="koleksi.html">Belanja Tenun</a></li>
+          <li><a href="belajar.html">Ruang Belajar Digital</a></li>
+          <li><a href="tentang.html">Tentang Koperasi</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Akses Anggota</h4>
+        <ul class="footer-links">
+          <li><a href="login.html">Masuk ke Akun</a></li>
+          <li><a href="register.html">Daftar Akun Pembeli</a></li>
+          <li><a href="akun.html">Ruang Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kemitraan</h4>
+        <p><strong>Koperasi Rantai Mawar</strong><br>Kolaborasi Penelitian & Pembinaan UMKM Tenun Perempuan bersama Dinas Terkait.</p>
+        <p class="note" style="color: var(--sekunder);">Draf usulan penelitian · 2026</p>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© 2026 Rantai Mawar · Konsep Penelitian Transformasi Digital</span>
+      <span><a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)<br><a href="https://commons.wikimedia.org/wiki/File:Menenun_kain_khas_suku_Sasak.jpg" target="_blank" rel="noreferrer">Latar: Suryasriyama / Wikimedia Commons</a> (CC BY-SA 4.0)<br><a href="https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg" target="_blank" rel="noreferrer">Motif Mega Mendung: Gunarta / Wikimedia Commons</a> (CC BY-SA 4.0)</span>
+    </div>
+  </footer>
+</body>
+</html>

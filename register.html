@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Daftar akun demo baru di Koperasi Rantai Mawar.">
+  <meta name="description" content="Daftar akun pembeli di Koperasi Rantai Mawar.">
   <title>Daftar — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=atelier-5">
   <script src="data.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
-<body style="background: radial-gradient(circle at 50% 20%, #fdfbf8 0%, #f8f3eb 100%);">
+<body>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
     <div class="header">
@@ -19,10 +20,9 @@
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
-        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="koleksi.html">Belanja Tenun</a>
         <a href="belajar.html">Ruang Belajar</a>
         <a href="tentang.html">Tentang Kami</a>
-        <a href="program.html">Program</a>
       </nav>
       <div class="header-actions">
         <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
@@ -43,11 +43,11 @@
       <div class="auth-header">
         <span class="eyebrow">❖ PENDAFTARAN ANGGOTA</span>
         <h1>Mari Tumbuh Bersama</h1>
-        <p>Buat akun demo baru sebagai Pembeli untuk menjelajahi katalog dan simulasi transaksi tenun.</p>
+        <p>Buat akun pembeli untuk menjelajahi katalog tenun.</p>
       </div>
 
       <div class="notice" style="margin-bottom: 24px; font-size: 0.86rem; border-left: 3px solid #702c3b; background: #faf4ee;">
-        <strong>Perhatian Akun Demo:</strong> Pendaftaran demo otomatis menjadi peran <em>Pembeli</em>. Data demo tersimpan di peramban Anda. Jangan gunakan kata sandi asli.
+        <strong>Akun pembeli:</strong> Pendaftaran terbuka hanya membuat peran Pembeli. Akun Penjual dibuat oleh admin koperasi.
       </div>
 
       <!-- FORM REGISTER -->
@@ -58,26 +58,26 @@
         </div>
 
         <div class="auth-form-group">
-          <label for="reg-username">Nama Pengguna (Username)</label>
-          <input id="reg-username" name="username" type="text" autocomplete="username" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_]+" placeholder="3-32 huruf, angka, garis bawah">
+          <label for="reg-username">Email</label>
+          <input id="reg-username" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="nama@email.com">
         </div>
 
         <div class="auth-form-group">
           <label for="reg-password">Kata Sandi</label>
-          <input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="6" maxlength="100" placeholder="Minimal 6 karakter">
+          <input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="100" placeholder="Minimal 10 karakter">
         </div>
 
         <p id="reg-error" class="error" role="alert" style="min-height: 20px; font-size: 0.88rem;"></p>
         <p id="reg-success" style="color: #2a5a52; font-weight: 600; min-height: 20px; margin: 0; font-size: 0.88rem;"></p>
 
         <button id="reg-submit" class="btn-submit-primary" type="submit">
-          <span>Daftar Akun Demo</span>
+          <span>Daftar Akun Pembeli</span>
           <span>↗</span>
         </button>
       </form>
 
       <div class="auth-footer">
-        <p>Sudah memiliki akun? <a href="login.html" class="text-link" style="font-weight: 600;">Masuk di sini (atau Login Cepat) →</a></p>
+        <p>Sudah memiliki akun? <a href="login.html" class="text-link" style="font-weight: 600;">Masuk di sini →</a></p>
         <p style="margin-top: 10px;"><a href="index.html" class="text-link" style="color: var(--sekunder);">← Kembali ke Beranda</a></p>
       </div>
     </div>
@@ -97,7 +97,6 @@
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
           <li><a href="belajar.html">Ruang Belajar Digital</a></li>
-          <li><a href="program.html">Rencana Program</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -105,7 +104,7 @@
         <h4>Akses Anggota</h4>
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
-          <li><a href="register.html">Daftar Anggota Demo</a></li>
+          <li><a href="register.html">Daftar Akun Pembeli</a></li>
           <li><a href="akun.html">Ruang Dashboard</a></li>
           <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
         </ul>
@@ -119,7 +118,9 @@
     <div class="container footer-bottom">
       <span>© 2026 Rantai Mawar · Konsep Penelitian Transformasi Digital</span>
       <span>
-        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)
+        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Menenun_kain_khas_suku_Sasak.jpg" target="_blank" rel="noreferrer">Latar: Suryasriyama / Wikimedia Commons</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg" target="_blank" rel="noreferrer">Motif Mega Mendung: Gunarta / Wikimedia Commons</a> (CC BY-SA 4.0)
       </span>
     </div>
   </footer>
@@ -152,6 +153,9 @@
       const userInput = $('reg-username');
       const passInput = $('reg-password');
       const submitBtn = $('reg-submit');
+      const tujuanSetelahDaftar = new URLSearchParams(window.location.search).get('next') === 'checkout.html'
+        ? 'checkout.html'
+        : 'akun.html';
 
       form.addEventListener('submit', async event => {
         event.preventDefault();
@@ -161,9 +165,14 @@
 
         try {
           const user = await Backend.daftar(userInput.value, passInput.value, nameInput.value);
+          if (user.konfirmasiEmail) {
+            successMsg.textContent = 'Akun dibuat. Silakan periksa email untuk konfirmasi sebelum masuk.';
+            submitBtn.disabled = false;
+            return;
+          }
           successMsg.textContent = '✓ Pendaftaran berhasil! Selamat datang, ' + user.nama + '. Mengalihkan...';
           setTimeout(() => {
-            window.location.href = 'akun.html';
+            window.location.href = tujuanSetelahDaftar;
           }, 800);
         } catch (err) {
           errorMsg.textContent = err.message || 'Gagal mendaftar.';

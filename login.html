@@ -6,12 +6,13 @@
   <meta name="description" content="Masuk ke ruang digital Koperasi Rantai Mawar.">
   <title>Masuk — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=atelier-5">
   <script src="data.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
-<body style="background: radial-gradient(circle at 50% 20%, #fdfbf8 0%, #f8f3eb 100%);">
+<body>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
     <div class="header">
@@ -19,10 +20,9 @@
       <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
-        <a href="koleksi.html">Koleksi Tenun</a>
+        <a href="koleksi.html">Belanja Tenun</a>
         <a href="belajar.html">Ruang Belajar</a>
         <a href="tentang.html">Tentang Kami</a>
-        <a href="program.html">Program</a>
       </nav>
       <div class="header-actions">
         <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
@@ -46,52 +46,19 @@
         <p>Masuk untuk mengelola ruang anggota, katalog tenun, atau simulasi pemesanan.</p>
       </div>
 
-      <!-- AKSES LOGIN CEPAT -->
-      <section class="quick-login-container" aria-labelledby="quick-login-heading">
-        <div id="quick-login-heading" class="quick-login-title">
-          <span>⚡ Akses Login Cepat</span>
-          <span class="quick-login-tag">1-KLIK MASUK</span>
-        </div>
-        <p class="quick-login-hint">Pilih salah satu peran demo untuk langsung masuk instan tanpa repot mengetik sandi:</p>
-        
-        <div class="quick-login-grid">
-          <button type="button" class="quick-btn" id="btn-quick-admin" title="Masuk sebagai Administrator">
-            <span class="role-icon">🛡️</span>
-            <strong>Admin</strong>
-            <small>admin / 123</small>
-            <span class="action-tag">Kelola Program</span>
-          </button>
-
-          <button type="button" class="quick-btn" id="btn-quick-user" title="Masuk sebagai User / Pembeli">
-            <span class="role-icon">👤</span>
-            <strong>User</strong>
-            <small>user / 123</small>
-            <span class="action-tag">Belanja Tenun</span>
-          </button>
-
-          <button type="button" class="quick-btn" id="btn-quick-penjual" title="Masuk sebagai Penjual / Pengrajin">
-            <span class="role-icon">🛒</span>
-            <strong>Penjual</strong>
-            <small>penjual / 123</small>
-            <span class="action-tag">Karya & Produk</span>
-          </button>
-        </div>
-      </section>
-
-      <div class="divider">
-        <span>Atau Masuk Manual</span>
-      </div>
+      <p class="notice" style="margin-bottom: 24px;">Masuk dengan email dan kata sandi akun Anda. Akun penjual dibuat oleh admin koperasi.</p>
+      <button type="button" class="outline" id="btn-quick-guest" style="margin-bottom: 24px;">Jelajahi sebagai tamu</button>
 
       <!-- FORM LOGIN MANUAL -->
       <form id="login-form">
         <div class="auth-form-group">
-          <label for="login-username">Nama Pengguna / Username</label>
-          <input id="login-username" name="username" type="text" autocomplete="username" required minlength="3" maxlength="32" placeholder="user, admin, atau penjual">
+          <label for="login-email">Email</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="nama@email.com">
         </div>
 
         <div class="auth-form-group">
           <label for="login-password">Kata Sandi</label>
-          <input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100" placeholder="123">
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100">
         </div>
 
         <p id="login-error" class="error" role="alert" style="min-height: 20px; font-size: 0.88rem;"></p>
@@ -104,7 +71,7 @@
       </form>
 
       <div class="auth-footer">
-        <p>Belum memiliki akun? <a href="register.html" class="text-link" style="font-weight: 600;">Daftar Akun Baru Demo →</a></p>
+        <p>Pembeli baru? <a href="register.html" class="text-link" style="font-weight: 600;">Buat akun pembeli →</a></p>
         <p style="margin-top: 10px;"><a href="index.html" class="text-link" style="color: var(--sekunder);">← Kembali ke Beranda</a></p>
       </div>
     </div>
@@ -124,7 +91,6 @@
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
           <li><a href="belajar.html">Ruang Belajar Digital</a></li>
-          <li><a href="program.html">Rencana Program</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -132,7 +98,7 @@
         <h4>Akses Anggota</h4>
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
-          <li><a href="register.html">Daftar Anggota Demo</a></li>
+          <li><a href="register.html">Daftar Akun Pembeli</a></li>
           <li><a href="akun.html">Ruang Dashboard</a></li>
           <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
         </ul>
@@ -146,7 +112,9 @@
     <div class="container footer-bottom">
       <span>© 2026 Rantai Mawar · Konsep Penelitian Transformasi Digital</span>
       <span>
-        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)
+        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Menenun_kain_khas_suku_Sasak.jpg" target="_blank" rel="noreferrer">Latar: Suryasriyama / Wikimedia Commons</a> (CC BY-SA 4.0)<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg" target="_blank" rel="noreferrer">Motif Mega Mendung: Gunarta / Wikimedia Commons</a> (CC BY-SA 4.0)
       </span>
     </div>
   </footer>
@@ -175,16 +143,19 @@
       const form = $('login-form');
       const errorMsg = $('login-error');
       const successMsg = $('login-success');
-      const userInput = $('login-username');
+      const userInput = $('login-email');
       const passInput = $('login-password');
       const submitBtn = $('login-submit');
+      const tujuanSetelahMasuk = new URLSearchParams(window.location.search).get('next') === 'checkout.html'
+        ? 'checkout.html'
+        : 'akun.html';
 
       // Cek apakah sudah login
       Backend.penggunaAktif().then(user => {
-        if (user) {
+        if (user && user.peran !== 'Guest') {
           successMsg.textContent = '✓ Anda sudah masuk sebagai ' + user.nama + ' (' + user.peran + '). Mengalihkan...';
           setTimeout(() => {
-            window.location.href = 'akun.html';
+            window.location.href = tujuanSetelahMasuk;
           }, 800);
         }
       });
@@ -197,7 +168,7 @@
           const user = await Backend.masuk(username, password);
           successMsg.textContent = '✓ Berhasil masuk sebagai ' + user.nama + ' (' + user.peran + ')! Mengalihkan...';
           setTimeout(() => {
-            window.location.href = 'akun.html';
+            window.location.href = tujuanSetelahMasuk;
           }, 600);
         } catch (err) {
           errorMsg.textContent = err.message || 'Gagal masuk. Periksa kembali username dan kata sandi.';
@@ -210,23 +181,18 @@
         eksekusiLogin(userInput.value, passInput.value);
       });
 
-      // AKSES LOGIN CEPAT (1-KLIK)
-      $('btn-quick-admin').addEventListener('click', () => {
-        userInput.value = 'admin';
-        passInput.value = '123';
-        eksekusiLogin('admin', '123');
-      });
+      // Guest mode is local browsing only.
+      if (new URLSearchParams(window.location.search).get('next') !== 'checkout.html') {
+        Backend.penggunaAktif().then(user => {
+          if (user && user.peran === 'Guest') {
+            window.location.href = 'index.html';
+          }
+        });
+      }
 
-      $('btn-quick-user').addEventListener('click', () => {
-        userInput.value = 'user';
-        passInput.value = '123';
-        eksekusiLogin('user', '123');
-      });
-
-      $('btn-quick-penjual').addEventListener('click', () => {
-        userInput.value = 'penjual';
-        passInput.value = '123';
-        eksekusiLogin('penjual', '123');
+      $('btn-quick-guest').addEventListener('click', async () => {
+        await Backend.masukGuest();
+        window.location.href = tujuanSetelahMasuk === 'checkout.html' ? 'checkout.html' : 'index.html';
       });
     });
   </script>

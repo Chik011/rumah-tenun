@@ -184,7 +184,8 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 }
 /* Detail kain dan pemilihan akun. */
 .product { text-decoration: none; color: inherit; }
-.breadcrumbs { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:32px; font-size:.88rem; }
+.breadcrumbs { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:flex-start; gap:12px; margin-bottom:32px; font-size:.88rem; }
+.breadcrumbs a { padding:0; font-size:inherit; }
 .product-detail-layout { display:grid; grid-template-columns:1.05fr 1fr; gap:clamp(28px,5vw,72px); align-items:start; }
 .product-detail-layout[hidden] { display:none; }
 .product-detail-figure { margin:0; }

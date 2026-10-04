@@ -194,6 +194,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .product-detail-price { display:inline-block; font-size:2rem; color:var(--marun); margin:18px 0 8px; }
 .product-detail-specs { display:grid; grid-template-columns:100px 1fr; gap:12px; padding:22px 0; border-block:1px solid #d7d5cb; margin-bottom:24px; }
 .product-detail-specs dt { color:var(--sekunder); }
+.product-detail-specs:empty { display:none; }
 .product-detail-specs dd { margin:0; }
 .product-detail-info label { display:block; margin-bottom:8px; }
 #product-quantity { max-width:100px; }

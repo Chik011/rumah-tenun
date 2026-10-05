@@ -55,7 +55,7 @@
         <h2 id="quick-login-title">Login cepat</h2>
         <p class="note">Klik akun untuk mengisi email dan sandi yang tersimpan di perangkat ini.</p>
         <div class="quick-login-options">
-          <button type="button" class="outline" data-quick-email="pembeli@rumah-tenun.example">User / Pembeli</button>
+          <button type="button" class="outline" data-quick-email="user@gmail.com">User / Pembeli</button>
           <button type="button" class="outline" data-quick-email="admin@rumah-tenun.example">Admin</button>
           <button type="button" class="outline" data-quick-email="penjual@rumah-tenun.example">Penjual</button>
         </div>
@@ -64,7 +64,7 @@
           <input id="quick-account-file" type="file" accept="application/json,.json">
           <button id="quick-account-clear" class="text-link" type="button">Hapus sandi tersimpan</button>
         </div>
-        <p class="note">Gunakan di perangkat pribadi. Sandi tersimpan hanya di browser ini.</p>
+        <p class="note">User adalah akun contoh bersama. Gunakan akun pribadi untuk pesanan dan data pribadi. Admin dan penjual memerlukan impor berkas akun di perangkat pribadi.</p>
       </section>
       <!-- FORM LOGIN MANUAL -->
       <form id="login-form">
@@ -196,7 +196,7 @@
       document.querySelectorAll('[data-quick-email]').forEach(button => {
         button.addEventListener('click', () => {
           userInput.value = button.dataset.quickEmail;
-          passInput.value = bacaAkunCepat()[button.dataset.quickEmail] || '';
+          passInput.value = button.dataset.quickEmail === 'user@gmail.com' ? '12345678' : (bacaAkunCepat()[button.dataset.quickEmail] || '');
           errorMsg.textContent = '';
           successMsg.textContent = passInput.value ? 'Email dan sandi terisi. Klik Masuk ke Akun.' : 'Akun dipilih. Impor berkas akun pribadi agar sandi ikut terisi.';
           document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));

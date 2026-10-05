@@ -314,3 +314,8 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
   .production-location { padding:24px; }
   .production-location .primary { width:100%; text-align:center; }
 }
+.production-map { display:block; padding:0; overflow:hidden; border:1px solid var(--garis); }
+.production-map-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:24px; padding:32px; }
+.production-map-heading p { margin:0; }
+.production-map-frame { display:block; width:100%; height:440px; border:0; background:#e5e9e3; }
+@media(max-width:760px) { .production-map { padding:0; } .production-map-heading { padding:24px; } .production-map-frame { height:340px; } }

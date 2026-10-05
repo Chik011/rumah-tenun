@@ -53,12 +53,18 @@
 
       <section class="quick-login" aria-labelledby="quick-login-title">
         <h2 id="quick-login-title">Login cepat</h2>
-        <p class="note">Pilih akun yang sudah disiapkan, lalu masukkan kata sandinya.</p>
+        <p class="note">Klik akun untuk mengisi email dan sandi yang tersimpan di perangkat ini.</p>
         <div class="quick-login-options">
           <button type="button" class="outline" data-quick-email="pembeli@rumah-tenun.example">User / Pembeli</button>
           <button type="button" class="outline" data-quick-email="admin@rumah-tenun.example">Admin</button>
           <button type="button" class="outline" data-quick-email="penjual@rumah-tenun.example">Penjual</button>
         </div>
+        <div class="quick-login-manage">
+          <label class="text-link" for="quick-account-file">Impor berkas akun pribadi</label>
+          <input id="quick-account-file" type="file" accept="application/json,.json">
+          <button id="quick-account-clear" class="text-link" type="button">Hapus sandi tersimpan</button>
+        </div>
+        <p class="note">Gunakan di perangkat pribadi. Sandi tersimpan hanya di browser ini.</p>
       </section>
       <!-- FORM LOGIN MANUAL -->
       <form id="login-form">
@@ -158,15 +164,43 @@
       const passInput = $('login-password');
       const submitBtn = $('login-submit');
       const tujuanSetelahMasuk = tujuanLoginAman(new URLSearchParams(window.location.search).get('next'));
+      const quickKey = 'rm_quick_accounts';
+      const allowedEmails = new Set(Array.from(document.querySelectorAll('[data-quick-email]'), button => button.dataset.quickEmail));
+      function bacaAkunCepat() {
+        try { return JSON.parse(localStorage.getItem(quickKey) || '{}'); } catch (_) { return {}; }
+      }
+      $('quick-account-file').addEventListener('change', async event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        try {
+          if (file.size > 10000) throw new Error('Berkas akun terlalu besar.');
+          const accounts = JSON.parse(await file.text());
+          if (!Array.isArray(accounts) || !accounts.length) throw new Error('Berkas akun tidak sesuai.');
+          const saved = {};
+          for (const account of accounts) {
+            if (!allowedEmails.has(account.email) || typeof account.password !== 'string' || !account.password || account.password.length > 100) throw new Error('Berkas akun tidak sesuai.');
+            saved[account.email] = account.password;
+          }
+          localStorage.setItem(quickKey, JSON.stringify(saved));
+          successMsg.textContent = 'Akun tersimpan di perangkat ini. Klik User, Admin, atau Penjual untuk mengisi email dan sandi.';
+          errorMsg.textContent = '';
+        } catch (error) { errorMsg.textContent = error.message || 'Akun belum dapat disimpan di browser ini.'; }
+        event.target.value = '';
+      });
+      $('quick-account-clear').addEventListener('click', () => {
+        localStorage.removeItem(quickKey);
+        passInput.value = '';
+        successMsg.textContent = 'Sandi tersimpan sudah dihapus dari perangkat ini.';
+      });
 
       document.querySelectorAll('[data-quick-email]').forEach(button => {
         button.addEventListener('click', () => {
           userInput.value = button.dataset.quickEmail;
-          passInput.value = '';
+          passInput.value = bacaAkunCepat()[button.dataset.quickEmail] || '';
           errorMsg.textContent = '';
-          successMsg.textContent = 'Akun ' + button.textContent + ' dipilih. Masukkan kata sandi untuk masuk.';
+          successMsg.textContent = passInput.value ? 'Email dan sandi terisi. Klik Masuk ke Akun.' : 'Akun dipilih. Impor berkas akun pribadi agar sandi ikut terisi.';
           document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-          passInput.focus();
+          (passInput.value ? submitBtn : passInput).focus();
         });
       });
 

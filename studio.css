@@ -207,3 +207,21 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .quick-login-options button { padding:10px 14px; font-size:.85rem; }
 .quick-login-options [aria-pressed="true"] { color:white; background:var(--hijau); }
 @media(max-width:760px) { .product-detail-layout { grid-template-columns:1fr; } .product-detail-photo { aspect-ratio:1; } .product-detail-actions > * { flex:1; } }
+/* Gradasi yang terinspirasi warna kain: hijau, indigo, dan tembaga. */
+.header-wrapper { background:linear-gradient(110deg,#183e38 0%,#284752 58%,#423a60 100%); border-bottom:1px solid #ffffff25; box-shadow:0 6px 24px #183e3818; }
+.header-wrapper .brand, .header-wrapper .icon-btn, .header-wrapper #navigation a { color:#fff8ea; }
+.header-wrapper #navigation a:hover, .header-wrapper #navigation a[aria-current="page"] { color:#ffd5a5; border-color:#ffd5a5; }
+.header-wrapper .outline { color:#fff8ea; border-color:#ffffff50; }
+.header-wrapper .header-actions .primary { background:#f4e4c8; color:#203b32; border-color:#f4e4c8; }
+.site-footer { background:radial-gradient(ellipse at 100% 0%,#91634b80,transparent 60%),linear-gradient(125deg,#193f39 0%,#263a4c 55%,#433653 100%); color:#f7eddf; }
+.site-footer .brand, .site-footer h4, .site-footer strong { color:#fff7e7; }
+.site-footer p, .site-footer .note, .site-footer .footer-bottom, .site-footer a { color:#deddd4 !important; }
+.site-footer a:hover { color:#ffd5a5 !important; }
+.site-footer .footer-badge { background:#ffffff12; border-color:#ffffff35; color:#ffdab2; }
+.site-footer .footer-bottom { border-color:#ffffff25; }
+.hero { background:linear-gradient(135deg,#edeadf 0%,#f1dfca 100%); }
+.learning-banner { background:linear-gradient(120deg,#e6ebe0 0%,#dfdfed 55%,#edddcf 100%); }
+.quick-login-manage { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:18px; }
+.quick-login-manage label { cursor:pointer; }
+#quick-account-file { width:100%; font-size:.75rem; }
+#quick-account-clear { padding:0; border:0; background:none; text-decoration:underline; cursor:pointer; }

@@ -250,7 +250,7 @@ async function initNavigasiBersama() {
   const menuBtn = $('menu-button');
   const nav = $('navigation');
   if (nav) {
-    const accountLink = elemen('a', 'mobile-account-link', 'Akun & pesanan ↗');
+    const accountLink = elemen('a', 'mobile-account-link', 'Akun & pesanan ');
     accountLink.href = 'akun.html';
     nav.append(accountLink);
   }
@@ -372,9 +372,9 @@ async function setupHeaderActions() {
   if (existingLoginBtn) existingLoginBtn.remove();
   if (existingUserWrapper) existingUserWrapper.remove();
 
-  if (!user) {
+  if (!user || user.peran === 'Guest') {
     // Belum login: Tampilkan tombol Masuk
-    const loginLink = elemen('a', 'primary', 'Masuk ↗');
+    const loginLink = elemen('a', 'primary', 'Masuk ');
     loginLink.id = 'login-button';
     loginLink.href = 'login.html';
     loginLink.style.cssText = 'padding: 8px 18px; min-height: 42px; font-size: 0.9rem;';

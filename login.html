@@ -7,7 +7,7 @@
   <title>Masuk — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=journey-1">
+  <link rel="stylesheet" href="studio.css?v=polish-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
@@ -20,11 +20,11 @@
   <main id="main-content" class="login-split">
     <section class="login-story" aria-label="Rumah Tenun Rantai Mawar">
       <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span><span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
-      <div><span class="eyebrow">KARYA, CERITA, DAN KESEHARIAN</span><h1>Sehelai kain.<br>Begitu banyak<br><em>cerita.</em></h1><p>Temukan tenun pilihan, dukung penenun lokal, dan ikuti perjalanan pesanan Anda dalam satu ruang.</p><div class="login-story-tags"><span>01 Belanja tenun</span><span>02 Ruang penjual</span><span>03 Kelola koperasi</span></div></div>
+      <div><span class="eyebrow">KARYA, CERITA, DAN KESEHARIAN</span><h1>Sehelai kain.<br>Begitu banyak<br><em>cerita.</em></h1><p>Temukan tenun pilihan, dukung penenun lokal, dan ikuti perjalanan pesanan Anda dalam satu ruang.</p></div>
     </section>
     <section class="login-form-side">
       <div class="login-card">
-        <span class="eyebrow">RUMAH TENUN RANTAI MAWAR</span><h2>Selamat datang kembali</h2><p class="note">Masuk untuk melanjutkan ceritamu.</p>
+        <div class="auth-switch"><a href="login.html" aria-current="page">Login</a><a href="register.html">Register</a></div><span class="eyebrow">RUMAH TENUN RANTAI MAWAR</span><h2>Selamat datang kembali</h2><p class="note">Masuk untuk melanjutkan ceritamu.</p>
         <form id="login-form">
           <label for="login-role">Masuk sebagai</label><select id="login-role"><option value="Pembeli">User / Pembeli</option><option value="Penjual">Penjual</option><option value="Admin">Admin</option><option value="Guest">Tamu</option></select>
           <label for="login-email">Email</label><input id="login-email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="Masukkan email Anda">
@@ -32,9 +32,9 @@
           <p id="login-error" class="error" role="alert"></p><p id="login-success" class="note" role="status"></p>
           <button id="login-submit" class="primary" type="submit">Masuk ke beranda →</button>
         </form>
-        <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" id="btn-quick-guest">Tamu</button><button type="button" class="outline" data-quick-email="user@gmail.com" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-email="penjual@rumah-tenun.example" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-email="admin@rumah-tenun.example" data-role="Admin">Admin</button></div></div>
-        <details class="login-private-accounts"><summary>Akun pribadi & login cepat</summary><p class="note">User adalah akun contoh bersama. Gunakan akun pribadi untuk pesanan Anda. Impor akun Admin/Penjual hanya di perangkat pribadi.</p><label class="note" for="quick-account-file">Berkas akun pribadi</label><input id="quick-account-file" type="file" accept="application/json,.json"><button id="quick-account-clear" class="text-link" type="button">Hapus sandi tersimpan</button></details>
-        <p class="login-register note">Belum punya akun? <a href="register.html">Daftar pembeli →</a></p><a class="text-link" href="index.html">← Kembali ke beranda</a>
+        <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-email="user@gmail.com" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-email="penjual@rumah-tenun.example" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-email="admin@rumah-tenun.example" data-role="Admin">Admin</button></div></div>
+        
+        <div class="auth-alternative"><span>Belum punya akun?</span><a class="auth-blue-link" href="register.html">Daftar sekarang</a></div><button id="btn-quick-guest" class="guest-link" type="button">Lanjut sebagai guest</button>
       </div>
     </section>
   </main>
@@ -59,34 +59,9 @@
         userInput.disabled = passInput.disabled = guest;
       });
       const quickKey = 'rm_quick_accounts';
-      const allowedEmails = new Set(Array.from(document.querySelectorAll('[data-quick-email]'), button => button.dataset.quickEmail));
       function bacaAkunCepat() {
         try { return JSON.parse(localStorage.getItem(quickKey) || '{}'); } catch (_) { return {}; }
       }
-      $('quick-account-file').addEventListener('change', async event => {
-        const file = event.target.files[0];
-        if (!file) return;
-        try {
-          if (file.size > 10000) throw new Error('Berkas akun terlalu besar.');
-          const accounts = JSON.parse(await file.text());
-          if (!Array.isArray(accounts) || !accounts.length) throw new Error('Berkas akun tidak sesuai.');
-          const saved = {};
-          for (const account of accounts) {
-            if (!allowedEmails.has(account.email) || typeof account.password !== 'string' || !account.password || account.password.length > 100) throw new Error('Berkas akun tidak sesuai.');
-            saved[account.email] = account.password;
-          }
-          localStorage.setItem(quickKey, JSON.stringify(saved));
-          successMsg.textContent = 'Akun tersimpan di perangkat ini. Klik User, Admin, atau Penjual untuk mengisi email dan sandi.';
-          errorMsg.textContent = '';
-        } catch (error) { errorMsg.textContent = error.message || 'Akun belum dapat disimpan di browser ini.'; }
-        event.target.value = '';
-      });
-      $('quick-account-clear').addEventListener('click', () => {
-        localStorage.removeItem(quickKey);
-        passInput.value = '';
-        successMsg.textContent = 'Sandi tersimpan sudah dihapus dari perangkat ini.';
-      });
-
       document.querySelectorAll('[data-quick-email]').forEach(button => {
         button.addEventListener('click', () => {
           roleInput.value = button.dataset.role;
@@ -95,7 +70,7 @@
           userInput.value = button.dataset.quickEmail;
           passInput.value = button.dataset.quickEmail === 'user@gmail.com' ? '12345678' : (bacaAkunCepat()[button.dataset.quickEmail] || '');
           errorMsg.textContent = '';
-          successMsg.textContent = passInput.value ? 'Email dan sandi terisi. Klik Masuk ke Akun.' : 'Akun dipilih. Impor berkas akun pribadi agar sandi ikut terisi.';
+          successMsg.textContent = passInput.value ? 'Email dan sandi terisi. Klik Masuk ke Akun.' : 'Akun dipilih. Masukkan kata sandi Anda.';
           document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
           (passInput.value ? submitBtn : passInput).focus();
         });

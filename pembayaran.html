@@ -4,7 +4,7 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex"><title>Pembayaran — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css?v=studio-1"><link rel="stylesheet" href="studio.css?v=journey-1">
+  <link rel="stylesheet" href="style.css?v=studio-1"><link rel="stylesheet" href="studio.css?v=polish-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script><script src="common.js" defer></script><script src="payment.js" defer></script>
 </head>
@@ -29,14 +29,14 @@
           </svg>
           <span id="cart-count" class="cart-badge">0</span>
         </button>
-        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk ↗</a>
+        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk </a>
       </div>
     </div>
   </header>
   <main id="main-content" class="container section payment-page">
     <a class="cart-back-link" href="keranjang.html?tab=pengiriman">← Pesanan & pengiriman</a>
     <section class="payment-card" aria-labelledby="payment-title">
-      <div id="payment-symbol" class="payment-symbol" aria-hidden="true">↗</div>
+      <div id="payment-symbol" class="payment-symbol" aria-hidden="true"></div>
       <span class="eyebrow">PEMBAYARAN PESANAN</span>
       <h1 id="payment-title">Memeriksa<br><em>pesanan Anda.</em></h1>
       <p id="payment-description" role="status" aria-live="polite">Mohon tunggu sebentar.</p>
@@ -46,7 +46,7 @@
       <p id="payment-expiry" class="note"></p>
       <p id="payment-error" class="error" role="alert"></p>
       <div class="payment-actions">
-        <a id="payment-pay" class="primary" hidden>Lanjut ke Xendit ↗</a>
+        <a id="payment-pay" class="primary" hidden>Lanjut ke Xendit </a>
         <button id="payment-refresh" class="outline" type="button" hidden>Periksa status</button>
         <a id="payment-login" class="primary" hidden>Masuk untuk melanjutkan</a>
         <a class="text-link" href="keranjang.html?tab=pengiriman">Lihat pesanan & pengiriman →</a>

@@ -202,7 +202,7 @@ $('auth-form').addEventListener('submit', async event => {
   }
 });
 function tampilAkun() {
-  $('login-button').textContent = pengguna ? 'Akun ↗' : 'Masuk ↗';
+  $('login-button').textContent = pengguna ? 'Akun ' : 'Masuk ';
   if (!pengguna) return;
   $('account-title').textContent = 'Ruang ' + pengguna.peran.toLowerCase() + '.';
   $('account-info').textContent = 'Halo, ' + pengguna.nama + ' · ' + pengguna.username;

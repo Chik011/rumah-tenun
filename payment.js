@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       let result = await Backend.pembayaranXendit('status', orderId);
       if (result.status === 'NOT_CREATED') result = await Backend.pembayaranXendit('create', orderId);
       $('payment-test').hidden = result.mode !== 'test';
-      $('payment-symbol').textContent = result.status === 'COMPLETED' ? '✓' : result.status === 'EXPIRED' || result.status === 'CANCELED' ? '×' : '↗';
+      $('payment-symbol').textContent = result.status === 'COMPLETED' ? '✓' : result.status === 'EXPIRED' || result.status === 'CANCELED' ? '×' : '';
       terminal = ['COMPLETED', 'EXPIRED', 'CANCELED'].includes(result.status);
       if (result.status === 'COMPLETED') {
         title.textContent = 'Pembayaran diterima.';

@@ -7,7 +7,7 @@
   <title>Ruang Anggota — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=journey-1">
+  <link rel="stylesheet" href="studio.css?v=polish-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
@@ -35,7 +35,7 @@
           </svg>
           <span id="cart-count" class="cart-badge">0</span>
         </button>
-        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk ↗</a>
+        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk </a>
       </div>
     </div>
   </header>
@@ -48,7 +48,7 @@
       <div id="unauth-view" hidden>
         <div class="notice" style="border-left: 3px solid #702c3b;">
           <p><strong>Anda belum masuk.</strong> Silakan masuk untuk mengakses ruang anggota.</p>
-          <a href="login.html" class="primary" style="margin-top: 15px;">Masuk ↗</a>
+          <a href="login.html" class="primary" style="margin-top: 15px;">Masuk </a>
         </div>
       </div>
 
@@ -470,7 +470,7 @@
         roleDesc.textContent = 'Lihat perjalanan pesanan Anda, lanjutkan pembayaran, dan pantau pengirimannya.';
         roleExtra.innerHTML = `
           <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-            <a href="koleksi.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Mulai Belanja Tenun ↗</a>
+            <a href="koleksi.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Mulai Belanja Tenun </a>
             <button onclick="$('cart-button').click()" class="outline" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Buka Tas Belanja</button>
           </div>
           <section class="workflow-section">
@@ -507,7 +507,7 @@
               const actions = elemen('div', 'workflow-actions');
               if (order.payment_mode === 'test') details.append(elemen('p', 'payment-test', 'Uji coba · Tanpa uang nyata'));
               if (order.payment_provider === 'xendit' && order.order_status === 'awaiting_payment') {
-                const link = elemen('a', 'primary', 'Bayar / periksa status ↗');
+                const link = elemen('a', 'primary', 'Bayar / periksa status ');
                 link.href = 'pembayaran.html?order=' + encodeURIComponent(order.id);
                 actions.append(link);
               }

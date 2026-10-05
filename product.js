@@ -25,6 +25,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const quantity = $('product-quantity');
     quantity.max = item.stok;
     quantity.disabled = item.stok < 1;
+    const minus = $('product-minus');
+    const plus = $('product-plus');
+    function syncQuantity() {
+      minus.disabled = item.stok < 1 || Number(quantity.value) <= 1;
+      plus.disabled = item.stok < 1 || Number(quantity.value) >= item.stok;
+    }
+    minus.addEventListener('click', () => { quantity.value = Math.max(1, Number(quantity.value) - 1); syncQuantity(); });
+    plus.addEventListener('click', () => { quantity.value = Math.min(item.stok, Number(quantity.value) + 1); syncQuantity(); });
+    syncQuantity();
     $('product-stock').textContent = item.stok > 0 ? 'Tersedia ' + item.stok + ' kain' : 'Stok habis';
     function add(buy) {
       const cart = bacaKeranjang();

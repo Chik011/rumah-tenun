@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.append(address);
         const actions = elemen('div','shipment-actions');
         if (order.order_status === 'awaiting_payment' && order.payment_provider === 'xendit') {
-          const pay = elemen('a','primary','Lanjutkan pembayaran ↗');
+          const pay = elemen('a','primary','Lanjutkan pembayaran ');
           pay.href = 'pembayaran.html?order=' + encodeURIComponent(order.id); actions.append(pay);
         }
         if (order.order_status === 'delivered' && order.payment_status === 'confirmed') {

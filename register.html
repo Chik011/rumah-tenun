@@ -3,151 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Daftar akun pembeli di Koperasi Rantai Mawar.">
+  <meta name="description" content="Daftar akun pembeli Rumah Tenun Rantai Mawar.">
   <title>Daftar — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=journey-1">
+  <link rel="stylesheet" href="studio.css?v=polish-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
 </head>
-<body>
+<body class="simple-login-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
-  <!-- HEADER STICKY -->
-  <header class="header-wrapper">
-    <div class="header">
-      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
-      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
-      <nav id="navigation" aria-label="Menu utama">
-        <a href="index.html">Beranda</a>
-        <a href="koleksi.html">Belanja Tenun</a>
-        <a href="belajar.html">Ruang Belajar</a>
-        <a href="tentang.html">Tentang Kami</a>
-      </nav>
-      <div class="header-actions">
-        <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
-          </svg>
-          <span id="cart-count" class="cart-badge">0</span>
-        </button>
-        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk ↗</a>
+
+
+  <main id="main-content" class="login-split">
+    <section class="login-story" aria-label="Rumah Tenun Rantai Mawar">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span><span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <div><span class="eyebrow">KARYA, CERITA, DAN KESEHARIAN</span><h1>Sehelai kain.<br>Begitu banyak<br><em>cerita.</em></h1><p>Temukan tenun pilihan, dukung penenun lokal, dan ikuti perjalanan pesanan Anda dalam satu ruang.</p></div>
+    </section>
+    <section class="login-form-side">
+      <div class="login-card">
+        <div class="auth-switch"><a href="login.html">Login</a><a href="register.html" aria-current="page">Register</a></div>
+        <span class="eyebrow">RUMAH TENUN RANTAI MAWAR</span><h2>Mulai cerita bersama kami</h2><p class="note">Daftar sebagai pembeli dan temukan tenun pilihanmu.</p>
+        <form id="register-form">
+          <label for="reg-name">Nama lengkap</label><input id="reg-name" name="nama" type="text" autocomplete="name" required minlength="2" maxlength="80" placeholder="Masukkan nama lengkap">
+          <label for="reg-username">Email</label><input id="reg-username" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="Masukkan email Anda">
+          <label for="reg-password">Kata sandi</label><input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="100" placeholder="Minimal 10 karakter">
+          <p id="reg-error" class="error" role="alert"></p><p id="reg-success" class="note" role="status"></p><button id="reg-submit" class="primary" type="submit">Daftar akun</button>
+        </form>
+        <div class="auth-alternative"><span>Sudah punya akun?</span><a class="auth-blue-link" href="login.html">Login sekarang</a></div><button id="register-guest" class="guest-link" type="button">Lanjut sebagai guest</button>
       </div>
-    </div>
-  </header>
-
-  <main id="main-content" class="container auth-page-container">
-    <div class="auth-wrapper">
-      <div class="auth-header">
-        <span class="eyebrow">❖ PENDAFTARAN ANGGOTA</span>
-        <h1>Mari Tumbuh Bersama</h1>
-        <p>Buat akun pembeli untuk menjelajahi katalog tenun.</p>
-      </div>
-
-      <div class="notice" style="margin-bottom: 24px; font-size: 0.86rem; border-left: 3px solid #702c3b; background: #faf4ee;">
-        <strong>Akun pembeli:</strong> Pendaftaran terbuka hanya membuat peran Pembeli. Akun Penjual dibuat oleh admin koperasi.
-      </div>
-
-      <!-- FORM REGISTER -->
-      <form id="register-form">
-        <div class="auth-form-group">
-          <label for="reg-name">Nama Lengkap / Tampilan</label>
-          <input id="reg-name" name="nama" type="text" required minlength="2" maxlength="80" placeholder="Contoh: Siti Rahayu">
-        </div>
-
-        <div class="auth-form-group">
-          <label for="reg-username">Email</label>
-          <input id="reg-username" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="nama@email.com">
-        </div>
-
-        <div class="auth-form-group">
-          <label for="reg-password">Kata Sandi</label>
-          <input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="100" placeholder="Minimal 10 karakter">
-        </div>
-
-        <p id="reg-error" class="error" role="alert" style="min-height: 20px; font-size: 0.88rem;"></p>
-        <p id="reg-success" style="color: #2a5a52; font-weight: 600; min-height: 20px; margin: 0; font-size: 0.88rem;"></p>
-
-        <button id="reg-submit" class="btn-submit-primary" type="submit">
-          <span>Daftar Akun Pembeli</span>
-          <span>↗</span>
-        </button>
-      </form>
-
-      <div class="auth-footer">
-        <p>Sudah memiliki akun? <a href="login.html" class="text-link" style="font-weight: 600;">Masuk di sini →</a></p>
-        <p style="margin-top: 10px;"><a href="index.html" class="text-link" style="color: var(--sekunder);">← Kembali ke Beranda</a></p>
-      </div>
-    </div>
+    </section>
   </main>
 
-  <!-- FOOTER MULTI-KOLOM PREMIUM -->
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div class="footer-col">
-        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;"><span class="brand-mark" aria-hidden="true">✳</span> <span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
-        <p>Merawat warisan tenun tradisional Nusantara dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
-        <div class="footer-badge">✦ Ditenun Dengan Makna</div>
-      </div>
-      <div class="footer-col">
-        <h4>Jelajahi</h4>
-        <ul class="footer-links">
-          <li><a href="index.html">Beranda</a></li>
-          <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
-          <li><a href="belajar.html">Ruang Belajar Digital</a></li>
-          <li><a href="tentang.html">Tentang Koperasi</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Akses Anggota</h4>
-        <ul class="footer-links">
-          <li><a href="login.html">Masuk ke Akun</a></li>
-          <li><a href="register.html">Daftar Akun Pembeli</a></li>
-          <li><a href="akun.html">Ruang Dashboard</a></li>
-          <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Kemitraan</h4>
-        <p><strong>Koperasi Rantai Mawar</strong><br>Kolaborasi Penelitian & Pembinaan UMKM Tenun Perempuan bersama Dinas Terkait.</p>
-        <p class="note" style="color: var(--sekunder);">Draf usulan penelitian · 2026</p>
-      </div>
-    </div>
-    <div class="container footer-bottom">
-      <span>© 2026 Rantai Mawar · Konsep Penelitian Transformasi Digital</span>
-      <span>
-        <a href="https://commons.wikimedia.org/wiki/File:Kain_Tenun_Lombok_(Woven_Fabric_of_Lombok).jpg" target="_blank" rel="noreferrer">Foto: Meithyra M. Simatupang / Wikimedia</a> (CC BY-SA 4.0)<br>
-        <a href="https://commons.wikimedia.org/wiki/File:Menenun_kain_khas_suku_Sasak.jpg" target="_blank" rel="noreferrer">Latar: Suryasriyama / Wikimedia Commons</a> (CC BY-SA 4.0)<br>
-        <a href="https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg" target="_blank" rel="noreferrer">Motif Mega Mendung: Gunarta / Wikimedia Commons</a> (CC BY-SA 4.0)
-      </span>
-    </div>
-  </footer>
 
-  <!-- DIALOG TAS BELANJA BERSAMA -->
-  <dialog id="cart-dialog" aria-labelledby="cart-title">
-    <button class="close-button" data-close aria-label="Tutup">×</button>
-    <h2 id="cart-title">Tas belanja Anda</h2>
-    <p class="note">Belanja contoh. Tidak ada penagihan.</p>
-    <div id="cart-items"></div>
-    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
-    <button id="checkout-button" class="primary">Lanjut ke checkout →</button>
-    <div id="payment-panel" hidden>
-      <label for="payment-method">Pilihan pembayaran</label>
-      <select id="payment-method">
-        <option>QRIS</option>
-        <option>Transfer bank</option>
-        <option>Dompet digital</option>
-      </select>
-      <p id="payment-description" class="notice"></p>
-    </div>
-  </dialog>
+
+
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
       const form = $('register-form');
       const errorMsg = $('reg-error');
       const successMsg = $('reg-success');
@@ -155,7 +50,7 @@
       const userInput = $('reg-username');
       const passInput = $('reg-password');
       const submitBtn = $('reg-submit');
-      const tujuanSetelahDaftar = tujuanLoginAman(new URLSearchParams(window.location.search).get('next'));
+      const tujuanSetelahDaftar = 'index.html';
 
       form.addEventListener('submit', async event => {
         event.preventDefault();
@@ -180,6 +75,8 @@
         }
       });
     });
+  
+    document.getElementById('register-guest').addEventListener('click', async () => { await Backend.masukGuest(); location.href = 'index.html'; });
   </script>
 </body>
 </html>

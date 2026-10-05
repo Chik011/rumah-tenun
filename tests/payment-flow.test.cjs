@@ -129,6 +129,24 @@ test('Payment page handles pending, paid, expired and unsafe redirect results', 
   assert.match(p('payment-error').textContent, /tidak valid/);
 });
 
+test('Login opens home for every role and role selection cannot grant admin access', async () => {
+  const source=fs.readFileSync(path.join(root,'login.html'),'utf8').match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  async function login(selected,actual) {
+    const nodes=new Map(); const element=id=>{if(!nodes.has(id))nodes.set(id,{value:'',events:{},addEventListener(k,fn){this.events[k]=fn},focus(){}});return nodes.get(id)};
+    element('login-role').value=selected;
+    element('login-email').value='dummy@example.test'; element('login-password').value='test-only';
+    let ready,logouts=0; const window={location:{search:'?next=checkout.html'}};
+    vm.runInNewContext(source,{window,Set,Array,JSON,document:{querySelectorAll:()=>[],addEventListener:(event,fn)=>{ready=fn}},$:element,localStorage:{getItem:()=>null,removeItem(){},setItem(){}},setTimeout:fn=>fn(),Backend:{masuk:async()=>({nama:'Contoh',peran:actual}),keluar:async()=>{logouts++},masukGuest:async()=>({peran:'Guest'})}});
+    ready(); element('login-form').events.submit({preventDefault(){}}); await new Promise(resolve=>setImmediate(resolve));
+    return {window,element,logouts};
+  }
+  for(const role of ['Pembeli','Admin','Penjual','Guest']) assert.equal((await login(role,role)).window.location.href,'index.html');
+  const wrong=await login('Admin','Pembeli');
+  assert.equal(wrong.window.location.href,undefined);
+  assert.equal(wrong.logouts,1);
+  assert.match(wrong.element('login-error').textContent,/bukan Admin/);
+});
+
 test('Bag separates cart and shipments, handles guests and confirms delivered items', async () => {
   function node() {
     return { hidden:false, children:[], attrs:{}, events:{}, classList:{add(){}}, append(...children){this.children.push(...children)}, replaceChildren(...children){this.children=children}, setAttribute(k,v){this.attrs[k]=v}, addEventListener(k,fn){this.events[k]=fn}, focus(){}, scrollIntoView(){} };

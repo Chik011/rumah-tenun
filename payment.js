@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         title.textContent = 'Pembayaran diterima.';
         description.textContent = result.mode === 'test' ? 'Pembayaran uji coba berhasil. Tidak ada uang nyata yang diproses.' : 'Terima kasih. Pesanan Anda siap diperiksa oleh koperasi.';
         $('payment-expiry').textContent = '';
+        location.href = 'keranjang.html?tab=pengiriman&order=' + encodeURIComponent(orderId);
       } else if (terminal) {
         title.textContent = 'Pembayaran telah berakhir.';
         description.textContent = 'Pesanan dibatalkan dan stok dikembalikan. Pilih kembali kain Anda untuk membuat pesanan baru.';

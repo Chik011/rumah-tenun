@@ -101,27 +101,66 @@ test('Payment page handles pending, paid, expired and unsafe redirect results', 
     };
     let ready;
     const document = { hidden: false, addEventListener: (name, fn) => { if (name === 'DOMContentLoaded') ready = fn; } };
+    const pageLocation = { search: '?order=' + orderId };
     vm.runInNewContext(fs.readFileSync(path.join(root, 'payment.js'), 'utf8'), {
-      document, window: { addEventListener() {} }, location: { search: '?order=' + orderId },
+      document, window: { addEventListener() {} }, location: pageLocation,
       URLSearchParams, URL, $: element, rupiah: n => 'Rp' + n,
       setInterval: () => 1, clearInterval() {},
       Backend: { penggunaAktif: async () => ({ peran: 'Pembeli' }), pembayaranXendit: async () => result },
       supabaseClient: { from: () => ({ select: () => ({ eq: () => ({ single: async () => ({ data: { total: 300000 } }) }) }) }) }
     });
     await ready();
+    element.location = pageLocation;
     return element;
   }
   let p = await page({ status: 'ACTIVE', mode: 'test', paymentUrl: 'https://dev.xen.to/pay', expiresAt: '2026-10-05T12:00:00Z' });
   assert.equal(p('payment-pay').hidden, false);
   assert.equal(p('payment-test').hidden, false);
+  assert.equal(p.location.href, undefined, 'pending payment stays on payment page');
   p = await page({ status: 'COMPLETED', mode: 'test' });
   assert.equal(p('payment-pay').hidden, true);
   assert.match(p('payment-description').textContent, /Tidak ada uang nyata/);
+  assert.equal(p.location.href, 'keranjang.html?tab=pengiriman&order=' + orderId, 'verified payment opens its purchased items and shipment status');
   p = await page({ status: 'EXPIRED', mode: 'test' });
   assert.match(p('payment-description').textContent, /stok dikembalikan/);
+  assert.equal(p.location.href, undefined, 'expired payment does not show a paid shipment');
   p = await page({ status: 'ACTIVE', mode: 'test', paymentUrl: 'https://attacker.test/pay' });
   assert.equal(p('payment-pay').hidden, true);
   assert.match(p('payment-error').textContent, /tidak valid/);
+});
+
+test('Bag separates cart and shipments, handles guests and confirms delivered items', async () => {
+  function node() {
+    return { hidden:false, children:[], attrs:{}, events:{}, classList:{add(){}}, append(...children){this.children.push(...children)}, replaceChildren(...children){this.children=children}, setAttribute(k,v){this.attrs[k]=v}, addEventListener(k,fn){this.events[k]=fn}, focus(){}, scrollIntoView(){} };
+  }
+  async function page(user, orders) {
+    const elements=new Map(); const element=id=>{if(!elements.has(id)) elements.set(id,node()); return elements.get(id)};
+    let ready, reads=0, confirmations=0;
+    const doc={hidden:false,createTextNode:text=>({textContent:text}),addEventListener:(name,fn)=>{if(name==='DOMContentLoaded')ready=fn}};
+    vm.runInNewContext(fs.readFileSync(path.join(root,'bag.js'),'utf8'),{
+      document:doc,window:{addEventListener(){}},location:{search:'?tab=pengiriman'},URLSearchParams,Date,Number,
+      $:element,elemen:(tag,cls,text)=>Object.assign(node(),{tag,className:cls,textContent:text}),rupiah:n=>'Rp'+n,
+      setInterval:()=>1,clearInterval(){},Backend:{penggunaAktif:async()=>user,pengirimanSaya:async()=>{reads++;return orders},ubahStatusPesanan:async(id,pay,status)=>{assert.equal(status,'completed');assert.equal(pay,'confirmed');confirmations++}}
+    });
+    ready(); await new Promise(resolve=>setImmediate(resolve));
+    return {element,reads:()=>reads,confirmations:()=>confirmations};
+  }
+  let p=await page(null,[]);
+  assert.equal(p.reads(),0,'guests cannot request private shipment data');
+  assert.equal(p.element('bag-cart-panel').hidden,true);
+  assert.equal(p.element('bag-shipping-panel').hidden,false);
+  assert.equal(p.element('shipment-message').children[1].href,'login.html');
+  p=await page({peran:'Pembeli'},[]);
+  assert.match(p.element('shipment-message').textContent,/Belum ada pesanan/);
+  const item={product_id:1,item_name:'Tenun Senja',quantity:2,unit_price:350000};
+  p=await page({peran:'Pembeli'},[{id:'order-test',created_at:'2026-10-05',order_status:'delivered',payment_status:'confirmed',order_items:[item],buyer_name:'Pembeli',shipping_address:'Alamat',total:700000}]);
+  const card=p.element('shipment-orders').children[0];
+  assert.equal(card.children[2].children[1].children[0].href,'produk.html?id=1','purchased items link to product details');
+  const progress=card.children.find(x=>x.className==='shipment-progress');
+  assert.equal(progress.children[3].attrs['aria-current'],'step','delivered step comes from server status');
+  const actions=card.children.find(x=>x.className==='shipment-actions');
+  await actions.children[0].events.click();
+  assert.equal(p.confirmations(),1,'delivered paid orders can be marked received');
 });
 
 test('All page scripts parse and all local stylesheet/script references exist', () => {

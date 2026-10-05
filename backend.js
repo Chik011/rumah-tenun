@@ -112,6 +112,16 @@ const Backend = {
     return data;
   },
 
+  async pengirimanSaya() {
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) throw new Error('Masuk untuk melihat pesanan Anda.');
+    const { data, error } = await supabaseClient.from('orders')
+      .select('id, buyer_name, shipping_address, payment_method, payment_status, order_status, payment_provider, payment_mode, total, created_at, order_items(product_id, item_name, unit_price, quantity, image_url)')
+      .eq('buyer_id', user.id).order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
   async semuaPesanan() {
     const { data, error } = await supabaseClient.from('orders')
       .select('id, buyer_name, phone, shipping_address, payment_method, payment_status, order_status, payment_provider, payment_mode, total, created_at, order_items(item_name, unit_price, quantity, image_url)')

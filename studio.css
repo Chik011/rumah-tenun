@@ -227,3 +227,63 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .quick-login-manage label { cursor:pointer; }
 #quick-account-file { width:100%; font-size:.75rem; }
 #quick-account-clear { padding:0; border:0; background:none; text-decoration:underline; cursor:pointer; }
+.simple-login-page { background:#eef1ef; }
+.login-split { display:grid; grid-template-columns:1.05fr 1fr; min-height:100vh; }
+.login-story { background:linear-gradient(180deg,#123a3860,#102d35e8),url('assets/tenun-background.jpg') center/cover; color:#fff8e9; padding:50px clamp(28px,6vw,100px); display:flex; flex-direction:column; justify-content:space-between; gap:90px; }
+.login-story .brand, .login-story h1 { color:#fff8e9; }
+.login-story .eyebrow, .login-story h1 em { color:#edca91; }
+.login-story h1 { font-size:clamp(3.4rem,6vw,6.7rem); line-height:1.02; margin:22px 0; }
+.login-story p { max-width:470px; line-height:1.8; color:#ede9de; }
+.login-story-tags { display:flex; flex-wrap:wrap; gap:10px; margin:32px 0 12px; }
+.login-story-tags span { background:#ffffff12; border:1px solid #ffffff35; border-radius:9px; padding:10px 12px; font-size:.75rem; }
+.login-form-side { padding:40px clamp(24px,5vw,75px); display:grid; place-items:center; background:linear-gradient(135deg,#edf2ec,#e9eaf5); }
+.login-card { width:100%; max-width:510px; background:#fffefa; border:1px solid #dde3dd; border-radius:24px; padding:clamp(26px,3vw,44px); box-shadow:0 25px 65px #163b3514; }
+.login-card h2 { font-family:var(--font-sans,Arial,sans-serif); font-size:clamp(1.65rem,2.3vw,2.1rem); letter-spacing:-.04em; margin:14px 0 8px; color:var(--hijau); }
+.login-card form { display:flex; flex-direction:column; gap:10px; margin:28px 0 22px; }
+.login-card form label { font-size:.8rem; font-weight:600; margin-top:6px; }
+.login-card input, .login-card select { width:100%; min-height:48px; }
+.login-card #login-error:empty, .login-card #login-success:empty { display:none; }
+.login-card #login-submit { width:100%; margin-top:12px; }
+.login-quick-row { border-top:1px solid var(--garis); padding-top:18px; }
+.login-card .quick-login-options { flex-wrap:nowrap; gap:8px; }
+.login-card .quick-login-options button { flex:1; padding:7px 8px; min-height:38px; border-radius:24px; font-size:.73rem; }
+.login-private-accounts { margin:20px 0; font-size:.75rem; }
+.login-private-accounts summary { cursor:pointer; color:var(--sekunder); }
+.login-private-accounts input { min-height:0; margin:10px 0; }
+.login-register { margin:20px 0 15px; }
+.bag-tabs { display:flex; gap:8px; border-bottom:1px solid var(--garis); margin:28px 0; }
+.bag-tabs button { border:0; border-radius:8px 8px 0 0; padding:15px 25px; background:transparent; color:var(--sekunder); font-weight:600; }
+.bag-tabs [aria-selected="true"] { background:var(--hijau); color:white; }
+.shipment-heading { display:flex; justify-content:space-between; align-items:center; gap:20px; margin:30px 0; }
+.shipment-heading h2 { font-size:2.2rem; margin:0 0 8px; }
+.shipment-orders { display:grid; gap:24px; }
+.shipment-card { background:var(--putih); border:1px solid var(--garis); border-radius:14px; padding:28px; scroll-margin-top:115px; }
+.shipment-selected { border-color:var(--hijau); box-shadow:0 0 0 2px #203b3218; }
+.shipment-card-heading { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
+.shipment-item { display:grid; grid-template-columns:72px 1fr auto; align-items:center; gap:18px; padding:18px 0; border-bottom:1px solid var(--garis); }
+.shipment-thumb { width:72px; height:80px; background:url('assets/tenun.jpg') center/cover; border-radius:6px; }
+.shipment-item .text-link { font-size:1rem; font-weight:600; }
+.shipment-item .note { margin:8px 0 0; }
+.shipment-payment { color:var(--hijau); font-weight:600; }
+.shipment-progress { display:flex; list-style:none; padding:0; margin:24px 0; gap:10px; }
+.shipment-progress li { flex:1; border-top:3px solid var(--garis); padding-top:12px; color:var(--sekunder); font-size:.74rem; }
+.shipment-progress .reached { color:var(--hijau); border-color:var(--hijau); }
+.shipment-progress [aria-current="step"] { font-weight:700; }
+.shipment-address { font-size:.85rem; margin:22px 0; }
+.shipment-address summary { cursor:pointer; }
+.shipment-total { display:block; margin-top:24px; }
+.shipment-actions { display:flex; gap:12px; margin-top:18px; }
+@media(max-width:760px) {
+  .login-split { grid-template-columns:1fr; }
+  .login-story { padding:25px; gap:35px; min-height:280px; }
+  .login-story h1 { font-size:2.8rem; } .login-story h1 br { display:none; }
+  .login-story p, .login-story-tags { display:none; }
+  .login-form-side { padding:26px 18px; }
+  .shipment-heading { flex-direction:column; align-items:flex-start; }
+  .shipment-card { padding:20px; }
+  .shipment-item { grid-template-columns:55px 1fr; gap:12px; }
+  .shipment-thumb { width:55px; height:65px; }
+  .shipment-item > strong { grid-column:2; }
+  .shipment-progress { flex-direction:column; gap:12px; }
+  .shipment-progress li { border-top:0; border-left:3px solid var(--garis); padding:3px 0 3px 12px; }
+}

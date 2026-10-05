@@ -7,11 +7,12 @@
   <title>Tas Belanja — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=gradient-1">
+  <link rel="stylesheet" href="studio.css?v=journey-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
   <script src="common.js" defer></script>
+  <script src="bag.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -43,7 +44,9 @@
     <a class="cart-back-link" href="koleksi.html">← Lanjut belanja</a>
     <span class="eyebrow">PILIHAN ANDA</span>
     <h1>Tas belanja.</h1>
-    <p class="intro">Periksa kain pilihan Anda dan sesuaikan jumlah sebelum melanjutkan.</p>
+    <p class="intro">Pilihan kain dan perjalanan pesanan Anda, dalam satu tas.</p>
+    <div class="bag-tabs" role="tablist" aria-label="Isi tas belanja"><button id="bag-cart-tab" role="tab" aria-selected="true" aria-controls="bag-cart-panel" type="button">Keranjang</button><button id="bag-shipping-tab" role="tab" aria-selected="false" aria-controls="bag-shipping-panel" tabindex="-1" type="button">Pengiriman</button></div>
+    <section id="bag-cart-panel" role="tabpanel" aria-labelledby="bag-cart-tab">
 
     <div id="cart-page-empty" class="cart-empty" hidden>
       <span class="cart-empty-mark" aria-hidden="true">0</span>
@@ -71,6 +74,11 @@
         <a class="cart-continue-link" href="koleksi.html">Tambah kain lainnya</a>
       </aside>
     </div>
+    </section>
+    <section id="bag-shipping-panel" role="tabpanel" aria-labelledby="bag-shipping-tab" hidden>
+      <div class="shipment-heading"><div><h2>Pesanan & pengiriman</h2><p class="note">Pantau pembayaran, barang yang diproses, dan status pengirimannya.</p></div><button id="shipment-refresh" type="button" class="outline">Perbarui status ↻</button></div>
+      <p id="shipment-message" role="status" class="notice"></p><div id="shipment-orders" class="shipment-orders"></div>
+    </section>
   </main>
 
   <footer class="site-footer">

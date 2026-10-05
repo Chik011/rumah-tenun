@@ -245,7 +245,31 @@ function initKeranjang() {
 // ============================================================
 // HEADER & NAVIGASI STICKY BERSAMA (ICON TAS & ICON USER)
 // ============================================================
+function initMataSandi() {
+  document.querySelectorAll('input[type="password"]').forEach(input => {
+    if (input.closest('.password-field')) return;
+    const wrapper = elemen('div', 'password-field');
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.append(input);
+    const toggle = elemen('button', 'password-toggle');
+    toggle.type = 'button';
+    toggle.setAttribute('aria-label', 'Tampilkan kata sandi');
+    toggle.setAttribute('aria-pressed', 'false');
+    toggle.setAttribute('aria-controls', input.id);
+    toggle.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M3 3l18 18" hidden/></svg>';
+    toggle.addEventListener('click', () => {
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      toggle.setAttribute('aria-label', show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+      toggle.setAttribute('aria-pressed', String(show));
+      toggle.querySelector('.eye-slash').style.display = show ? 'block' : 'none';
+    });
+    wrapper.append(toggle);
+  });
+}
+
 async function initNavigasiBersama() {
+  initMataSandi();
   // Mobile menu button
   const menuBtn = $('menu-button');
   const nav = $('navigation');

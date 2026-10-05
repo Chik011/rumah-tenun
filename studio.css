@@ -335,3 +335,8 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .private-quick-setup { margin-top:16px; }
 .private-quick-setup label { display:inline-block; color:#1760c0; border:1px solid #bed2eb; background:#edf4ff; border-radius:6px; padding:10px 14px; font-size:.78rem; cursor:pointer; }
 @media(max-width:760px) { .lesson-card { padding:26px; } .lesson-card h2 { font-size:2rem; } .lesson-start { width:100%; } }
+.password-field { position:relative; width:100%; }
+.password-field input { width:100%; padding-right:52px; }
+.password-toggle { position:absolute; right:5px; top:50%; transform:translateY(-50%); display:grid; place-items:center; min-width:42px; height:42px; padding:8px; border:0; background:transparent; color:var(--hijau); border-radius:6px; }
+.password-toggle:hover { background:#203b320d; }
+.eye-slash { display:none; }

@@ -221,6 +221,8 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .site-footer .footer-bottom { border-color:#ffffff25; }
 .hero { background:linear-gradient(135deg,#edeadf 0%,#f1dfca 100%); }
 .learning-banner { background:linear-gradient(120deg,#e6ebe0 0%,#dfdfed 55%,#edddcf 100%); }
+.learning-banner h2, .learning-banner p { color:var(--hijau); }
+.learning-banner .eyebrow, .learning-banner h2 em { color:var(--marun); }
 .quick-login-manage { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:18px; }
 .quick-login-manage label { cursor:pointer; }
 #quick-account-file { width:100%; font-size:.75rem; }

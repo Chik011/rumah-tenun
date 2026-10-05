@@ -7,7 +7,7 @@
   <title>Masuk — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=polish-1">
+  <link rel="stylesheet" href="studio.css?v=learning-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
@@ -34,6 +34,7 @@
         </form>
         <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-email="user@gmail.com" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-email="penjual@rumah-tenun.example" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-email="admin@rumah-tenun.example" data-role="Admin">Admin</button></div></div>
         
+        <div class="private-quick-setup"><label for="private-quick-file">Aktifkan login cepat di perangkat ini</label><input id="private-quick-file" type="file" accept="application/json,.json" hidden></div>
         <div class="auth-alternative"><span>Belum punya akun?</span><a class="auth-blue-link" href="register.html">Daftar sekarang</a></div><button id="btn-quick-guest" class="guest-link" type="button">Lanjut sebagai guest</button>
       </div>
     </section>
@@ -59,6 +60,25 @@
         userInput.disabled = passInput.disabled = guest;
       });
       const quickKey = 'rm_quick_accounts';
+      $('private-quick-file').addEventListener('change', async event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        try {
+          if (file.size > 10000) throw new Error('Berkas akun terlalu besar.');
+          const accounts = JSON.parse(await file.text());
+          const allowed = new Set(Array.from(document.querySelectorAll('[data-quick-email]'), item => item.dataset.quickEmail));
+          if (!Array.isArray(accounts) || !accounts.length) throw new Error('Berkas akun tidak sesuai.');
+          const saved = {};
+          for (const account of accounts) {
+            if (!allowed.has(account.email) || typeof account.password !== 'string' || !account.password || account.password.length > 100) throw new Error('Berkas akun tidak sesuai.');
+            saved[account.email] = account.password;
+          }
+          localStorage.setItem(quickKey, JSON.stringify(saved));
+          successMsg.textContent = 'Login cepat aktif. Klik Admin atau Penjual untuk mengisi email dan sandi.';
+          errorMsg.textContent = '';
+        } catch (error) { errorMsg.textContent = error.message || 'Login cepat belum dapat disimpan.'; }
+        event.target.value = '';
+      });
       function bacaAkunCepat() {
         try { return JSON.parse(localStorage.getItem(quickKey) || '{}'); } catch (_) { return {}; }
       }

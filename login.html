@@ -58,6 +58,10 @@
         const guest = roleInput.value === 'Guest';
         userInput.required = passInput.required = !guest;
         userInput.disabled = passInput.disabled = guest;
+        if (!guest) {
+          const button = Array.from(document.querySelectorAll('[data-quick-email]')).find(item => item.dataset.role === roleInput.value);
+          if (button) isiAkunCepat(button);
+        }
       });
       const quickKey = 'rm_quick_accounts';
       $('private-quick-file').addEventListener('change', async event => {
@@ -74,6 +78,8 @@
             saved[account.email] = account.password;
           }
           localStorage.setItem(quickKey, JSON.stringify(saved));
+          const selected = Array.from(document.querySelectorAll('[data-quick-email]')).find(item => item.dataset.role === roleInput.value);
+          if (selected) isiAkunCepat(selected);
           successMsg.textContent = 'Login cepat aktif. Klik Admin atau Penjual untuk mengisi email dan sandi.';
           errorMsg.textContent = '';
         } catch (error) { errorMsg.textContent = error.message || 'Login cepat belum dapat disimpan.'; }
@@ -82,17 +88,20 @@
       function bacaAkunCepat() {
         try { return JSON.parse(localStorage.getItem(quickKey) || '{}'); } catch (_) { return {}; }
       }
-      document.querySelectorAll('[data-quick-email]').forEach(button => {
-        button.addEventListener('click', () => {
+      function isiAkunCepat(button) {
           roleInput.value = button.dataset.role;
           userInput.required = passInput.required = true;
           userInput.disabled = passInput.disabled = false;
           userInput.value = button.dataset.quickEmail;
           passInput.value = button.dataset.quickEmail === 'user@gmail.com' ? '12345678' : (bacaAkunCepat()[button.dataset.quickEmail] || '');
           errorMsg.textContent = '';
-          successMsg.textContent = passInput.value ? 'Email dan sandi terisi. Klik Masuk ke Akun.' : 'Akun dipilih. Masukkan kata sandi Anda.';
+          successMsg.textContent = passInput.value ? 'Email dan sandi terisi. Klik Masuk ke beranda.' : 'Login cepat belum aktif di perangkat ini. Pilih Aktifkan login cepat di perangkat ini dan masukkan berkas akun pribadi, atau ketik sandi Anda.';
           document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
           (passInput.value ? submitBtn : passInput).focus();
+      }
+      document.querySelectorAll('[data-quick-email]').forEach(button => {
+        button.addEventListener('click', () => {
+          isiAkunCepat(button);
         });
       });
 

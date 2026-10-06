@@ -96,7 +96,9 @@ function renderKeranjangHalaman() {
     total += banyak * item.harga;
 
     const baris = elemen('article', 'cart-page-row');
-    const foto = elemen('div', 'cart-page-photo');
+    const foto = elemen('a', 'cart-page-photo');
+    foto.href = 'produk.html?id=' + item.id;
+    foto.setAttribute('aria-label', 'Lihat informasi ' + item.nama);
     if (item.imageUrl) {
       foto.style.backgroundImage = `url("${item.imageUrl}")`;
       foto.style.backgroundSize = 'cover';
@@ -104,12 +106,14 @@ function renderKeranjangHalaman() {
     } else {
       foto.style.backgroundPosition = item.posisi;
     }
-    foto.setAttribute('role', 'img');
-    foto.setAttribute('aria-label', 'Ilustrasi ' + item.nama);
 
     const info = elemen('div', 'cart-page-info');
-    info.append(elemen('h2', '', item.nama), elemen('p', '', rupiah(item.harga) + ' / kain'));
+    const productName = elemen('a', 'cart-product-title', item.nama); productName.href = 'produk.html?id=' + item.id;
+    const title = elemen('h2'); title.append(productName);
+    info.append(title, elemen('p', '', rupiah(item.harga) + ' / kain'));
     if (item.sellerName) info.append(elemen('p', 'product-seller', 'Penjual: ' + item.sellerName));
+    if (item.pembuat) info.append(elemen('p', 'product-seller', 'Pembuat: ' + item.pembuat));
+    const details = elemen('a', 'outline cart-product-details', 'Informasi & cerita tenun'); details.href = 'produk.html?id=' + item.id; info.append(details);
 
     const kontrol = elemen('div', 'quantity cart-page-quantity');
     const kurang = elemen('button', '', '−');

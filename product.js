@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('product-breadcrumb').textContent = item.nama;
     $('product-price').textContent = rupiah(item.harga);
     $('product-description').textContent = item.deskripsi;
+    $('product-maker').textContent = item.pembuat ? 'Dibuat oleh: ' + item.pembuat : 'Nama pembuat belum dicantumkan oleh penjual.';
+    $('product-story-text').textContent = item.cerita || item.deskripsi || 'Cerita tenun belum ditambahkan oleh penjual.';
     $('product-seller').textContent = 'Penjual: ' + (item.sellerName || 'Koperasi Rantai Mawar');
     const photo = $('product-photo');
     if (item.imageUrl) {
@@ -52,6 +54,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('product-add').disabled = $('product-buy').disabled = item.stok < 1;
     $('product-add').addEventListener('click', () => add(false));
     $('product-buy').addEventListener('click', () => add(true));
+    const user = await Backend.penggunaAktif();
+    if (user && ['Penjual', 'Admin'].includes(user.peran)) {
+      document.querySelector('.product-detail-actions').hidden = true;
+      document.querySelector('.product-quantity-control').hidden = true;
+      document.querySelector('label[for="product-quantity"]').hidden = true;
+      const manage = elemen('a', 'outline', 'Kelola di etalase'); manage.href = 'akun.html';
+      $('product-feedback').append(manage);
+    }
     state.hidden = true;
     $('product-detail').hidden = false;
   } catch (error) {

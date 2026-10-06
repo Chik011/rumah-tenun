@@ -7,11 +7,11 @@
   <title>Masuk — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=seller-live-1">
+  <link rel="stylesheet" href="studio.css?v=story-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=seller-live-1" defer></script>
-  <script src="common.js?v=seller-live-1" defer></script>
+  <script src="backend.js?v=story-1" defer></script>
+  <script src="common.js?v=story-1" defer></script>
 </head>
 <body class="simple-login-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -30,7 +30,7 @@
           <label for="login-email">Email</label><input id="login-email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="Masukkan email Anda">
           <label for="login-password">Kata sandi</label><input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100" placeholder="Masukkan kata sandi">
           <p id="login-error" class="error" role="alert"></p><p id="login-success" class="note" role="status"></p>
-          <label id="remember-private-label" class="remember-private" hidden><input id="remember-private" type="checkbox"> Ingat login Admin/Penjual di perangkat pribadi ini</label>
+          <label id="remember-private-label" class="remember-private" hidden><input id="remember-private" type="checkbox" checked> Simpan login cepat di perangkat ini</label>
           <button id="login-submit" class="primary" type="submit">Masuk ke beranda →</button>
         </form>
         <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-email="user@gmail.com" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-email="penjual@rumah-tenun.example" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-email="admin@rumah-tenun.example" data-role="Admin">Admin</button></div></div>

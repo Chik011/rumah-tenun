@@ -42,7 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
           const name = elemen('a','text-link',item.item_name);
           if (Number.isSafeInteger(Number(item.product_id)) && Number(item.product_id)>0) name.href = 'produk.html?id=' + encodeURIComponent(item.product_id);
           info.append(name,elemen('p','note',item.quantity + ' kain × ' + rupiah(item.unit_price)));
-          row.append(image,info,elemen('strong','',rupiah(item.quantity * item.unit_price)));
+          let visual = image;
+          if (name.href) {
+            visual = elemen('a'); visual.href = name.href; visual.setAttribute('aria-label', 'Informasi ' + item.item_name); visual.append(image);
+            const detailsLink = elemen('a', 'outline cart-product-details', 'Informasi & cerita tenun'); detailsLink.href = name.href; info.append(detailsLink);
+          }
+          row.append(visual,info,elemen('strong','',rupiah(item.quantity * item.unit_price)));
           card.append(row);
         }
         card.append(elemen('p','shipment-payment',BAG_PAYMENT_LABELS[order.payment_status] || 'Pembayaran sedang diperiksa'));

@@ -7,11 +7,11 @@
   <title>Detail Tenun — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=seller-live-1">
+  <link rel="stylesheet" href="studio.css?v=story-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=seller-live-1" defer></script>
-  <script src="common.js?v=seller-live-1" defer></script>
+  <script src="backend.js?v=story-1" defer></script>
+  <script src="common.js?v=story-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -51,6 +51,7 @@
         <p id="product-seller" class="product-seller"></p>
         <strong id="product-price" class="product-detail-price"></strong><span class="note"> / kain</span>
         <p id="product-description" class="intro"></p>
+        <section class="product-story" aria-labelledby="product-story-title"><span class="eyebrow">DI BALIK SEHELAI KAIN</span><h2 id="product-story-title">Cerita tenun</h2><p id="product-maker" class="product-maker"></p><p id="product-story-text"></p></section>
         <dl id="product-specs" class="product-detail-specs"></dl>
         <label for="product-quantity">Jumlah kain</label>
         <div class="product-quantity-control"><button id="product-minus" type="button" aria-label="Kurangi jumlah kain">−</button><input id="product-quantity" type="number" min="1" step="1" value="1" readonly aria-live="polite"><button id="product-plus" type="button" aria-label="Tambah jumlah kain">+</button></div>
@@ -124,6 +125,6 @@
     </div>
   </dialog>
 
-  <script src="product.js" defer></script>
+  <script src="product.js?v=story-1" defer></script>
 </body>
 </html>

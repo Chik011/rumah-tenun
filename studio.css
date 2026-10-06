@@ -352,6 +352,14 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .seller-order-card .workflow-details { width: 100%; }
 .seller-order-card .primary { margin-top: 20px; }
 .seller-editor-form > #seller-cancel-edit { grid-column: 1 / -1; }
+.cart-product-title, .seller-product-title, .seller-order-product-link { color: var(--hijau); text-decoration: underline; text-decoration-color: #94aaa1; text-underline-offset: 5px; }
+.seller-product-title, .seller-order-product-link { font-size: 1.15rem; font-weight: 600; }
+.cart-product-details { display: inline-flex; align-items: center; font-size: .8rem; min-height: 38px; padding: 8px 12px; margin-top: 12px; text-decoration: none; }
+.product-story { background: #e7eee7; border: 1px solid #cddccd; border-radius: 14px; padding: 26px; margin: 24px 0; }
+.product-story h2 { font-size: 2rem; margin: 12px 0 20px; }
+.product-story p { line-height: 1.8; white-space: pre-line; overflow-wrap: anywhere; }
+.product-maker { font-weight: 600; color: var(--hijau); }
+.cart-page-photo:focus-visible { outline: 3px solid #3273bb; outline-offset: 4px; }
 .seller-workspace { background: #f0f4f5; }
 .seller-workspace .account-page { max-width: none; }
 .seller-workspace #account-title { font-size: clamp(2.5rem, 5vw, 4rem); margin: 12px 0 24px; }

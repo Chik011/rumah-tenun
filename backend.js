@@ -30,6 +30,8 @@ function ubahBentukProduk(item) {
     harga: item.price,
     posisi: item.image_position,
     deskripsi: item.description,
+    pembuat: item.maker_name || '',
+    cerita: item.story || '',
     imageUrl: item.image_url,
     sellerId: item.seller_id,
     sellerName: item.profiles && item.profiles.display_name,
@@ -54,8 +56,8 @@ const Backend = {
   },
   async ambilDetailProduk(id) {
     const { data, error } = await supabaseClient.from('products')
-      .select('id, name, price, image_position, description, image_url, seller_id, motif, size, material, stock, status, profiles!products_seller_id_fkey(display_name)')
-      .eq('id', id).eq('status', 'approved').maybeSingle();
+      .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, profiles!products_seller_id_fkey(display_name)')
+      .eq('id', id).maybeSingle();
     if (error) throw error;
     return data ? ubahBentukProduk(data) : null;
   },
@@ -74,7 +76,7 @@ const Backend = {
   async ambilProduk() {
     const { data, error } = await supabaseClient
       .from('products')
-      .select('id, name, price, image_position, description, image_url, seller_id, motif, size, material, stock, status, review_note, profiles!products_seller_id_fkey(display_name)')
+      .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, review_note, profiles!products_seller_id_fkey(display_name)')
       .order('id');
     if (error) throw error;
     return data.map(ubahBentukProduk);
@@ -83,7 +85,7 @@ const Backend = {
   async produkPerluReview() {
     const { data, error } = await supabaseClient
       .from('products')
-      .select('id, name, price, image_position, description, image_url, seller_id, motif, size, material, stock, status, review_note, profiles!products_seller_id_fkey(display_name)')
+      .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, review_note, profiles!products_seller_id_fkey(display_name)')
       .in('status', ['pending', 'needs_revision'])
       .order('id');
     if (error) throw error;
@@ -254,6 +256,8 @@ const Backend = {
       name: produk.nama.trim(),
       price: Number(produk.harga),
       description: produk.deskripsi.trim(),
+      maker_name: (produk.pembuat || '').trim(),
+      story: (produk.cerita || '').trim(),
       image_position: '50% 50%',
       motif: produk.motif.trim(),
       size: produk.ukuran.trim(),
@@ -271,7 +275,7 @@ const Backend = {
     }
     const query = supabaseClient.from('products').insert({ ...productData, seller_id: user.id });
     const { data, error } = await query
-      .select('id, name, price, image_position, description, image_url, seller_id, motif, size, material, stock, status, review_note')
+      .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, review_note')
       .single();
     if (error) throw error;
     return ubahBentukProduk(data);

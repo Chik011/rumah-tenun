@@ -60,7 +60,9 @@ Produk awal dan materi belajar tersimpan di tabel Supabase. Checkout membuat ord
 - Dua tab: Produk saya dan Pesanan masuk. Dua belas produk awal yang belum memiliki penjual telah dikaitkan ke akun Penjual toko beserta item pesanan lamanya.
 - Semua produk milik penjual dapat diedit, termasuk harga/stok. Foto lama dipertahankan jika tidak memilih foto baru. Produk yang diubah menunggu verifikasi ulang Admin.
 - Pesanan dibaca melalui RPC yang membatasi akses ke barang penjual itu. Pesanan belum dibayar tidak dapat diterima/diproses; status pembayaran Xendit tidak bisa diubah manual.
-- Login cepat Admin/Penjual memilih email akun asli. Centang ingat login pada perangkat pribadi setelah memasukkan sandi untuk mengisi sandi otomatis pada kunjungan berikutnya. Tidak ada kredensial Admin/Penjual di kode publik.
+- Login cepat Admin/Penjual memilih email akun asli. Penyimpanan login cepat aktif secara default setelah login pertama berhasil di perangkat itu; pengguna dapat menonaktifkannya dengan menghapus centang. Tidak ada kredensial Admin/Penjual di kode publik.
+- Produk mempunyai kolom nama pembuat dan cerita tenun yang disimpan di Supabase serta bisa diisi/diedit oleh penjual. Informasi yang belum tersedia ditampilkan sebagai belum dicantumkan.
+- Nama/foto produk di keranjang, pengiriman, etalase, dan pesanan masuk menaut ke halaman detail; tombol Informasi & cerita tenun menjelaskan tujuan tautan.
 
 Untuk perubahan skema berikutnya, buat migrasi baru dan jalankan `npx supabase db push --linked`. Untuk deploy ulang function gunakan `npx supabase functions deploy <nama-function> --project-ref lsewgdyamxfblzcjkwti`.
 

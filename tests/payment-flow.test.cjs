@@ -132,19 +132,30 @@ test('Payment page handles pending, paid, expired and unsafe redirect results', 
 test('Seller login opens product management, other roles open home, and role selection cannot grant admin access', async () => {
   const source=fs.readFileSync(path.join(root,'login.html'),'utf8').match(/<script>\s*([\s\S]*?)<\/script>/)[1];
   async function login(selected,actual) {
-    const nodes=new Map(); const element=id=>{if(!nodes.has(id))nodes.set(id,{value:'',events:{},addEventListener(k,fn){this.events[k]=fn},focus(){}});return nodes.get(id)};
+    const nodes=new Map(); const element=id=>{if(!nodes.has(id))nodes.set(id,{value:'',events:{},addEventListener(k,fn){this.events[k]=fn},setAttribute(){},focus(){}});return nodes.get(id)};
+    const storage=new Map();
+    const emails={Pembeli:'user@gmail.com',Admin:'admin@rumah-tenun.example',Penjual:'penjual@rumah-tenun.example'};
+    const quick=Object.entries(emails).map(([role,email])=>Object.assign(element('quick-'+role),{dataset:{role,quickEmail:email}}));
     element('login-role').value=selected;
-    element('login-email').value='dummy@example.test'; element('login-password').value='test-only';
+    element('login-email').value=emails[selected]||'dummy@example.test'; element('login-password').value='test-only';
+    element('remember-private').checked=true;
     let ready,logouts=0; const window={location:{search:'?next=checkout.html'}};
-    vm.runInNewContext(source,{window,Set,Array,JSON,document:{querySelectorAll:()=>[],addEventListener:(event,fn)=>{ready=fn}},$:element,localStorage:{getItem:()=>null,removeItem(){},setItem(){}},setTimeout:fn=>fn(),Backend:{masuk:async()=>({nama:'Contoh',peran:actual}),keluar:async()=>{logouts++},masukGuest:async()=>({peran:'Guest'})}});
+    vm.runInNewContext(source,{window,Set,Array,JSON,document:{querySelectorAll:()=>quick,addEventListener:(event,fn)=>{ready=fn}},$:element,localStorage:{getItem:key=>storage.get(key)||null,removeItem:key=>storage.delete(key),setItem:(key,value)=>storage.set(key,value)},setTimeout:fn=>fn(),Backend:{masuk:async()=>({nama:'Contoh',peran:actual,email:emails[selected]}),keluar:async()=>{logouts++},masukGuest:async()=>({peran:'Guest'})}});
     ready(); element('login-form').events.submit({preventDefault(){}}); await new Promise(resolve=>setImmediate(resolve));
-    return {window,element,logouts};
+    return {window,element,logouts,storage};
   }
   for(const role of ['Pembeli','Admin','Penjual','Guest']) assert.equal((await login(role,role)).window.location.href,role === 'Penjual' ? 'akun.html' : 'index.html');
   const wrong=await login('Admin','Pembeli');
   assert.equal(wrong.window.location.href,undefined);
   assert.equal(wrong.logouts,1);
   assert.match(wrong.element('login-error').textContent,/bukan Admin/);
+  assert.equal(wrong.storage.size,0,'wrong-role login does not save a password');
+  for(const role of ['Admin','Penjual']) {
+    const saved=await login(role,role);
+    saved.element('login-password').value='';
+    saved.element('quick-'+role).events.click();
+    assert.equal(saved.element('login-password').value,'test-only','quick login fills saved private password');
+  }
 });
 
 test('Bag separates cart and shipments, handles guests and confirms delivered items', async () => {
@@ -210,7 +221,7 @@ test('PostgreSQL: checkout, permissions, payment verification and stock lifecycl
       insert into public.profiles(id) values ('11111111-1111-4111-8111-111111111111'), ('22222222-2222-4222-8222-222222222222');
       insert into public.products(id, name, price) values (1, 'Tenun Mawar', 150000), (2, 'Tenun Pesisir', 200000);
     `);
-    for (const file of ['20261005000000_product_review_and_orders.sql', '20261005010000_buyer_receipt_confirmation.sql', '20261005020000_xendit_payment_sessions.sql', '20261006000000_seller_management.sql']) {
+    for (const file of ['20261005000000_product_review_and_orders.sql', '20261005010000_buyer_receipt_confirmation.sql', '20261005020000_xendit_payment_sessions.sql', '20261006000000_seller_management.sql', '20261006020000_product_stories.sql']) {
       await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/migrations', file), 'utf8'));
     }
     const user = '11111111-1111-4111-8111-111111111111';
@@ -312,12 +323,16 @@ test('PostgreSQL: checkout, permissions, payment verification and stock lifecycl
     await context('authenticated');
     await db.query("update orders set order_status='completed' where id=$1",[mixed]);
     assert.equal((await db.query('select count(*)::int as count from seller_fulfillments where order_id=$1 and status=\'completed\'',[mixed])).rows[0].count,2);
-    const update = {name:'Updated A cloth',price:120000,stock:5,description:'Updated cloth description',motif:'Flowers',size:'200 cm',material:'Cotton'};
+    const update = {name:'Updated A cloth',price:120000,stock:5,description:'Updated cloth description',motif:'Flowers',size:'200 cm',material:'Cotton',maker_name:'Maker A',story:'The story of this cloth.'};
     await asSeller(sellerA);
     await assert.rejects(db.query('select update_seller_product(4,$1::jsonb)',[JSON.stringify(update)]), /bukan milik/);
     const edited=(await db.query('select to_jsonb(update_seller_product(3,$1::jsonb)) as data',[JSON.stringify(update)])).rows[0].data;
     assert.equal(edited.price,120000); assert.equal(edited.stock,5); assert.equal(edited.status,'pending');
     assert.equal(edited.seller_id,sellerA);
+    assert.equal(edited.maker_name,'Maker A'); assert.equal(edited.story,'The story of this cloth.');
+    const preserve={...update}; delete preserve.maker_name; delete preserve.story;
+    const preserved=(await db.query('select to_jsonb(update_seller_product(3,$1::jsonb)) as data',[JSON.stringify(preserve)])).rows[0].data;
+    assert.equal(preserved.maker_name,'Maker A'); assert.equal(preserved.story,'The story of this cloth.');
     await assert.rejects(db.query('select update_seller_product(3,$1::jsonb)',[JSON.stringify({...update,image_url:'https://evil.example/image.png'})]), /Cloudinary/);
     await db.exec('reset role');
     await db.query("select set_config('test.uid',$1,false)",[other]);

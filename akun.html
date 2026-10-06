@@ -7,11 +7,11 @@
   <title>Ruang Anggota — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=seller-live-1">
+  <link rel="stylesheet" href="studio.css?v=story-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=seller-live-1" defer></script>
-  <script src="common.js?v=seller-live-1" defer></script>
+  <script src="backend.js?v=story-1" defer></script>
+  <script src="common.js?v=story-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -409,6 +409,10 @@
             </div><div class="seller-field seller-field-wide">
             <label for="product-description">Deskripsi</label>
             <textarea id="product-description" required minlength="5" maxlength="1000" rows="4" placeholder="Ceritakan warna, motif, dan keunggulan barang Anda."></textarea>
+            </div><div class="seller-field seller-field-wide">
+            <label for="product-maker">Nama pembuat tenun</label><input id="product-maker" maxlength="160" placeholder="Nama penenun atau kelompok pembuat">
+            </div><div class="seller-field seller-field-wide">
+            <label for="product-story">Cerita tentang tenun</label><textarea id="product-story" maxlength="4000" rows="5" placeholder="Ceritakan asal tenun, makna motif, dan proses pembuatannya."></textarea>
             </div><div class="seller-field seller-field-wide seller-upload">
             <label for="product-image">Foto produk</label>
             <input id="product-image" type="file" accept="image/jpeg,image/png,image/webp" required>
@@ -457,8 +461,9 @@
               row.append(image);
             }
             const details = elemen('div');
+            const productLink = elemen('a', 'seller-product-title', item.nama); productLink.href = 'produk.html?id=' + item.id;
             details.append(
-              elemen('strong', '', item.nama),
+              productLink,
               elemen('p', '', [item.motif, item.ukuran, item.bahan].filter(Boolean).join(' · ') || 'Lengkapi detail barang melalui Edit produk.'),
               elemen('p', '', rupiah(item.harga) + ' · Stok ' + item.stok),
               elemen('span', 'workflow-status status-' + item.status, labelStatusProduk(item.status))
@@ -476,6 +481,8 @@
                 $('product-price').value = item.harga;
                 $('product-stock').value = item.stok;
                 $('product-description').value = item.deskripsi;
+                $('product-maker').value = item.pembuat;
+                $('product-story').value = item.cerita;
                 $('product-image').required = false;
                 $('product-image').value = '';
                 $('product-stock').min = '0';
@@ -517,7 +524,9 @@
               bahan: $('product-material').value,
               harga: $('product-price').value,
               stok: $('product-stock').value,
-              deskripsi: $('product-description').value
+              deskripsi: $('product-description').value,
+              pembuat: $('product-maker').value,
+              cerita: $('product-story').value
             }, productForm.dataset.editingId);
             resetProductEditor();
             await renderSellerProducts();
@@ -546,8 +555,18 @@
             if (order.payment_mode === 'test') details.append(elemen('p', 'payment-test', 'Pembayaran uji Xendit'));
             (order.order_items || []).forEach(item => {
               const row = elemen('div', 'seller-order-item');
-              const photo = elemen('img', 'seller-product-thumb'); photo.src = item.image_url || 'assets/tenun.jpg'; photo.alt = item.item_name; row.append(photo);
-              row.append(elemen('p', '', item.item_name + ' × ' + item.quantity + ' · ' + rupiah(item.unit_price)));
+              const photo = elemen('img', 'seller-product-thumb'); photo.src = item.image_url || 'assets/tenun.jpg'; photo.alt = item.item_name;
+              const productName = elemen('a', 'seller-order-product-link', item.item_name);
+              let visual = photo;
+              if (Number.isSafeInteger(Number(item.product_id)) && Number(item.product_id) > 0) {
+                productName.href = 'produk.html?id=' + Number(item.product_id);
+                visual = elemen('a'); visual.href = productName.href; visual.setAttribute('aria-label', 'Informasi ' + item.item_name); visual.append(photo);
+              }
+              const info = elemen('div'); info.append(productName, elemen('p', '', 'Jumlah ' + item.quantity + ' · ' + rupiah(item.unit_price)));
+              if (productName.href) {
+                const detailsLink = elemen('a', 'outline cart-product-details', 'Informasi & cerita tenun'); detailsLink.href = productName.href; info.append(detailsLink);
+              }
+              row.append(visual, info);
               details.append(row);
             });
             details.append(elemen('strong', '', 'Total barang Anda: ' + rupiah(order.total)));

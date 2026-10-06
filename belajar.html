@@ -7,7 +7,7 @@
   <title>Ruang Belajar — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=stock-1">
+  <link rel="stylesheet" href="studio.css?v=learn-2">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js?v=stock-1" defer></script>
@@ -41,14 +41,14 @@
   </header>
 
   <main id="main-content" class="container section">
+    <section class="learning-intro" aria-labelledby="learning-title"><div>
     <span class="eyebrow">RUANG BELAJAR DIGITAL</span>
-    <h1>Pelan-pelan,<br><em>kita bisa.</em></h1>
+    <h1 id="learning-title">Pelan-pelan,<br><em>kita bisa.</em></h1>
     <p class="intro">Baca panduan, coba langsung langkahnya, lalu ulangi bersama pendamping secara bertahap.</p>
 
-    <div style="margin-bottom: 25px;">
-      <button id="font-button" class="outline" aria-pressed="false">Aa · Perbesar tulisan</button>
-    </div>
-
+    <a class="primary learning-jump" href="#lesson-list">Pilih panduan belajar</a>
+    </div><aside class="learning-route" aria-label="Cara belajar"><span class="eyebrow">SATU LANGKAH SETIAP WAKTU</span><h2>Mulai dari yang sederhana.</h2><ol><li><span>01</span><div><strong>Pilih panduan</strong><p>Temukan hal yang ingin Anda pelajari.</p></div></li><li><span>02</span><div><strong>Baca langkahnya</strong><p>Ikuti petunjuk satu per satu.</p></div></li><li><span>03</span><div><strong>Coba langsung</strong><p>Ulangi bersama pendamping jika perlu.</p></div></li></ol></aside></section>
+    <div class="learning-section-title"><span class="eyebrow">PANDUAN UNTUK ANDA</span><h2>Mau belajar apa hari ini?</h2></div>
     <div id="lesson-list" class="lesson-grid"></div>
 
     <aside class="notice" style="margin-top: 35px;">
@@ -167,12 +167,6 @@
         }
       });
 
-      $('font-button').addEventListener('click', () => {
-        const besar = document.body.classList.toggle('large-text');
-        $('font-button').textContent = besar ? 'Aa · Tulisan biasa' : 'Aa · Perbesar tulisan';
-        $('font-button').setAttribute('aria-pressed', String(besar));
-      });
-
       const listWadah = $('lesson-list');
       listWadah.replaceChildren();
 
@@ -183,6 +177,7 @@
         kartu.append(
           elemen('span', 'eyebrow lesson-number', 'PANDUAN 0' + (index + 1)),
           elemen('h2', '', materi.judul),
+          elemen('p', 'lesson-preview', materi.langkah[0] || 'Ikuti petunjuk dan praktikkan langkahnya satu per satu.'),
           mulai
         );
         mulai.addEventListener('click', () => {

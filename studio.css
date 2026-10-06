@@ -340,3 +340,5 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .password-toggle { position:absolute; right:5px; top:50%; transform:translateY(-50%); display:grid; place-items:center; min-width:42px; height:42px; padding:8px; border:0; background:transparent; color:var(--hijau); border-radius:6px; }
 .password-toggle:hover { background:#203b320d; }
 .eye-slash { display:none; }
+
+.demo-notice { padding: 14px 20px; background: #e8eff8; color: #23476e; border: 1px solid #c5d7ed; border-radius: 10px; font-size: .95rem; margin: 0 0 24px; }

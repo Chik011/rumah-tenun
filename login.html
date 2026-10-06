@@ -33,7 +33,7 @@
           <label id="remember-private-label" class="remember-private" hidden><input id="remember-private" type="checkbox" checked> Simpan login cepat di perangkat ini</label>
           <button id="login-submit" class="primary" type="submit">Masuk ke beranda →</button>
         </form>
-        <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-username="user1" data-quick-email="user@gmail.com" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-username="penjual1" data-quick-email="penjual@rumah-tenun.example" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-username="admin" data-quick-email="admin@rumah-tenun.example" data-role="Admin">Admin</button></div></div>
+        <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-username="user1" data-quick-email="user@gmail.com" data-quick-password="12345678" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-username="penjual1" data-quick-email="penjual@rumah-tenun.example" data-quick-password="12345678" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-username="admin" data-quick-email="admin@rumah-tenun.example" data-quick-password="12345678" data-role="Admin">Admin</button></div></div>
         
         <div class="auth-alternative"><span>Belum punya akun?</span><a class="auth-blue-link" href="register.html">Daftar sekarang</a></div><button id="btn-quick-guest" class="guest-link" type="button">Lanjut sebagai guest</button>
       </div>
@@ -70,12 +70,10 @@
           userInput.required = passInput.required = true;
           userInput.disabled = passInput.disabled = false;
           userInput.value = button.dataset.quickUsername;
-          let privateAccounts = {};
-          try { privateAccounts = JSON.parse(localStorage.getItem('rm_private_login_v2') || '{}'); } catch (_) {}
-          passInput.value = button.dataset.role === 'Pembeli' ? '12345678' : (privateAccounts[button.dataset.quickEmail] || '');
+          passInput.value = button.dataset.quickPassword || '';
           errorMsg.textContent = '';
           submitBtn.textContent = button.dataset.role === 'Penjual' ? 'Masuk ke etalase' : 'Masuk ke beranda';
-          successMsg.textContent = passInput.value ? 'Username dan sandi terisi. Klik tombol masuk untuk melanjutkan.' : 'Masukkan kata sandi akun Anda untuk mengelola data toko.';
+          successMsg.textContent = passInput.value ? 'Username dan sandi terisi. Klik tombol masuk untuk melanjutkan.' : 'Masukkan kata sandi untuk melanjutkan.';
           document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
           (passInput.value ? submitBtn : passInput).focus();
       }

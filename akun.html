@@ -450,16 +450,16 @@
           if (!ownProducts.length) sellerProducts.append(elemen('p', 'seller-empty', 'Belum ada produk. Tambahkan barang pertama Anda melalui form di sebelah.'));
           ownProducts.forEach(item => {
             const row = elemen('article', 'seller-product-row');
-            if (item.imageUrl) {
+            {
               const image = elemen('img', 'seller-product-thumb');
-              image.src = item.imageUrl;
+              image.src = item.imageUrl || 'assets/tenun.jpg';
               image.alt = '';
               row.append(image);
             }
             const details = elemen('div');
             details.append(
               elemen('strong', '', item.nama),
-              elemen('p', '', 'Motif ' + item.motif + ' · ' + item.ukuran + ' · ' + item.bahan),
+              elemen('p', '', [item.motif, item.ukuran, item.bahan].filter(Boolean).join(' · ') || 'Lengkapi detail barang melalui Edit produk.'),
               elemen('p', '', rupiah(item.harga) + ' · Stok ' + item.stok),
               elemen('span', 'workflow-status status-' + item.status, labelStatusProduk(item.status))
             );
@@ -543,11 +543,10 @@
               elemen('p', '', new Date(order.created_at).toLocaleString('id-ID')),
               elemen('span', 'workflow-status', sellerOrderLabels[order.order_status] || order.order_status),
               elemen('p', '', 'Pembayaran: ' + labelStatusPembayaran(order.payment_status)));
+            if (order.payment_mode === 'test') details.append(elemen('p', 'payment-test', 'Pembayaran uji Xendit'));
             (order.order_items || []).forEach(item => {
               const row = elemen('div', 'seller-order-item');
-              if (item.image_url) {
-                const photo = elemen('img', 'seller-product-thumb'); photo.src = item.image_url; photo.alt = item.item_name; row.append(photo);
-              }
+              const photo = elemen('img', 'seller-product-thumb'); photo.src = item.image_url || 'assets/tenun.jpg'; photo.alt = item.item_name; row.append(photo);
               row.append(elemen('p', '', item.item_name + ' × ' + item.quantity + ' · ' + rupiah(item.unit_price)));
               details.append(row);
             });

@@ -10,9 +10,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('product-breadcrumb').textContent = item.nama;
     $('product-price').textContent = rupiah(item.harga);
     $('product-description').textContent = item.deskripsi;
-    $('product-maker').textContent = item.pembuat ? 'Dibuat oleh: ' + item.pembuat : 'Nama pembuat belum dicantumkan oleh penjual.';
+    $('product-description').hidden = !item.cerita;
+    $('product-maker').textContent = item.pembuat ? 'Dibuat oleh ' + item.pembuat : '';
+    $('product-maker').hidden = !item.pembuat;
     $('product-story-text').textContent = item.cerita || item.deskripsi || 'Cerita tenun belum ditambahkan oleh penjual.';
-    $('product-seller').textContent = 'Penjual: ' + (item.sellerName || 'Koperasi Rantai Mawar');
+    const sellerName = item.sellerName || 'Koperasi Rantai Mawar';
+    $('product-seller').textContent = sellerName;
+    $('product-seller-avatar').textContent = sellerName.split(/\s+/).slice(0,2).map(word => word[0]).join('').toUpperCase();
     const photo = $('product-photo');
     if (item.imageUrl) {
       photo.style.backgroundImage = `url("${item.imageUrl}")`;
@@ -56,11 +60,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('product-buy').addEventListener('click', () => add(true));
     const user = await Backend.penggunaAktif();
     if (user && ['Penjual', 'Admin'].includes(user.peran)) {
-      document.querySelector('.product-detail-actions').hidden = true;
-      document.querySelector('.product-quantity-control').hidden = true;
-      document.querySelector('label[for="product-quantity"]').hidden = true;
+      document.querySelector('.product-purchase').hidden = true;
       const manage = elemen('a', 'outline', 'Kelola di etalase'); manage.href = 'akun.html';
-      $('product-feedback').append(manage);
+      document.querySelector('.product-detail-info').append(manage);
     }
     state.hidden = true;
     $('product-detail').hidden = false;

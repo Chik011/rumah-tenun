@@ -7,13 +7,13 @@
   <title>Detail Tenun — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=stock-1">
+  <link rel="stylesheet" href="studio.css?v=detail-2">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js?v=stock-1" defer></script>
   <script src="common.js?v=story-1" defer></script>
 </head>
-<body>
+<body class="product-page-body">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
@@ -44,23 +44,24 @@
     <nav class="breadcrumbs" aria-label="Jejak halaman"><a href="index.html">Beranda</a><span>/</span><a href="koleksi.html">Koleksi tenun</a><span>/</span><span id="product-breadcrumb">Detail produk</span></nav>
     <p id="product-state" class="notice" role="status">Memuat detail kain…</p>
     <article id="product-detail" class="product-detail-layout" hidden>
-      <figure class="product-detail-figure"><div id="product-photo" class="product-detail-photo" role="img"></div><figcaption id="product-caption">Foto ilustrasi kain tenun.</figcaption></figure>
+      <figure class="product-detail-figure"><div class="product-image-frame"><div id="product-photo" class="product-detail-photo" role="img"></div><span class="product-image-badge">Koleksi Rumah Tenun</span></div><figcaption id="product-caption">Foto ilustrasi kain tenun.</figcaption></figure>
       <div class="product-detail-info">
         <span class="eyebrow">DARI RUMAH TENUN</span>
         <h1 id="product-title"></h1>
-        <p id="product-seller" class="product-seller"></p>
-        <strong id="product-price" class="product-detail-price"></strong><span class="note"> / kain</span>
+        <div class="product-seller-card"><span id="product-seller-avatar" class="product-seller-avatar" aria-hidden="true"></span><div><span class="product-seller-label">Dijual oleh</span><strong id="product-seller" class="product-seller"></strong></div></div>
+        <div class="product-price-card"><div><span class="product-price-label">Harga per kain</span><strong id="product-price" class="product-detail-price"></strong></div><p id="product-stock" class="product-stock-pill"></p></div>
         <p id="product-description" class="intro"></p>
-        <section class="product-story" aria-labelledby="product-story-title"><span class="eyebrow">DI BALIK SEHELAI KAIN</span><h2 id="product-story-title">Cerita tenun</h2><p id="product-maker" class="product-maker"></p><p id="product-story-text"></p></section>
         <dl id="product-specs" class="product-detail-specs"></dl>
+        <section class="product-purchase" aria-label="Pilihan pembelian">
         <label for="product-quantity">Jumlah kain</label>
         <div class="product-quantity-control"><button id="product-minus" type="button" aria-label="Kurangi jumlah kain">−</button><input id="product-quantity" type="number" min="1" step="1" value="1" readonly aria-live="polite"><button id="product-plus" type="button" aria-label="Tambah jumlah kain">+</button></div>
-        <p id="product-stock" class="note"></p>
         <div class="product-detail-actions"><button id="product-add" type="button" class="primary">Tambahkan ke tas </button><button id="product-buy" type="button" class="outline">Beli sekarang</button></div>
         <p id="product-feedback" role="status"></p>
         <a id="product-cart-link" class="text-link" href="keranjang.html" hidden>Lihat tas belanja →</a>
         <p class="note product-shipping-note">Harga di atas adalah harga produk. Pengiriman disepakati dengan koperasi saat checkout.</p>
+        </section>
       </div>
+      <section class="product-story" aria-labelledby="product-story-title"><div class="product-story-heading"><span class="eyebrow">DI BALIK SEHELAI KAIN</span><h2 id="product-story-title">Detail & cerita tenun</h2><p id="product-maker" class="product-maker"></p></div><p id="product-story-text"></p></section>
     </article>
   </main>
 
@@ -125,6 +126,6 @@
     </div>
   </dialog>
 
-  <script src="product.js?v=story-1" defer></script>
+  <script src="product.js?v=detail-2" defer></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
   <title>Ruang Anggota — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=stock-1">
+  <link rel="stylesheet" href="studio.css?v=detail-2">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js?v=stock-1" defer></script>
@@ -389,6 +389,10 @@
           <p class="note">Lengkapi informasi barang yang ingin Anda jual.</p>
           <form id="seller-product-form" class="backend-form seller-editor-form">
             <div class="seller-field seller-field-wide">
+            <label for="product-seller-name">Nama penjual</label><input id="product-seller-name" readonly aria-describedby="seller-name-help">
+            <span id="seller-name-help" class="note">Otomatis mengikuti profil akun Anda.</span>
+            </div>
+            <div class="seller-field seller-field-wide">
             <label for="product-name">Nama produk</label>
             <input id="product-name" required minlength="2" maxlength="120" placeholder="Contoh: Kain Tenun Senja">
             </div><div class="seller-field">
@@ -438,6 +442,7 @@
           </section>
         `;
         const productForm = $('seller-product-form');
+        $('product-seller-name').value = pengguna.nama;
         const sellerProducts = $('seller-products');
         async function renderSellerProducts() {
           sellerProducts.replaceChildren();
@@ -567,6 +572,7 @@
         function resetProductEditor() {
           delete productForm.dataset.editingId;
           productForm.reset();
+          $('product-seller-name').value = pengguna.nama;
           $('product-image').required = true;
           $('product-stock').min = '1';
           $('seller-editor-title').textContent = 'Tambah produk';

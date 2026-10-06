@@ -388,6 +388,45 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .seller-trash { margin-top:24px; padding:18px; border:1px solid #d7ded9; border-radius:12px; }
 .seller-trash summary { cursor:pointer; font-weight:700; }
 .seller-trash-row { display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; padding:14px 0; }
+
+/* Product details: a clear purchase card beside the fabric, with its story below. */
+.product-page-body { background:#f6f4ec; }
+.product-page-body .product-page { padding-top:26px; }
+.product-page-body .breadcrumbs { font-size:.86rem; margin-bottom:28px; flex-wrap:wrap; }
+.product-page-body .product-detail-layout { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:30px 44px; }
+.product-image-frame { position:relative; overflow:hidden; border-radius:24px; border:1px solid #e0dfd4; box-shadow:0 18px 45px #203f3210; }
+.product-page-body .product-detail-photo { aspect-ratio:1; border-radius:0; }
+.product-image-badge { position:absolute; left:20px; bottom:20px; padding:9px 16px; border-radius:30px; background:#fffffff0; color:#234237; font-size:.76rem; font-weight:600; }
+.product-page-body .product-detail-figure figcaption { padding-left:8px; font-size:.74rem; }
+.product-page-body .product-detail-info { min-width:0; background:#fffefa; padding:30px; border:1px solid #e0dfd4; border-radius:24px; }
+.product-page-body .product-detail-info h1 { font-size:clamp(2.5rem,4vw,3.8rem); line-height:1.06; margin:12px 0 24px; }
+.product-seller-card { display:flex; gap:12px; align-items:center; padding-bottom:24px; }
+.product-seller-avatar { width:46px; height:46px; border-radius:50%; display:grid; place-items:center; background:#e7eee6; color:#254739; font-size:.85rem; font-weight:700; flex-shrink:0; }
+.product-seller-label,.product-price-label { display:block; font-size:.73rem; color:#67746c; margin-bottom:3px; }
+.product-page-body .product-seller { font-size:.92rem; color:#264739; }
+.product-price-card { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; padding:20px; background:#f5f1e7; border-radius:16px; }
+.product-page-body .product-detail-price { display:block; margin:0; font-size:clamp(1.7rem,3vw,2.25rem); letter-spacing:-.04em; }
+.product-stock-pill { margin:0; border-radius:24px; padding:7px 11px; font-size:.75rem; background:#e0eade; color:#294735; }
+.product-page-body .intro { font-size:1rem; margin:20px 0; line-height:1.7; }
+.product-page-body .product-detail-specs { grid-template-columns:90px 1fr; padding:20px 0; margin:16px 0; font-size:.86rem; }
+.product-purchase { margin-top:24px; }
+.product-purchase[hidden] { display:none; }
+.product-page-body .product-detail-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+.product-page-body .product-detail-actions button { font-size:.86rem; padding:14px 12px; border-radius:12px; min-height:50px; }
+.product-page-body .product-shipping-note { margin:16px 0 0; font-size:.73rem; line-height:1.65; }
+.product-page-body .product-story { grid-column:1/-1; display:grid; grid-template-columns:1fr 1.7fr; gap:40px; padding:34px 38px; margin:4px 0 0; border-radius:24px; background:linear-gradient(115deg,#e5ede2,#f0f3e9); }
+.product-page-body .product-story h2 { font-size:2.1rem; margin:12px 0; }
+.product-page-body .product-story p { margin:0; font-size:1rem; line-height:1.85; }
+.product-page-body .product-story .product-maker { font-size:.82rem; font-weight:600; }
+#product-seller-name { background:#edf3ef; font-weight:600; color:#274535; }
+@media(max-width:760px) {
+  .product-page-body .product-detail-layout { grid-template-columns:1fr; gap:20px; }
+  .product-page-body .product-detail-info { padding:24px 20px; }
+  .product-page-body .product-story { grid-template-columns:1fr; padding:26px 24px; gap:16px; }
+  .product-page-body .product-detail-info h1 { font-size:2.6rem; }
+  .product-image-frame { border-radius:20px; }
+}
+@media(max-width:380px) { .product-page-body .product-detail-actions { grid-template-columns:1fr; } }
 .seller-empty { padding: 28px; border: 1px dashed #bdcfcb; border-radius: 12px; color: #536463; }
 @media(max-width: 900px) { .seller-workspace-grid { grid-template-columns: 1fr; } }
 @media(max-width: 600px) { .seller-summary { gap: 8px; } .seller-stat { padding: 14px 10px; } .seller-stat span { font-size: .75rem; } .seller-stat strong { font-size: 1.2rem; } .seller-editor, .seller-inventory { padding: 22px; } .seller-editor-form { grid-template-columns: 1fr; } }

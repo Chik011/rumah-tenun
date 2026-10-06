@@ -30,7 +30,7 @@
           <label for="login-email">Email</label><input id="login-email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="Masukkan email Anda">
           <label for="login-password">Kata sandi</label><input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100" placeholder="Masukkan kata sandi">
           <p id="login-error" class="error" role="alert"></p><p id="login-success" class="note" role="status"></p>
-          <label class="remember-private"><input id="remember-private" type="checkbox"> Ingat login Admin/Penjual di perangkat pribadi ini</label>
+          <label id="remember-private-label" class="remember-private" hidden><input id="remember-private" type="checkbox"> Ingat login Admin/Penjual di perangkat pribadi ini</label>
           <button id="login-submit" class="primary" type="submit">Masuk ke beranda →</button>
         </form>
         <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-email="user@gmail.com" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-email="penjual@rumah-tenun.example" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-email="admin@rumah-tenun.example" data-role="Admin">Admin</button></div></div>
@@ -58,6 +58,7 @@
         const guest = roleInput.value === 'Guest';
         userInput.required = passInput.required = !guest;
         userInput.disabled = passInput.disabled = guest;
+        $('remember-private-label').hidden = !['Admin', 'Penjual'].includes(roleInput.value);
         if (!guest) {
           const button = Array.from(document.querySelectorAll('[data-quick-email]')).find(item => item.dataset.role === roleInput.value);
           if (button) isiAkunCepat(button);
@@ -65,6 +66,7 @@
       });
       function isiAkunCepat(button) {
           roleInput.value = button.dataset.role;
+          $('remember-private-label').hidden = !['Admin', 'Penjual'].includes(button.dataset.role);
           userInput.required = passInput.required = true;
           userInput.disabled = passInput.disabled = false;
           userInput.value = button.dataset.quickEmail;

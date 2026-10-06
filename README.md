@@ -36,7 +36,7 @@ Website memerlukan koneksi internet untuk Supabase dan Cloudinary.
 
 ## Supabase & Cloudinary
 
-Migrasi database telah diterapkan dan dua Edge Function telah di-deploy ke project Supabase tertaut. Kunci publishable Supabase berada di kode browser dan memang dirancang untuk penggunaan publik; jangan pernah menaruh service-role key atau Cloudinary API secret di sana.
+Migrasi database dan Edge Functions telah diterapkan ke project Supabase tertaut. Produk dan pesanan Penjual menggunakan Supabase, sementara foto baru menggunakan Cloudinary. Kunci publishable Supabase berada di kode browser dan memang dirancang untuk penggunaan publik; service-role key dan Cloudinary API secret hanya disimpan di server.
 
 ### Siapkan admin pertama
 
@@ -44,13 +44,23 @@ Migrasi database telah diterapkan dan dua Edge Function telah di-deploy ke proje
 2. Buka `supabase/bootstrap-admin.example.sql`, ganti `REPLACE_WITH_ADMIN_EMAIL`, lalu jalankan SQL tersebut di Supabase SQL Editor sebagai pemilik project. Ini tindakan satu kali.
 3. Masuk memakai email dan kata sandi admin. Dari dashboard, admin dapat membuat akun Penjual.
 
-### Aktifkan upload Cloudinary
+### Upload Cloudinary
+
+Konfigurasi server sudah aktif dan unggah foto serta edit harga/stok telah diverifikasi pada 6 Oktober 2026. Untuk pemasangan ulang:
 
 1. Di Cloudinary Dashboard, ambil API Key dan API Secret. Cloud name yang dikonfigurasi adalah `w7kqjyeq`.
-2. Di Supabase Dashboard, buka Edge Functions Secrets dan tambahkan `CLOUDINARY_API_KEY` serta `CLOUDINARY_API_SECRET`. Jangan masukkan kedua nilai itu ke berkas aplikasi atau chat.
+2. Di Supabase Dashboard, buka Edge Functions Secrets dan tambahkan `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, serta `CLOUDINARY_API_SECRET`. Jangan masukkan kunci rahasia ke berkas aplikasi atau chat.
 3. Seller masuk, lalu isi foto, nama, motif, ukuran, bahan, harga, stok, dan deskripsi. Foto diunggah ke folder `rumah-tenun/products`; produk menunggu review admin sebelum muncul di katalog.
 
-Produk awal dan materi belajar tersimpan di tabel Supabase. Checkout membuat order dan item order, memvalidasi serta mengurangi stok secara atomik. Pada pesanan Xendit, server membaca status pembayaran dari Xendit dan memperbarui pesanan; admin kemudian memproses pemeriksaan, pengemasan, dan pengiriman. Pembeli mengonfirmasi barang diterima. Pesanan manual lama mempertahankan alur sebelumnya. Keranjang tetap lokal di browser. Kunci development hanya memproses simulasi; pembayaran nyata memerlukan konfigurasi Live yang sesuai.
+Produk awal dan materi belajar tersimpan di tabel Supabase. Checkout membuat order dan item order, memvalidasi serta mengurangi stok secara atomik. Pada pesanan Xendit, server memverifikasi pembayaran. Penjual menerima dan memproses pesanan barangnya sendiri, lalu menandai dikirim/tiba. Pesanan dari beberapa penjual memakai status pemenuhan terpisah; status pembeli mengikuti tahap paling awal yang belum selesai. Pembeli mengonfirmasi barang diterima. Keranjang tetap lokal di browser. Kunci development hanya memproses simulasi; pembayaran nyata memerlukan konfigurasi Live yang sesuai.
+
+### Etalase Penjual
+
+- Login Penjual langsung membuka Etalase Produk; menu hanya Etalase Produk dan Panduan Usaha.
+- Dua tab: Produk saya dan Pesanan masuk. Dua belas produk awal yang belum memiliki penjual telah dikaitkan ke akun Penjual toko beserta item pesanan lamanya.
+- Semua produk milik penjual dapat diedit, termasuk harga/stok. Foto lama dipertahankan jika tidak memilih foto baru. Produk yang diubah menunggu verifikasi ulang Admin.
+- Pesanan dibaca melalui RPC yang membatasi akses ke barang penjual itu. Pesanan belum dibayar tidak dapat diterima/diproses; status pembayaran Xendit tidak bisa diubah manual.
+- Login cepat Admin/Penjual memilih email akun asli. Centang ingat login pada perangkat pribadi setelah memasukkan sandi untuk mengisi sandi otomatis pada kunjungan berikutnya. Tidak ada kredensial Admin/Penjual di kode publik.
 
 Untuk perubahan skema berikutnya, buat migrasi baru dan jalankan `npx supabase db push --linked`. Untuk deploy ulang function gunakan `npx supabase functions deploy <nama-function> --project-ref lsewgdyamxfblzcjkwti`.
 

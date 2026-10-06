@@ -341,7 +341,17 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .password-toggle:hover { background:#203b320d; }
 .eye-slash { display:none; }
 
-.demo-notice { padding: 14px 20px; background: #e8eff8; color: #23476e; border: 1px solid #c5d7ed; border-radius: 10px; font-size: .95rem; margin: 0 0 24px; }
+.remember-private { display: flex; gap: 10px; align-items: flex-start; font-size: .8rem; color: #64746f; }
+.remember-private input { width: 18px; min-height: 18px; margin: 2px 0; flex: 0 0 18px; }
+.seller-tabs { display: flex; gap: 12px; flex-wrap: wrap; margin: 24px 0; }
+.seller-orders-panel { padding: 28px; background: white; border-radius: 16px; border: 1px solid #d7e1df; }
+.seller-orders-heading { display: flex; align-items: start; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.seller-orders-heading h2 { margin-top: 0; font-size: 2rem; }
+.seller-orders-panel select { max-width: 360px; margin: 10px 0 24px; }
+.seller-order-item { display: flex; align-items: center; gap: 16px; margin: 14px 0; }
+.seller-order-card .workflow-details { width: 100%; }
+.seller-order-card .primary { margin-top: 20px; }
+.seller-editor-form > #seller-cancel-edit { grid-column: 1 / -1; }
 .seller-workspace { background: #f0f4f5; }
 .seller-workspace .account-page { max-width: none; }
 .seller-workspace #account-title { font-size: clamp(2.5rem, 5vw, 4rem); margin: 12px 0 24px; }

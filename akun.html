@@ -7,12 +7,11 @@
   <title>Ruang Anggota — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=seller-2">
+  <link rel="stylesheet" href="studio.css?v=seller-live-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js" defer></script>
-  <script src="demo.js?v=seller-2" defer></script>
-  <script src="common.js?v=seller-2" defer></script>
+  <script src="backend.js?v=seller-live-1" defer></script>
+  <script src="common.js?v=seller-live-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -378,10 +377,15 @@
         roleTitle.textContent = 'Kelola barang yang Anda jual';
         roleDesc.textContent = 'Tambahkan barang, tentukan harga dan stoknya, lalu kirim untuk verifikasi.';
         roleExtra.innerHTML = `
+          <div class="seller-tabs" aria-label="Bagian etalase">
+            <button id="seller-tab-products" class="primary" type="button" aria-pressed="true">Produk saya</button>
+            <button id="seller-tab-orders" class="outline" type="button" aria-pressed="false">Pesanan masuk</button>
+          </div>
+          <div id="seller-products-section">
           <div id="seller-summary" class="seller-summary" aria-label="Ringkasan etalase"></div>
           <div class="seller-workspace-grid">
           <section class="seller-editor">
-          <h2>Tambah produk</h2>
+          <h2 id="seller-editor-title">Tambah produk</h2>
           <p class="note">Lengkapi informasi barang yang ingin Anda jual.</p>
           <form id="seller-product-form" class="backend-form seller-editor-form">
             <div class="seller-field seller-field-wide">
@@ -411,13 +415,22 @@
             <span class="note">JPG, PNG atau WebP · maksimal 10 MB</span>
             </div>
             <button class="primary" type="submit">Kirim untuk verifikasi</button>
+            <button id="seller-cancel-edit" class="outline" type="button" hidden>Batal edit</button>
             <p id="seller-product-status" role="status" aria-live="polite"></p>
           </form>
           </section><section class="seller-inventory">
           <h2>Produk Anda</h2>
           <p class="note">Pantau harga, stok, dan status produk Anda.</p>
           <div id="seller-products" class="seller-product-list"></div>
-          </section></div>
+          </section></div></div>
+          <section id="seller-orders-section" class="seller-orders-panel" hidden>
+            <div class="seller-orders-heading"><div><h2>Pesanan masuk</h2><p class="note">Terima pesanan yang sudah dibayar, proses barangnya, lalu perbarui pengiriman.</p></div>
+            <button id="seller-refresh-orders" class="outline" type="button">Perbarui pesanan</button></div>
+            <label for="seller-order-filter">Status pesanan</label>
+            <select id="seller-order-filter"><option value="all">Semua pesanan</option><option value="checking">Pesanan baru</option><option value="packaging">Sedang diproses</option><option value="shipping">Sedang dikirim</option><option value="delivered">Tiba di tujuan</option><option value="completed">Selesai</option><option value="awaiting_payment">Menunggu pembayaran</option><option value="cancelled">Dibatalkan</option></select>
+            <p id="seller-orders-message" role="status" aria-live="polite"></p>
+            <div id="seller-orders-list" class="workflow-list"></div>
+          </section>
         `;
         const productForm = $('seller-product-form');
         const sellerProducts = $('seller-products');
@@ -451,8 +464,8 @@
               elemen('span', 'workflow-status status-' + item.status, labelStatusProduk(item.status))
             );
             if (item.catatanReview) details.append(elemen('p', 'workflow-note', 'Catatan admin: ' + item.catatanReview));
-            if (item.status === 'needs_revision') {
-              const edit = elemen('button', 'outline', 'Perbaiki dan kirim ulang');
+            {
+              const edit = elemen('button', 'outline', 'Edit produk');
               edit.type = 'button';
               edit.addEventListener('click', () => {
                 productForm.dataset.editingId = item.id;
@@ -463,7 +476,13 @@
                 $('product-price').value = item.harga;
                 $('product-stock').value = item.stok;
                 $('product-description').value = item.deskripsi;
-                $('seller-product-status').textContent = 'Perbarui data sesuai catatan admin, pilih foto terbaru, lalu kirim ulang.';
+                $('product-image').required = false;
+                $('product-image').value = '';
+                $('product-stock').min = '0';
+                $('seller-editor-title').textContent = 'Edit produk';
+                $('seller-cancel-edit').hidden = false;
+                productForm.querySelector('button[type="submit"]').textContent = 'Simpan perubahan';
+                $('seller-product-status').textContent = 'Foto lama tetap dipakai jika tidak memilih foto baru. Perubahan produk akan diverifikasi ulang.';
                 productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
               });
               details.append(edit);
@@ -473,6 +492,16 @@
           });
         }
         await renderSellerProducts();
+        function resetProductEditor() {
+          delete productForm.dataset.editingId;
+          productForm.reset();
+          $('product-image').required = true;
+          $('product-stock').min = '1';
+          $('seller-editor-title').textContent = 'Tambah produk';
+          $('seller-cancel-edit').hidden = true;
+          productForm.querySelector('button[type="submit"]').textContent = 'Kirim untuk verifikasi';
+        }
+        $('seller-cancel-edit').addEventListener('click', () => { resetProductEditor(); $('seller-product-status').textContent = ''; });
         productForm.addEventListener('submit', async event => {
           event.preventDefault();
           const status = $('seller-product-status');
@@ -490,8 +519,7 @@
               stok: $('product-stock').value,
               deskripsi: $('product-description').value
             }, productForm.dataset.editingId);
-            delete productForm.dataset.editingId;
-            productForm.reset();
+            resetProductEditor();
             await renderSellerProducts();
             status.textContent = 'Produk dikirim ke admin untuk diverifikasi. Produk belum tampil di katalog.';
           } catch (error) {
@@ -500,6 +528,67 @@
             submit.disabled = false;
           }
         });
+        let sellerOrders = [];
+        const sellerOrderLabels = { checking: 'Pesanan baru', packaging: 'Diterima · sedang diproses', shipping: 'Sedang dikirim', delivered: 'Tiba di tujuan', completed: 'Selesai', awaiting_payment: 'Menunggu pembayaran', cancelled: 'Dibatalkan' };
+        function renderSellerOrders() {
+          const host = $('seller-orders-list');
+          host.replaceChildren();
+          const filter = $('seller-order-filter').value;
+          const orders = sellerOrders.filter(order => filter === 'all' || order.order_status === filter);
+          $('seller-orders-message').textContent = orders.length ? '' : 'Belum ada pesanan untuk status ini.';
+          orders.forEach(order => {
+            const card = elemen('article', 'workflow-card seller-order-card');
+            const details = elemen('div', 'workflow-details');
+            details.append(elemen('strong', '', 'Pesanan #' + order.id.slice(0, 8).toUpperCase()),
+              elemen('p', '', new Date(order.created_at).toLocaleString('id-ID')),
+              elemen('span', 'workflow-status', sellerOrderLabels[order.order_status] || order.order_status),
+              elemen('p', '', 'Pembayaran: ' + labelStatusPembayaran(order.payment_status)));
+            (order.order_items || []).forEach(item => {
+              const row = elemen('div', 'seller-order-item');
+              if (item.image_url) {
+                const photo = elemen('img', 'seller-product-thumb'); photo.src = item.image_url; photo.alt = item.item_name; row.append(photo);
+              }
+              row.append(elemen('p', '', item.item_name + ' × ' + item.quantity + ' · ' + rupiah(item.unit_price)));
+              details.append(row);
+            });
+            details.append(elemen('strong', '', 'Total barang Anda: ' + rupiah(order.total)));
+            const address = elemen('details', 'shipment-address');
+            address.append(elemen('summary', '', 'Pembeli & alamat pengiriman'), elemen('p', '', order.buyer_name + ' · ' + order.phone), elemen('p', '', order.shipping_address));
+            details.append(address);
+            const actionByStatus = { checking: ['packaging', 'Terima & proses pesanan'], packaging: ['shipping', 'Tandai dikirim'], shipping: ['delivered', 'Tandai tiba di tujuan'] };
+            const action = actionByStatus[order.order_status];
+            if (action && order.payment_status === 'confirmed') {
+              const button = elemen('button', 'primary', action[1]);
+              button.type = 'button';
+              button.addEventListener('click', async () => {
+                button.disabled = true;
+                try { await Backend.prosesPesananPenjual(order.id, action[0]); await loadSellerOrders(); }
+                catch (error) { $('seller-orders-message').textContent = error.message || 'Status belum dapat disimpan.'; button.disabled = false; }
+              });
+              details.append(button);
+            }
+            card.append(details); host.append(card);
+          });
+        }
+        async function loadSellerOrders() {
+          $('seller-refresh-orders').disabled = true;
+          try { sellerOrders = await Backend.pesananPenjual(); renderSellerOrders(); }
+          catch (error) { $('seller-orders-message').textContent = error.message || 'Pesanan belum dapat dimuat.'; }
+          finally { $('seller-refresh-orders').disabled = false; }
+        }
+        for (const [buttonId, showOrders] of [['seller-tab-products', false], ['seller-tab-orders', true]]) {
+          $(buttonId).addEventListener('click', async () => {
+            $('seller-products-section').hidden = showOrders;
+            $('seller-orders-section').hidden = !showOrders;
+            for (const [id, active] of [['seller-tab-products', !showOrders], ['seller-tab-orders', showOrders]]) {
+              $(id).className = active ? 'primary' : 'outline'; $(id).setAttribute('aria-pressed', String(active));
+            }
+            if (showOrders) await loadSellerOrders();
+          });
+        }
+        $('seller-order-filter').addEventListener('change', renderSellerOrders);
+        $('seller-refresh-orders').addEventListener('click', loadSellerOrders);
+        setInterval(() => { if (!document.hidden && !$('seller-orders-section').hidden) loadSellerOrders(); }, 30000);
       } else {
         roleTitle.textContent = 'Ruang Pembeli / Pelanggan';
         roleDesc.textContent = 'Lihat perjalanan pesanan Anda, lanjutkan pembayaran, dan pantau pengirimannya.';

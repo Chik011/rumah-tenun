@@ -43,6 +43,15 @@ function ubahBentukProduk(item) {
 }
 
 const Backend = {
+  async pesananPenjual() {
+    const { data, error } = await supabaseClient.rpc('seller_orders');
+    if (error) throw error;
+    return data || [];
+  },
+  async prosesPesananPenjual(orderId, status) {
+    const { error } = await supabaseClient.rpc('advance_seller_order', { p_order_id: orderId, p_status: status });
+    if (error) throw error;
+  },
   async ambilDetailProduk(id) {
     const { data, error } = await supabaseClient.from('products')
       .select('id, name, price, image_position, description, image_url, seller_id, motif, size, material, stock, status, profiles!products_seller_id_fkey(display_name)')
@@ -215,7 +224,10 @@ const Backend = {
   },
 
   async unggahProduk(file, produk, productId) {
-    if (!file || !file.type.startsWith('image/')) throw new Error('Pilih berkas gambar.');
+    if (!file && !productId) throw new Error('Pilih berkas gambar.');
+    let uploaded = null;
+    if (file) {
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Pilih gambar JPG, PNG, atau WebP.');
     if (file.size > 10 * 1024 * 1024) throw new Error('Ukuran gambar maksimal 10 MB.');
 
     const { data: signed, error: signError } = await supabaseClient.functions.invoke('cloudinary-signature', { body: {} });
@@ -232,8 +244,9 @@ const Backend = {
       method: 'POST',
       body: formData
     });
-    const uploaded = await response.json();
+    uploaded = await response.json();
     if (!response.ok) throw new Error(uploaded.error && uploaded.error.message || 'Gagal mengunggah gambar.');
+    }
 
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     if (authError || !user) throw new Error('Silakan masuk sebagai penjual.');
@@ -242,7 +255,6 @@ const Backend = {
       price: Number(produk.harga),
       description: produk.deskripsi.trim(),
       image_position: '50% 50%',
-      image_url: uploaded.secure_url,
       motif: produk.motif.trim(),
       size: produk.ukuran.trim(),
       material: produk.bahan.trim(),
@@ -251,9 +263,13 @@ const Backend = {
       review_note: null,
       updated_at: new Date().toISOString()
     };
-    const query = productId
-      ? supabaseClient.from('products').update(productData).eq('id', productId).eq('seller_id', user.id)
-      : supabaseClient.from('products').insert({ ...productData, seller_id: user.id });
+    if (uploaded) productData.image_url = uploaded.secure_url;
+    if (productId) {
+      const { data, error } = await supabaseClient.rpc('update_seller_product', { p_product_id: Number(productId), p_product: productData });
+      if (error) throw error;
+      return ubahBentukProduk(Array.isArray(data) ? data[0] : data);
+    }
+    const query = supabaseClient.from('products').insert({ ...productData, seller_id: user.id });
     const { data, error } = await query
       .select('id, name, price, image_position, description, image_url, seller_id, motif, size, material, stock, status, review_note')
       .single();

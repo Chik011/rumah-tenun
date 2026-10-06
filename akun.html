@@ -499,10 +499,12 @@
               const plus = elemen('button', 'outline', '+');
               const empty = elemen('button', 'outline', 'Stok habis');
               const remove = elemen('button', 'outline seller-delete', 'Hapus produk');
+              const cancelDelete = elemen('button', 'outline', 'Batal'); cancelDelete.hidden = true;
+              let confirmingDelete = false;
               minus.setAttribute('aria-label', 'Kurangi stok ' + item.nama);
               plus.setAttribute('aria-label', 'Tambah stok ' + item.nama);
               minus.disabled = empty.disabled = Number(item.stok) === 0;
-              const controls = [minus, plus, empty, remove];
+              const controls = [minus, plus, empty, remove, cancelDelete];
               const act = async operation => {
                 controls.forEach(button => { button.disabled = true; });
                 const status = $('seller-product-status');
@@ -524,13 +526,22 @@
                 }));
               }
               remove.addEventListener('click', () => {
-                if (!window.confirm('Hapus ' + item.nama + ' dari etalase? Produk bisa dipulihkan dari daftar Produk dihapus.')) return;
+                if (!confirmingDelete) {
+                  confirmingDelete = true;
+                  remove.textContent = 'Ya, hapus produk'; cancelDelete.hidden = false;
+                  $('seller-product-status').textContent = 'Hapus ' + item.nama + '? Produk bisa dipulihkan dari daftar Produk dihapus.';
+                  return;
+                }
                 act(async () => {
                   await Backend.hapusProdukPenjual(item.id);
                   $('seller-product-status').textContent = item.nama + ' dihapus dari etalase. Riwayat pesanan tetap tersimpan.';
                 });
               });
-              stockControls.append(minus, elemen('span', '', 'Stok ' + item.stok), plus, empty, remove);
+              cancelDelete.addEventListener('click', () => {
+                confirmingDelete = false; remove.textContent = 'Hapus produk'; cancelDelete.hidden = true;
+                $('seller-product-status').textContent = '';
+              });
+              stockControls.append(minus, elemen('span', '', 'Stok ' + item.stok), plus, empty, remove, cancelDelete);
               details.append(stockControls);
             }
             row.append(details);

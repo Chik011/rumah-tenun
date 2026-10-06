@@ -3,6 +3,11 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VS4ua2k49K7DYmO9OvF6uw_fefxHHd8
 const STORAGE_KEY_GUEST = 'rm_guest_mode';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
+function alamatAkunLogin(username) {
+  const identifier = username.trim().toLowerCase();
+  return ({ user1: 'user@gmail.com', admin: 'admin@rumah-tenun.example', penjual1: 'penjual@rumah-tenun.example' })[identifier] || identifier;
+}
+
 function peranTampilan(role) {
   return { admin: 'Admin', seller: 'Penjual', buyer: 'Pembeli' }[role] || 'Pembeli';
 }
@@ -168,7 +173,7 @@ const Backend = {
   async masuk(email, password) {
     localStorage.removeItem(STORAGE_KEY_GUEST);
     const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
+      email: alamatAkunLogin(email),
       password
     });
     if (error) throw error;

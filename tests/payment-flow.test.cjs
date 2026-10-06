@@ -129,13 +129,22 @@ test('Payment page handles pending, paid, expired and unsafe redirect results', 
   assert.match(p('payment-error').textContent, /tidak valid/);
 });
 
-test('Seller login opens product management, other roles open home, and role selection cannot grant admin access', async () => {
+test('Username aliases preserve authenticated identities and reject role escalation', async () => {
+  const backendSource=fs.readFileSync(path.join(root,'backend.js'),'utf8');
+  const aliases=backendSource.match(/function alamatAkunLogin\(username\) \{[\s\S]*?\n\}/)[0];
+  const resolve=vm.runInNewContext(aliases+'; alamatAkunLogin');
+  assert.equal(resolve(' USER1 '),'user@gmail.com');
+  assert.equal(resolve('admin'),'admin@rumah-tenun.example');
+  assert.equal(resolve('penjual1'),'penjual@rumah-tenun.example');
+  assert.equal(resolve('new@example.test'),'new@example.test','registered accounts retain their login');
+  assert.match(backendSource,/signInWithPassword\(\{\s*email: alamatAkunLogin\(email\),\s*password/,'aliases still require authentication');
   const source=fs.readFileSync(path.join(root,'login.html'),'utf8').match(/<script>\s*([\s\S]*?)<\/script>/)[1];
   async function login(selected,actual) {
     const nodes=new Map(); const element=id=>{if(!nodes.has(id))nodes.set(id,{value:'',events:{},addEventListener(k,fn){this.events[k]=fn},setAttribute(){},focus(){}});return nodes.get(id)};
     const storage=new Map();
     const emails={Pembeli:'user@gmail.com',Admin:'admin@rumah-tenun.example',Penjual:'penjual@rumah-tenun.example'};
-    const quick=Object.entries(emails).map(([role,email])=>Object.assign(element('quick-'+role),{dataset:{role,quickEmail:email}}));
+    const usernames={Pembeli:'user1',Admin:'admin',Penjual:'penjual1'};
+    const quick=Object.entries(emails).map(([role,email])=>Object.assign(element('quick-'+role),{dataset:{role,quickEmail:email,quickUsername:usernames[role]}}));
     element('login-role').value=selected;
     element('login-email').value=emails[selected]||'dummy@example.test'; element('login-password').value='test-only';
     element('remember-private').checked=true;
@@ -154,6 +163,7 @@ test('Seller login opens product management, other roles open home, and role sel
     const saved=await login(role,role);
     saved.element('login-password').value='';
     saved.element('quick-'+role).events.click();
+    assert.equal(saved.element('login-email').value,role==='Admin'?'admin':'penjual1','quick login uses username');
     assert.equal(saved.element('login-password').value,'test-only','quick login fills saved private password');
   }
 });

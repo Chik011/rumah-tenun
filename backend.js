@@ -50,6 +50,20 @@ function ubahBentukProduk(item) {
 }
 
 const Backend = {
+  async stokProdukPenjual(id, action) {
+    const { data, error } = await supabaseClient.rpc('seller_product_stock', { p_product_id: Number(id), p_action: action });
+    if (error) throw error;
+    return data;
+  },
+  async hapusProdukPenjual(id, restore = false) {
+    const { error } = await supabaseClient.rpc('seller_archive_product', { p_product_id: Number(id), p_restore: restore });
+    if (error) throw error;
+  },
+  async produkPenjualDihapus() {
+    const { data, error } = await supabaseClient.from('products').select('*').not('deleted_at', 'is', null).order('id');
+    if (error) throw error;
+    return data.map(ubahBentukProduk);
+  },
   async pesananPenjual() {
     const { data, error } = await supabaseClient.rpc('seller_orders');
     if (error) throw error;
@@ -82,7 +96,7 @@ const Backend = {
     const { data, error } = await supabaseClient
       .from('products')
       .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, review_note, profiles!products_seller_id_fkey(display_name)')
-      .order('id');
+      .is('deleted_at', null).order('id');
     if (error) throw error;
     return data.map(ubahBentukProduk);
   },
@@ -92,6 +106,7 @@ const Backend = {
       .from('products')
       .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, review_note, profiles!products_seller_id_fkey(display_name)')
       .in('status', ['pending', 'needs_revision'])
+      .is('deleted_at', null)
       .order('id');
     if (error) throw error;
     return data.map(ubahBentukProduk);

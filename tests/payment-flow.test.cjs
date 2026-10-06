@@ -144,7 +144,7 @@ test('Username aliases preserve authenticated identities and reject role escalat
     const storage=new Map();
     const emails={Pembeli:'user@gmail.com',Admin:'admin@rumah-tenun.example',Penjual:'penjual@rumah-tenun.example'};
     const usernames={Pembeli:'user1',Admin:'admin',Penjual:'penjual1'};
-    const quick=Object.entries(emails).map(([role,email])=>Object.assign(element('quick-'+role),{dataset:{role,quickEmail:email,quickUsername:usernames[role]}}));
+    const quick=Object.entries(emails).map(([role,email])=>Object.assign(element('quick-'+role),{dataset:{role,quickEmail:email,quickUsername:usernames[role],quickPassword:'test-only'}}));
     element('login-role').value=selected;
     element('login-email').value=emails[selected]||'dummy@example.test'; element('login-password').value='test-only';
     element('remember-private').checked=true;
@@ -164,7 +164,7 @@ test('Username aliases preserve authenticated identities and reject role escalat
     saved.element('login-password').value='';
     saved.element('quick-'+role).events.click();
     assert.equal(saved.element('login-email').value,role==='Admin'?'admin':'penjual1','quick login uses username');
-    assert.equal(saved.element('login-password').value,'test-only','quick login fills saved private password');
+    assert.equal(saved.element('login-password').value,'test-only','quick login reads the supplied button credential');
   }
 });
 
@@ -228,10 +228,11 @@ test('PostgreSQL: checkout, permissions, payment verification and stock lifecycl
       create table public.profiles(id uuid primary key, role text not null default 'buyer');
       create table public.products(id bigint primary key, name text not null, price integer not null,
         description text, image_position text, image_url text, seller_id uuid references public.profiles(id));
+      grant select on public.products to anon, authenticated;
       insert into public.profiles(id) values ('11111111-1111-4111-8111-111111111111'), ('22222222-2222-4222-8222-222222222222');
       insert into public.products(id, name, price) values (1, 'Tenun Mawar', 150000), (2, 'Tenun Pesisir', 200000);
     `);
-    for (const file of ['20261005000000_product_review_and_orders.sql', '20261005010000_buyer_receipt_confirmation.sql', '20261005020000_xendit_payment_sessions.sql', '20261006000000_seller_management.sql', '20261006020000_product_stories.sql']) {
+    for (const file of ['20261005000000_product_review_and_orders.sql', '20261005010000_buyer_receipt_confirmation.sql', '20261005020000_xendit_payment_sessions.sql', '20261006000000_seller_management.sql', '20261006020000_product_stories.sql', '20261006040000_seller_stock_and_archive.sql']) {
       await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/migrations', file), 'utf8'));
     }
     const user = '11111111-1111-4111-8111-111111111111';
@@ -344,6 +345,28 @@ test('PostgreSQL: checkout, permissions, payment verification and stock lifecycl
     const preserved=(await db.query('select to_jsonb(update_seller_product(3,$1::jsonb)) as data',[JSON.stringify(preserve)])).rows[0].data;
     assert.equal(preserved.maker_name,'Maker A'); assert.equal(preserved.story,'The story of this cloth.');
     await assert.rejects(db.query('select update_seller_product(3,$1::jsonb)',[JSON.stringify({...update,image_url:'https://evil.example/image.png'})]), /Cloudinary/);
+    await assert.rejects(db.query("select seller_product_stock(4,'minus')"), /bukan milik/);
+    assert.equal((await db.query("select seller_product_stock(3,'minus') as stock")).rows[0].stock,4);
+    assert.equal((await db.query("select seller_product_stock(3,'empty') as stock")).rows[0].stock,0);
+    await assert.rejects(db.query("select seller_product_stock(3,'minus')"), /tidak valid/);
+    assert.equal((await db.query("select seller_product_stock(3,'plus') as stock")).rows[0].stock,1);
+    await assert.rejects(db.query('select seller_archive_product(4,false)'), /bukan milik/);
+    await db.query('select seller_archive_product(3,false)');
+    await assert.rejects(db.query("select seller_product_stock(3,'plus')"), /dihapus/);
+    await assert.rejects(db.query('select update_seller_product(3,$1::jsonb)',[JSON.stringify(update)]), /bukan milik/);
+    await db.exec('reset role');
+    assert.equal((await db.query('select count(*)::int as count from order_items where product_id=3')).rows[0].count,1,'archive preserves purchased items');
+    await db.query("update products set status='approved' where id=3");
+    await db.exec('set role anon');
+    assert.equal((await db.query('select count(*)::int as count from products where id=3')).rows[0].count,0,'archived approved product is hidden from public');
+    await db.exec('reset role');
+    await db.query("select set_config('test.uid',$1,false)",[user]);
+    await db.exec('set role authenticated');
+    await assert.rejects(db.query("select create_checkout_order('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','Buyer','081234567890','Alamat pengiriman cukup','QRIS','[{\"product_id\":3,\"quantity\":1}]'::jsonb)"), /tidak tersedia/);
+    await asSeller(sellerA);
+    await db.query('select seller_archive_product(3,true)');
+    assert.equal((await db.query('select stock,status,deleted_at from products where id=3')).rows[0].stock,1);
+    assert.equal((await db.query('select deleted_at from products where id=3')).rows[0].deleted_at,null);
     await db.exec('reset role');
     await db.query("select set_config('test.uid',$1,false)",[other]);
     await db.exec('set role authenticated');

@@ -7,10 +7,10 @@
   <title>Ruang Anggota — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=story-1">
+  <link rel="stylesheet" href="studio.css?v=stock-1">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=story-1" defer></script>
+  <script src="backend.js?v=stock-1" defer></script>
   <script src="common.js?v=story-1" defer></script>
 </head>
 <body>
@@ -426,6 +426,7 @@
           <h2>Produk Anda</h2>
           <p class="note">Pantau harga, stok, dan status produk Anda.</p>
           <div id="seller-products" class="seller-product-list"></div>
+          <details class="seller-trash"><summary>Produk dihapus</summary><div id="seller-trash-list"></div></details>
           </section></div></div>
           <section id="seller-orders-section" class="seller-orders-panel" hidden>
             <div class="seller-orders-heading"><div><h2>Pesanan masuk</h2><p class="note">Terima pesanan yang sudah dibayar, proses barangnya, lalu perbarui pengiriman.</p></div>
@@ -493,9 +494,62 @@
                 productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
               });
               details.append(edit);
+              const stockControls = elemen('div', 'seller-stock-controls');
+              const minus = elemen('button', 'outline', '−');
+              const plus = elemen('button', 'outline', '+');
+              const empty = elemen('button', 'outline', 'Stok habis');
+              const remove = elemen('button', 'outline seller-delete', 'Hapus produk');
+              minus.setAttribute('aria-label', 'Kurangi stok ' + item.nama);
+              plus.setAttribute('aria-label', 'Tambah stok ' + item.nama);
+              minus.disabled = empty.disabled = Number(item.stok) === 0;
+              const controls = [minus, plus, empty, remove];
+              const act = async operation => {
+                controls.forEach(button => { button.disabled = true; });
+                const status = $('seller-product-status');
+                try {
+                  await operation();
+                  if (String(productForm.dataset.editingId) === String(item.id)) resetProductEditor();
+                  await renderSellerProducts();
+                } catch (error) {
+                  status.textContent = error.message || 'Perubahan belum tersimpan. Coba lagi.';
+                  controls.forEach(button => { button.disabled = false; });
+                  minus.disabled = empty.disabled = Number(item.stok) === 0;
+                }
+              };
+              controls.forEach(button => { button.type = 'button'; });
+              for (const [button, action] of [[minus, 'minus'], [plus, 'plus'], [empty, 'empty']]) {
+                button.addEventListener('click', () => act(async () => {
+                  const stock = await Backend.stokProdukPenjual(item.id, action);
+                  $('seller-product-status').textContent = 'Stok ' + item.nama + ' tersimpan: ' + stock + ' kain.';
+                }));
+              }
+              remove.addEventListener('click', () => {
+                if (!window.confirm('Hapus ' + item.nama + ' dari etalase? Produk bisa dipulihkan dari daftar Produk dihapus.')) return;
+                act(async () => {
+                  await Backend.hapusProdukPenjual(item.id);
+                  $('seller-product-status').textContent = item.nama + ' dihapus dari etalase. Riwayat pesanan tetap tersimpan.';
+                });
+              });
+              stockControls.append(minus, elemen('span', '', 'Stok ' + item.stok), plus, empty, remove);
+              details.append(stockControls);
             }
             row.append(details);
             sellerProducts.append(row);
+          });
+          const trash = $('seller-trash-list');
+          trash.replaceChildren();
+          const archived = (await Backend.produkPenjualDihapus()).filter(item => item.sellerId === pengguna.id);
+          if (!archived.length) trash.append(elemen('p', 'note', 'Tidak ada produk dihapus.'));
+          archived.forEach(item => {
+            const row = elemen('div', 'seller-trash-row');
+            const restore = elemen('button', 'outline', 'Pulihkan produk'); restore.type = 'button';
+            restore.setAttribute('aria-label', 'Pulihkan ' + item.nama);
+            restore.addEventListener('click', async () => {
+              restore.disabled = true;
+              try { await Backend.hapusProdukPenjual(item.id, true); await renderSellerProducts(); $('seller-product-status').textContent = item.nama + ' berhasil dipulihkan.'; }
+              catch (error) { $('seller-product-status').textContent = error.message; restore.disabled = false; }
+            });
+            row.append(elemen('strong', '', item.nama), restore); trash.append(row);
           });
         }
         await renderSellerProducts();

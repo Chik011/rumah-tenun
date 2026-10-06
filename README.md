@@ -94,3 +94,5 @@ Lisensi: https://creativecommons.org/licenses/by-sa/4.0/
 Motif Mega Mendung: Gunarta / Wikimedia Commons.
 Sumber: https://commons.wikimedia.org/wiki/File:Batik_Mega_Mendung.jpg
 Lisensi: https://creativecommons.org/licenses/by-sa/4.0/
+
+Penjual dapat mengubah stok dengan tombol minus/plus atau Stok habis tanpa mengubah status verifikasi. Hapus produk menyimpan deleted_at di Supabase; produk tidak tampil di katalog dan ditolak saat checkout, sementara riwayat pesanan serta foto Cloudinary tetap tersedia. Produk dapat dipulihkan dari daftar Produk dihapus.

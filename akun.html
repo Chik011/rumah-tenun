@@ -7,12 +7,12 @@
   <title>Ruang Anggota — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=learning-eye-1">
+  <link rel="stylesheet" href="studio.css?v=seller-2">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
-  <script src="demo.js?v=1" defer></script>
-  <script src="common.js?v=eye-1" defer></script>
+  <script src="demo.js?v=seller-2" defer></script>
+  <script src="common.js?v=seller-2" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -70,7 +70,7 @@
         </div>
 
         <!-- FORM SIMPAN PROFIL -->
-        <div style="background: white; border: 1px solid var(--garis); border-radius: 8px; padding: 28px; margin-bottom: 30px;">
+        <div id="profile-panel" style="background: white; border: 1px solid var(--garis); border-radius: 8px; padding: 28px; margin-bottom: 30px;">
           <h2 style="font-size: 1.5rem; margin-top: 0;">Perbarui Profil</h2>
           <p class="note">Nama tampilan disimpan pada profil Supabase Anda.</p>
           <form id="profile-form" style="margin-bottom: 0;">
@@ -370,38 +370,72 @@
         await renderProductReview();
         await renderAdminOrders();
       } else if (pengguna.peran === 'Penjual') {
-        roleTitle.textContent = 'Ruang Pengrajin & Penjual Tenun';
-        roleDesc.textContent = 'Tambahkan produk karya Anda. Gambar disimpan di Cloudinary dan detail produk serta pemiliknya disimpan di Supabase.';
+        document.body.classList.add('seller-workspace');
+        document.title = 'Etalase Produk — Rantai Mawar';
+        $('account-title').textContent = 'Etalase Produk';
+        $('account-eyebrow').textContent = 'RUANG PENJUAL';
+        $('profile-panel').hidden = true;
+        roleTitle.textContent = 'Kelola barang yang Anda jual';
+        roleDesc.textContent = 'Tambahkan barang, tentukan harga dan stoknya, lalu kirim untuk verifikasi.';
         roleExtra.innerHTML = `
-          <form id="seller-product-form" class="backend-form">
+          <div id="seller-summary" class="seller-summary" aria-label="Ringkasan etalase"></div>
+          <div class="seller-workspace-grid">
+          <section class="seller-editor">
+          <h2>Tambah produk</h2>
+          <p class="note">Lengkapi informasi barang yang ingin Anda jual.</p>
+          <form id="seller-product-form" class="backend-form seller-editor-form">
+            <div class="seller-field seller-field-wide">
             <label for="product-name">Nama produk</label>
-            <input id="product-name" required minlength="2" maxlength="120">
+            <input id="product-name" required minlength="2" maxlength="120" placeholder="Contoh: Kain Tenun Senja">
+            </div><div class="seller-field">
+            <label for="product-price">Harga jual (Rp)</label>
+            <input id="product-price" type="number" required min="1" step="1" placeholder="350000">
+            </div><div class="seller-field">
+            <label for="product-stock">Jumlah stok (kain)</label>
+            <input id="product-stock" type="number" required min="1" step="1" placeholder="20">
+            </div><div class="seller-field">
             <label for="product-motif">Motif</label>
-            <input id="product-motif" required maxlength="100">
+            <input id="product-motif" required maxlength="100" placeholder="Geometris / bunga">
+            </div><div class="seller-field">
             <label for="product-size">Ukuran</label>
             <input id="product-size" required maxlength="80" placeholder="Contoh: 200 × 110 cm">
+            </div><div class="seller-field seller-field-wide">
             <label for="product-material">Bahan</label>
-            <input id="product-material" required maxlength="100">
-            <label for="product-price">Harga (rupiah)</label>
-            <input id="product-price" type="number" required min="1" step="1000">
-            <label for="product-stock">Stok tersedia</label>
-            <input id="product-stock" type="number" required min="1" step="1">
+            <input id="product-material" required maxlength="100" placeholder="Contoh: Katun">
+            </div><div class="seller-field seller-field-wide">
             <label for="product-description">Deskripsi</label>
-            <textarea id="product-description" required minlength="5" maxlength="1000" rows="4"></textarea>
-            <label for="product-image">Gambar produk</label>
+            <textarea id="product-description" required minlength="5" maxlength="1000" rows="4" placeholder="Ceritakan warna, motif, dan keunggulan barang Anda."></textarea>
+            </div><div class="seller-field seller-field-wide seller-upload">
+            <label for="product-image">Foto produk</label>
             <input id="product-image" type="file" accept="image/jpeg,image/png,image/webp" required>
+            <span class="note">JPG, PNG atau WebP · maksimal 10 MB</span>
+            </div>
             <button class="primary" type="submit">Kirim untuk verifikasi</button>
             <p id="seller-product-status" role="status" aria-live="polite"></p>
           </form>
-          <h3>Produk milik Anda</h3>
+          </section><section class="seller-inventory">
+          <h2>Produk Anda</h2>
+          <p class="note">Pantau harga, stok, dan status produk Anda.</p>
           <div id="seller-products" class="seller-product-list"></div>
+          </section></div>
         `;
         const productForm = $('seller-product-form');
         const sellerProducts = $('seller-products');
         async function renderSellerProducts() {
           sellerProducts.replaceChildren();
           const sellerList = await Backend.ambilProduk();
-          sellerList.filter(item => item.sellerId === pengguna.id).forEach(item => {
+          const ownProducts = sellerList.filter(item => item.sellerId === pengguna.id);
+          $('seller-summary').replaceChildren(...[
+            ['Total produk', ownProducts.length],
+            ['Stok tersedia', ownProducts.reduce((total, item) => total + Number(item.stok || 0), 0) + ' kain'],
+            ['Menunggu verifikasi', ownProducts.filter(item => item.status !== 'approved').length]
+          ].map(([label, value]) => {
+            const card = elemen('div', 'seller-stat');
+            card.append(elemen('span', '', label), elemen('strong', '', String(value)));
+            return card;
+          }));
+          if (!ownProducts.length) sellerProducts.append(elemen('p', 'seller-empty', 'Belum ada produk. Tambahkan barang pertama Anda melalui form di sebelah.'));
+          ownProducts.forEach(item => {
             const row = elemen('article', 'seller-product-row');
             if (item.imageUrl) {
               const image = elemen('img', 'seller-product-thumb');

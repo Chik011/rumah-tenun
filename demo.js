@@ -88,7 +88,7 @@
     if (!readSession()) return;
     const note = document.createElement('p');
     note.className = 'demo-notice';
-    note.textContent = 'Mode demo · Anda sedang mencoba data contoh.';
+    note.textContent = 'Data contoh · Perubahan tersimpan hanya di perangkat ini.';
     const host = document.getElementById('main-content');
     if (host) host.prepend(note);
   });

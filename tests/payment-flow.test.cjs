@@ -129,7 +129,7 @@ test('Payment page handles pending, paid, expired and unsafe redirect results', 
   assert.match(p('payment-error').textContent, /tidak valid/);
 });
 
-test('Login opens home for every role and role selection cannot grant admin access', async () => {
+test('Seller login opens product management, other roles open home, and role selection cannot grant admin access', async () => {
   const source=fs.readFileSync(path.join(root,'login.html'),'utf8').match(/<script>\s*([\s\S]*?)<\/script>/)[1];
   async function login(selected,actual) {
     const nodes=new Map(); const element=id=>{if(!nodes.has(id))nodes.set(id,{value:'',events:{},addEventListener(k,fn){this.events[k]=fn},focus(){}});return nodes.get(id)};
@@ -140,7 +140,7 @@ test('Login opens home for every role and role selection cannot grant admin acce
     ready(); element('login-form').events.submit({preventDefault(){}}); await new Promise(resolve=>setImmediate(resolve));
     return {window,element,logouts};
   }
-  for(const role of ['Pembeli','Admin','Penjual','Guest']) assert.equal((await login(role,role)).window.location.href,'index.html');
+  for(const role of ['Pembeli','Admin','Penjual','Guest']) assert.equal((await login(role,role)).window.location.href,role === 'Penjual' ? 'akun.html' : 'index.html');
   const wrong=await login('Admin','Pembeli');
   assert.equal(wrong.window.location.href,undefined);
   assert.equal(wrong.logouts,1);

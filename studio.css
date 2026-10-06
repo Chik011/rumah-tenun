@@ -342,3 +342,28 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .eye-slash { display:none; }
 
 .demo-notice { padding: 14px 20px; background: #e8eff8; color: #23476e; border: 1px solid #c5d7ed; border-radius: 10px; font-size: .95rem; margin: 0 0 24px; }
+.seller-workspace { background: #f0f4f5; }
+.seller-workspace .account-page { max-width: none; }
+.seller-workspace #account-title { font-size: clamp(2.5rem, 5vw, 4rem); margin: 12px 0 24px; }
+.seller-workspace .role-panel { background: transparent; border: 0; padding: 0; }
+.seller-workspace #role-panel-title { font: 600 1.35rem/1.4 var(--font-sans, sans-serif); color: var(--hijau) !important; }
+.seller-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+.seller-stat { padding: 22px; border-radius: 14px; background: #e2ebe6; border: 1px solid #cddcd3; }
+.seller-stat:nth-child(2) { background: #e3eaf4; border-color: #ced9ec; }
+.seller-stat:nth-child(3) { background: #f2e5d7; border-color: #e5d4bd; }
+.seller-stat span { display: block; font-size: .9rem; color: #536463; margin-bottom: 10px; }
+.seller-stat strong { font-size: 1.75rem; color: var(--hijau); }
+.seller-workspace-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.seller-editor, .seller-inventory { background: white; border: 1px solid #d7e1df; border-radius: 18px; padding: 30px; }
+.seller-workspace-grid h2 { font-size: 1.8rem; margin: 0 0 8px; }
+.seller-editor-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 16px; max-width: none; margin-top: 24px; }
+.seller-field { display: flex; flex-direction: column; gap: 8px; }
+.seller-field label { font-size: .95rem; margin: 0; font-weight: 600; }
+.seller-field input, .seller-field textarea { margin: 0; width: 100%; min-width: 0; background: #fafcfb; }
+.seller-field-wide, .seller-editor-form > button, #seller-product-status { grid-column: 1 / -1; }
+.seller-upload { padding: 20px; border: 1px dashed #a8bdb7; border-radius: 12px; background: #f4f8f6; }
+.seller-workspace .seller-product-row { padding: 20px; background: #f7faf9; border-radius: 12px; margin: 16px 0; }
+.seller-product-row strong { font-size: 1.15rem; }
+.seller-empty { padding: 28px; border: 1px dashed #bdcfcb; border-radius: 12px; color: #536463; }
+@media(max-width: 900px) { .seller-workspace-grid { grid-template-columns: 1fr; } }
+@media(max-width: 600px) { .seller-summary { gap: 8px; } .seller-stat { padding: 14px 10px; } .seller-stat span { font-size: .75rem; } .seller-stat strong { font-size: 1.2rem; } .seller-editor, .seller-inventory { padding: 22px; } .seller-editor-form { grid-template-columns: 1fr; } }

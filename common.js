@@ -333,6 +333,13 @@ async function setupHeaderActions() {
   const user = await Backend.penggunaAktif();
   const navigation = $('navigation');
   const isStaff = user && ['Admin', 'Penjual'].includes(user.peran);
+  if (user && user.peran === 'Penjual') {
+    document.querySelectorAll('.brand').forEach(link => { link.href = 'akun.html'; });
+    if (['index.html', 'koleksi.html', ''].includes(location.pathname.split('/').pop())) {
+      location.replace('akun.html');
+      return;
+    }
+  }
   if (navigation && isStaff) {
     const linksByRole = {
       Admin: [
@@ -340,8 +347,7 @@ async function setupHeaderActions() {
         ['koleksi.html', 'Katalog']
       ],
       Penjual: [
-        ['akun.html', 'Dashboard Penjual'],
-        ['koleksi.html', 'Etalase Produk'],
+        ['akun.html', 'Etalase Produk'],
         ['belajar.html', 'Panduan Usaha']
       ]
     };
@@ -456,6 +462,15 @@ async function setupHeaderActions() {
     `;
 
     actionsContainer.append(userWrapper);
+    if (user.peran === 'Penjual') {
+      const sellerLinks = userWrapper.querySelector('.user-dropdown-links');
+      sellerLinks.replaceChildren();
+      for (const [href, label] of [['akun.html', 'Etalase Produk'], ['belajar.html', 'Panduan Usaha']]) {
+        const link = elemen('a', 'user-dropdown-item', label);
+        link.href = href;
+        sellerLinks.append(link);
+      }
+    }
 
     // Toggle Dropdown
     const avatarBtn = $('user-profile-button');

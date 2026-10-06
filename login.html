@@ -7,12 +7,12 @@
   <title>Masuk — Rantai Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=learning-eye-1">
+  <link rel="stylesheet" href="studio.css?v=seller-2">
   <script src="data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="backend.js" defer></script>
-  <script src="demo.js?v=1" defer></script>
-  <script src="common.js?v=eye-1" defer></script>
+  <script src="demo.js?v=seller-2" defer></script>
+  <script src="common.js?v=seller-2" defer></script>
 </head>
 <body class="simple-login-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -70,7 +70,8 @@
           userInput.value = button.dataset.quickEmail;
           passInput.value = '12345678';
           errorMsg.textContent = '';
-          successMsg.textContent = 'Email dan sandi terisi. Klik Masuk ke beranda.';
+          submitBtn.textContent = button.dataset.role === 'Penjual' ? 'Masuk ke etalase' : 'Masuk ke beranda';
+          successMsg.textContent = 'Email dan sandi terisi. Klik tombol masuk untuk melanjutkan.';
           document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
           (passInput.value ? submitBtn : passInput).focus();
       }
@@ -92,7 +93,7 @@
           }
           successMsg.textContent = '✓ Berhasil masuk sebagai ' + user.nama + ' (' + user.peran + ')! Mengalihkan...';
           setTimeout(() => {
-            window.location.href = tujuanSetelahMasuk;
+            window.location.href = user.peran === 'Penjual' ? 'akun.html' : tujuanSetelahMasuk;
           }, 600);
         } catch (err) {
           errorMsg.textContent = err.message || 'Gagal masuk. Periksa kembali username dan kata sandi.';

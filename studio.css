@@ -479,3 +479,16 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .seller-workspace .seller-product-row .primary { margin:10px 8px 0 0; }
 
 html:not([data-role-ready]) #navigation { visibility:hidden; }
+
+/* Dedicated, readable learning pages. */
+.lesson-detail-page { max-width:1020px; }
+.lesson-return { margin-bottom:32px; }
+.lesson-detail-heading { padding:clamp(24px,5vw,48px); background:linear-gradient(130deg,#dfeee7,#faf1df); border-radius:24px; margin-bottom:30px; }
+.lesson-detail-heading h1 { font-size:clamp(2.1rem,5vw,4rem); line-height:1.15; margin:18px 0; }
+.guide-steps { padding:0; list-style:none; display:grid; gap:20px; }
+.guide-step { display:flex; align-items:flex-start; gap:24px; background:white; border:1px solid #d7e2d9; border-radius:20px; padding:clamp(22px,4vw,36px); }
+.guide-step-number { background:#1d493c; color:#fff; border-radius:14px; padding:14px; font-size:1.3rem; font-weight:700; flex-shrink:0; }
+.guide-step-content h2 { margin:0 0 10px; font-family:var(--font-body,sans-serif); font-size:1.15rem; font-weight:700; }
+.guide-step-content p { margin:0; font-size:clamp(1.05rem,2vw,1.25rem); line-height:1.8; }
+.guide-finish { margin-top:36px; padding:32px; background:#e5eee8; border-radius:20px; }
+@media(max-width:600px) { .guide-step { gap:16px; } .guide-step-number { padding:10px; } .lesson-detail-page { padding-top:30px; } }

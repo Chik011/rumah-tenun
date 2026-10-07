@@ -190,10 +190,10 @@ const Backend = {
   async ambilMateri() {
     const { data, error } = await supabaseClient
       .from('learning_materials')
-      .select('title, duration, steps')
+      .select('id, title, duration, steps')
       .order('id');
     if (error) throw error;
-    return data.map(item => ({ judul: item.title, durasi: item.duration, langkah: item.steps }));
+    return data.map(item => ({ id: item.id, judul: item.title, durasi: item.duration, langkah: item.steps }));
   },
 
   async masuk(email, password) {

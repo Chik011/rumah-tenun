@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Tentang Koperasi Rantai Mawar — Rumah Tenun & Cerita.">
-  <title>Tentang Kami — Benang-Mawar</title>
+  <meta name="description" content="Ruang belajar digital Koperasi Rantai Mawar.">
+  <title>Panduan Belajar — Benang-Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
   <link rel="stylesheet" href="studio.css?v=guide-page-1">
@@ -12,7 +12,7 @@
   <script src="backend.js?v=guide-page-1" defer></script>
   <script src="common.js?v=logout-login-1" defer></script>
 </head>
-<body>
+<body class="learning-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
   <!-- HEADER STICKY -->
   <header class="header-wrapper">
@@ -39,25 +39,16 @@
     </div>
   </header>
 
-  <main id="main-content" class="container section">
-    <span class="eyebrow">TENTANG RANTAI MAWAR</span>
-    <div class="about-grid">
-      <div>
-        <h1>Berdaya bersama.<br><em>Bertumbuh bersama.</em></h1>
-        <p class="intro">Benang-Mawar adalah ruang pemasaran digital terpusat Koperasi Rantai Mawar di Dusun Semberang, Kabupaten Sambas, Kalimantan Barat.</p>
-        <p>Koperasi mempertemukan karya perempuan penenun Tenun Sambas atau Songket Sambas dengan pembeli. Proses menenun menggunakan alat tenun bukan mesin (ATBM), dengan ketelitian dan keterampilan yang diwariskan antargenerasi.</p>
-        <p>Anggota usia sekitar 50 tahun dan generasi muda belajar berdampingan melalui panduan sederhana, antarmuka ramah pengguna, dan praktik bertahap.</p>
-        <div style="margin-top: 25px;">
-        </div>
-      </div>
-      <img src="assets/tenun-background.jpg" alt="Ilustrasi grafis kain dan jalinan benang" loading="lazy">
-    </div>
-
-    <section class="notice"><h2>Dikelola bersama oleh koperasi</h2><p>Anggota menyerahkan informasi dan foto kain kepada admin. Admin memeriksa katalog, harga dan stok, mengelola pembayaran, serta memperbarui pengiriman. Dua hingga tiga pendamping muda membantu pencatatan dan latihan digital bersama anggota.</p><a class="outline" href="belajar.html">Baca panduan & SOP koperasi</a></section>
-    <section class="production-location production-map" aria-labelledby="production-location-title">
-      <div class="production-map-heading"><div><span class="eyebrow">DARI TEMPAT KAIN DITENUN</span><h2 id="production-location-title">Lokasi pembuatan</h2><p>Dusun Semberang, Kabupaten Sambas, Kalimantan Barat</p></div><a class="primary" href="https://maps.app.goo.gl/yxMp5bny5BwxCVFA6" target="_blank" rel="noopener noreferrer">Petunjuk arah</a></div>
-      <iframe class="production-map-frame" title="Peta lokasi pembuatan di Sambas, Kalimantan Barat" src="https://www.google.com/maps?q=1.3626937,109.3009462&amp;z=14&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+  <main id="main-content" class="container section lesson-detail-page">
+    <a class="outline lesson-return" href="belajar.html">Kembali ke ruang belajar</a>
+    <section class="lesson-detail-heading">
+      <span class="eyebrow">PANDUAN BELAJAR</span>
+      <h1 id="guide-title">Memuat panduan…</h1>
+      <p id="guide-intro" class="intro">Baca setiap langkah, lalu praktikkan perlahan bersama pendamping.</p>
+      <p id="guide-error" class="notice" role="alert" hidden></p>
     </section>
+    <ol id="guide-steps" class="guide-steps" aria-label="Langkah panduan"></ol>
+    <div id="guide-finish" class="guide-finish" hidden><h2>Sudah selesai mencoba?</h2><p>Anda bisa mengulang panduan ini atau melanjutkan materi lainnya.</p><a class="primary" href="belajar.html">Pilih panduan lainnya</a></div>
   </main>
 
   <!-- FOOTER MULTI-KOLOM ELEGAN -->
@@ -103,6 +94,7 @@
     </div>
   </footer>
 
+
   <!-- DIALOG TAS BELANJA BERSAMA -->
   <dialog id="cart-dialog" aria-labelledby="cart-title">
     <button class="close-button" data-close aria-label="Tutup">×</button>
@@ -121,5 +113,7 @@
       <p id="payment-description" class="notice"></p>
     </div>
   </dialog>
+
+  <script src="panduan.js?v=guide-page-1" defer></script>
 </body>
 </html>

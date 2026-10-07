@@ -7,9 +7,9 @@
   <title>Ruang Belajar — Benang-Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=three-roles-1">
+  <link rel="stylesheet" href="studio.css?v=guide-page-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=three-roles-1" defer></script>
+  <script src="backend.js?v=guide-page-1" defer></script>
   <script src="common.js?v=logout-login-1" defer></script>
 </head>
 <body class="learning-page">
@@ -98,17 +98,6 @@
     </div>
   </footer>
 
-  <!-- DIALOG MATERI BELAJAR LANGKAH-DEMI-LANGKAH -->
-  <dialog id="lesson-dialog" aria-labelledby="lesson-title">
-    <button class="close-button" data-close aria-label="Tutup">×</button>
-    <span id="lesson-progress" class="eyebrow"></span>
-    <h2 id="lesson-title"></h2>
-    <p id="lesson-text" class="lesson-text"></p>
-    <div class="step-actions">
-      <button id="lesson-back" class="outline">Sebelumnya</button>
-      <button id="lesson-next" class="primary">Lanjut →</button>
-    </div>
-  </dialog>
 
   <!-- DIALOG TAS BELANJA BERSAMA -->
   <dialog id="cart-dialog" aria-labelledby="cart-title">
@@ -131,63 +120,20 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      let materiDipilih = 0;
-      let langkahAktif = 0;
-      let materiBelajar;
-
+      const host = $('lesson-list');
       try {
-        materiBelajar = await Backend.ambilMateri();
-      } catch (error) {
-        $('lesson-list').textContent = 'Materi belum dapat dimuat: ' + error.message;
-        return;
-      }
-
-      function renderLangkah() {
-        const materi = materiBelajar[materiDipilih];
-        $('lesson-title').textContent = materi.judul;
-        $('lesson-progress').textContent = 'LANGKAH ' + (langkahAktif + 1) + ' DARI ' + materi.langkah.length;
-        $('lesson-text').textContent = materi.langkah[langkahAktif];
-        $('lesson-back').disabled = langkahAktif === 0;
-        $('lesson-next').textContent = langkahAktif === materi.langkah.length - 1 ? 'Selesai ✓' : 'Lanjut →';
-      }
-
-      $('lesson-back').addEventListener('click', () => {
-        if (langkahAktif > 0) {
-          langkahAktif--;
-          renderLangkah();
-        }
-      });
-
-      $('lesson-next').addEventListener('click', () => {
-        if (langkahAktif === materiBelajar[materiDipilih].langkah.length - 1) {
-          $('lesson-dialog').close();
-        } else {
-          langkahAktif++;
-          renderLangkah();
-        }
-      });
-
-      const listWadah = $('lesson-list');
-      listWadah.replaceChildren();
-
-      materiBelajar.forEach((materi, index) => {
-        const kartu = elemen('article', 'lesson-card');
-        const mulai = elemen('button', 'primary lesson-start', 'Mulai belajar');
-        mulai.type = 'button';
-        kartu.append(
-          elemen('span', 'eyebrow lesson-number', 'PANDUAN 0' + (index + 1)),
-          elemen('h2', '', materi.judul),
-          elemen('p', 'lesson-preview', materi.langkah[0] || 'Ikuti petunjuk dan praktikkan langkahnya satu per satu.'),
-          mulai
-        );
-        mulai.addEventListener('click', () => {
-          materiDipilih = index;
-          langkahAktif = 0;
-          renderLangkah();
-          $('lesson-dialog').showModal();
+        const lessons = await Backend.ambilMateri();
+        host.replaceChildren();
+        lessons.forEach((materi,index) => {
+          const card = elemen('article','lesson-card');
+          const link = elemen('a','primary lesson-start','Mulai belajar');
+          link.href = 'panduan.html?id=' + encodeURIComponent(materi.id);
+          link.setAttribute('aria-label','Mulai belajar: ' + materi.judul);
+          card.append(elemen('span','eyebrow lesson-number','PANDUAN ' + String(index+1).padStart(2,'0')),
+            elemen('h2','',materi.judul),elemen('p','lesson-preview',materi.langkah[0] || 'Ikuti panduan langkah demi langkah.'),link);
+          host.append(card);
         });
-        listWadah.append(kartu);
-      });
+      } catch(error) { host.textContent = 'Materi belum dapat dimuat: ' + error.message; }
     });
   </script>
 </body>

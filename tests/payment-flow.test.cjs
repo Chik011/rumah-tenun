@@ -423,5 +423,16 @@ test('PostgreSQL: checkout, permissions, payment verification and stock lifecycl
     await assert.rejects(db.query("select cooperative_product_stock(4,'plus')"),/admin koperasi/);
     assert.equal((await db.query('select id from products where id=4')).rows.length,0,'seller cannot read another seller draft');
     await db.exec('reset role');
+    await db.query("update products set status='pending',review_note='Lengkapi data kain asli Sambas, nama pembuat, cerita, ukuran, bahan, motif, dan foto sebelum ditayangkan.' where id=1");
+    await db.query("update products set status='pending',review_note=null where id=4");
+    const originalStock=(await db.query('select stock from products where id=1')).rows[0].stock;
+    await db.exec(fs.readFileSync(path.join(root,'supabase/migrations/20261008050000_restore_published_collection.sql'),'utf8'));
+    await db.exec('set role anon');
+    assert.equal((await db.query('select status,stock from products where id=1')).rows[0].status,'approved');
+    assert.equal((await db.query('select stock from products where id=1')).rows[0].stock,originalStock);
+    assert.equal((await db.query('select id from products where id=4')).rows.length,0,'unrelated seller draft remains unpublished');
+    await db.exec('reset role');
+    await db.query("update products set status='pending',maker_name='' where id=1");
+    await assert.rejects(db.query("update products set status='approved' where id=1"),/Lengkapi pembuat/,'publication validation remains enabled after restoration');
   } finally { await db.close(); }
 });

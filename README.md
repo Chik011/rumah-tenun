@@ -37,3 +37,5 @@ Push ke main memicu deployment Vercel. Berkas akun pribadi dan rahasia server ti
 ## Pembaruan tiga peran
 
 Atas permintaan pemilik, User/Pembeli, Penjual, dan Admin tersedia kembali. Admin mengelola seluruh produk dan pesanan; penjual hanya mengelola produk serta pemenuhan pesanan miliknya. Data dan keranjang tetap tersimpan di Supabase, foto produk di Cloudinary. Menu dan logo staff mengarah ke ruang pengelolaan, bukan beranda belanja. Migrasi 20261008030000_restore_three_roles.sql mengembalikan akses toko milik penjual tanpa memberi hak admin.
+
+Koleksi awal (12 produk) yang sebelumnya tayang telah dipulihkan melalui migrasi 20261008050000_restore_published_collection.sql. Pemulihan hanya berlaku pada produk yang diubah menjadi draf oleh migrasi proposal; draf baru penjual serta produk dihapus tidak ditayangkan otomatis. Harga, stok, dan riwayat pesanan tidak diubah.

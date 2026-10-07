@@ -506,7 +506,7 @@ async function setupHeaderActions() {
     if (logoutBtn) {
       logoutBtn.addEventListener('click', async () => {
         await Backend.keluar();
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
       });
     }
   }

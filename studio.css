@@ -94,7 +94,7 @@ nav a.active, nav a[aria-current=page] { border-color: var(--marun); color: var(
 .footer-col p, .footer-links a { color: var(--sekunder); font-size: .76rem; }
 .footer-links a:hover { color: var(--marun); }
 .footer-badge { background: transparent; color: var(--hijau); border-color: #c6cdbd; font-size: .65rem; }
-.footer-bottom { color: var(--sekunder); border-color: #cfd5c6; font-size: .63rem; align-items: flex-start; }
+.footer-bottom { color: var(--sekunder); border-color: #cfd5c6; font-size: .8rem; justify-content: center; text-align: center; }
 .footer-bottom a { color: var(--hijau); }
 .catalog-tools { display: flex; gap: 20px; align-items: center; justify-content: space-between; border-block: 1px solid var(--garis); padding: 20px 0; margin: 35px 0 15px; }
 .catalog-tools > div { width: min(420px,100%); }

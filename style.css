@@ -680,11 +680,10 @@ tfoot { background: var(--panel); color: var(--marun); }
   border-top: 1px solid rgba(255, 255, 255, .22);
   padding-top: 20px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  font-size: 0.78rem;
+  text-align: center;
+  font-size: 0.8rem;
   color: #d0d9d1;
 }
 .footer-bottom a {
@@ -736,12 +735,11 @@ tfoot { background: var(--panel); color: var(--marun); }
   .cart-summary, .checkout-summary { padding: 22px; }
   .checkout-message, .checkout-success { padding: 26px 20px; }
   .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; }
-  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .footer-bottom { justify-content: center; text-align: center; }
   .footer-col .brand { white-space: normal; }
 }
 @media (max-width: 540px) {
   .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-}
 }
 @media (max-width: 440px) {
   .brand { font-size: 1.45rem; }

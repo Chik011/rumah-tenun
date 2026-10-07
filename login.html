@@ -7,10 +7,10 @@
   <title>Masuk — Benang-Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=cooperative-2">
+  <link rel="stylesheet" href="studio.css?v=three-roles-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=cooperative-2" defer></script>
-  <script src="common.js?v=cooperative-2" defer></script>
+  <script src="backend.js?v=three-roles-1" defer></script>
+  <script src="common.js?v=three-roles-1" defer></script>
 </head>
 <body class="simple-login-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -25,13 +25,13 @@
       <div class="login-card">
         <div class="auth-switch"><a href="login.html" aria-current="page">Login</a><a href="register.html">Register</a></div><span class="eyebrow">RUMAH TENUN RANTAI MAWAR</span><h2>Selamat datang kembali</h2><p class="note">Masuk untuk melanjutkan ceritamu.</p>
         <form id="login-form">
-          <label for="login-role">Masuk sebagai</label><select id="login-role"><option value="Pembeli">User / Pembeli</option><option value="Admin">Admin</option><option value="Guest">Tamu</option></select>
+          <label for="login-role">Masuk sebagai</label><select id="login-role"><option value="Pembeli">User / Pembeli</option><option value="Penjual">Penjual</option><option value="Admin">Admin</option><option value="Guest">Tamu</option></select>
           <label for="login-email">Username</label><input id="login-email" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="254" placeholder="Masukkan username Anda">
           <label for="login-password">Kata sandi</label><input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100" placeholder="Masukkan kata sandi">
           <p id="login-error" class="error" role="alert"></p><p id="login-success" class="note" role="status"></p>
           <button id="login-submit" class="primary" type="submit">Masuk ke beranda →</button>
         </form>
-        <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-username="user1" data-quick-email="user@gmail.com" data-quick-password="12345678" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-username="admin" data-quick-email="admin@rumah-tenun.example" data-quick-password="12345678" data-role="Admin">Admin</button></div></div>
+        <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-username="user1" data-quick-email="user@gmail.com" data-quick-password="12345678" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-username="penjual1" data-quick-email="penjual@rumah-tenun.example" data-quick-password="12345678" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-username="admin" data-quick-email="admin@rumah-tenun.example" data-quick-password="12345678" data-role="Admin">Admin</button></div></div>
         
         <div class="auth-alternative"><span>Belum punya akun?</span><a class="auth-blue-link" href="register.html">Daftar sekarang</a></div><button id="btn-quick-guest" class="guest-link" type="button">Lanjut sebagai guest</button>
       </div>
@@ -69,7 +69,7 @@
           userInput.value = button.dataset.quickUsername;
           passInput.value = button.dataset.quickPassword || '';
           errorMsg.textContent = '';
-          submitBtn.textContent = button.dataset.role === 'Admin' ? 'Masuk ke koperasi' : 'Masuk ke beranda';
+          submitBtn.textContent = button.dataset.role === 'Admin' ? 'Masuk ke koperasi' : button.dataset.role === 'Penjual' ? 'Masuk ke etalase' : 'Masuk ke beranda';
           successMsg.textContent = passInput.value ? 'Username dan sandi terisi. Klik tombol masuk untuk melanjutkan.' : 'Masukkan kata sandi untuk melanjutkan.';
           document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
           (passInput.value ? submitBtn : passInput).focus();
@@ -92,7 +92,7 @@
           }
           successMsg.textContent = '✓ Berhasil masuk sebagai ' + user.nama + ' (' + user.peran + ')! Mengalihkan...';
           setTimeout(() => {
-            window.location.href = user.peran === 'Admin' ? 'akun.html' : tujuanSetelahMasuk;
+            window.location.href = ['Admin','Penjual'].includes(user.peran) ? 'akun.html' : tujuanSetelahMasuk;
           }, 600);
         } catch (err) {
           errorMsg.textContent = err.message || 'Gagal masuk. Periksa kembali username dan kata sandi.';

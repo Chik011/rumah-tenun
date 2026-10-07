@@ -7,10 +7,10 @@
   <title>Ruang Anggota — Benang-Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=cooperative-2">
+  <link rel="stylesheet" href="studio.css?v=three-roles-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=cooperative-2" defer></script>
-  <script src="common.js?v=cooperative-2" defer></script>
+  <script src="backend.js?v=three-roles-1" defer></script>
+  <script src="common.js?v=three-roles-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -196,14 +196,15 @@
         cancelled: 'Dibatalkan'
       }[status] || status);
 
-      if (pengguna.peran === 'Admin') {
+      if (['Admin', 'Penjual'].includes(pengguna.peran)) {
+        const admin = pengguna.peran === 'Admin';
         document.body.classList.add('seller-workspace');
         document.title = 'Kelola Koperasi — Benang-Mawar';
-        $('account-title').textContent = 'Kelola Koperasi';
-        $('account-eyebrow').textContent = 'ADMIN KOPERASI';
+        $('account-title').textContent = admin ? 'Kelola Koperasi' : 'Etalase Produk';
+        $('account-eyebrow').textContent = admin ? 'ADMIN KOPERASI' : 'RUANG PENJUAL';
         $('profile-panel').hidden = true;
-        roleTitle.textContent = 'Satu tempat untuk seluruh karya anggota';
-        roleDesc.textContent = 'Terima data dari anggota, lengkapi katalog, kelola stok, dan proses pesanan koperasi.';
+        roleTitle.textContent = admin ? 'Satu tempat untuk seluruh karya anggota' : 'Kelola produk dan pesanan toko Anda';
+        roleDesc.textContent = admin ? 'Terima data dari anggota, lengkapi katalog, kelola stok, dan proses pesanan koperasi.' : 'Tambahkan kain, atur stok, dan proses pesanan. Produk diperiksa oleh admin sebelum tampil di katalog.';
         roleExtra.innerHTML = `
           <div class="seller-tabs" aria-label="Bagian etalase">
             <button id="seller-tab-products" class="primary" type="button" aria-pressed="true">Katalog koperasi</button>
@@ -269,13 +270,19 @@
             <div id="seller-orders-list" class="workflow-list"></div>
           </section>
         `;
+        if (!admin) {
+          document.title = 'Etalase Produk — Benang-Mawar';
+          $('seller-tab-products').textContent = 'Produk saya';
+          document.querySelector('.seller-inventory h2').textContent = 'Produk Anda';
+          $('seller-name-help').textContent = 'Nama penjual mengikuti profil akun Anda.';
+        }
         const productForm = $('seller-product-form');
-        $('product-seller-name').value = 'Koperasi Rantai Mawar';
+        $('product-seller-name').value = admin ? 'Koperasi Rantai Mawar' : pengguna.nama;
         const sellerProducts = $('seller-products');
         async function renderSellerProducts() {
           sellerProducts.replaceChildren();
           const sellerList = await Backend.ambilProduk();
-          const ownProducts = sellerList;
+          const ownProducts = admin ? sellerList : sellerList.filter(item => item.sellerId === pengguna.id);
           $('seller-summary').replaceChildren(...[
             ['Total produk', ownProducts.length],
             ['Stok tersedia', ownProducts.reduce((total, item) => total + Number(item.stok || 0), 0) + ' kain'],
@@ -327,7 +334,7 @@
                 productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
               });
               details.append(edit);
-              if (item.status !== 'approved') {
+              if (admin && item.status !== 'approved') {
                 const publish = elemen('button', 'primary', 'Tayangkan');
                 publish.type = 'button';
                 publish.addEventListener('click', async () => {
@@ -336,7 +343,7 @@
                   catch(error) { $('seller-product-status').textContent = error.message; publish.disabled = false; }
                 });
                 details.append(publish);
-              } else {
+              } else if (admin) {
                 const draft = elemen('button', 'outline', 'Jadikan draf'); draft.type = 'button';
                 draft.addEventListener('click', async () => {
                   draft.disabled = true;
@@ -399,7 +406,7 @@
           });
           const trash = $('seller-trash-list');
           trash.replaceChildren();
-          const archived = await Backend.produkPenjualDihapus();
+          const archived = (await Backend.produkPenjualDihapus()).filter(item => admin || item.sellerId === pengguna.id);
           if (!archived.length) trash.append(elemen('p', 'note', 'Tidak ada produk dihapus.'));
           archived.forEach(item => {
             const row = elemen('div', 'seller-trash-row');
@@ -417,7 +424,7 @@
         function resetProductEditor() {
           delete productForm.dataset.editingId;
           productForm.reset();
-          $('product-seller-name').value = 'Koperasi Rantai Mawar';
+          $('product-seller-name').value = admin ? 'Koperasi Rantai Mawar' : pengguna.nama;
           $('product-image').required = true;
           $('product-stock').min = '1';
           $('seller-editor-title').textContent = 'Tambah produk';
@@ -522,11 +529,8 @@
         }
         $('seller-order-filter').addEventListener('change', renderSellerOrders);
         $('seller-refresh-orders').addEventListener('click', loadSellerOrders);
+        if (new URLSearchParams(location.search).get('view') === 'orders') $('seller-tab-orders').click();
         setInterval(() => { if (!document.hidden && !$('seller-orders-section').hidden) loadSellerOrders(); }, 30000);
-      } else if (pengguna.peran === 'Penjual') {
-        roleTitle.textContent = 'Informasi anggota koperasi';
-        roleDesc.textContent = 'Katalog dan pesanan kini dikelola terpusat oleh admin koperasi. Anggota tidak perlu membuka toko sendiri.';
-        roleExtra.innerHTML = '<p>Serahkan foto kain, nama pembuat, motif, ukuran, bahan, harga, stok, dan cerita kepada admin atau pendamping koperasi.</p><a class="primary" href="belajar.html">Panduan anggota</a>';
       } else {
         roleTitle.textContent = 'Ruang Pembeli / Pelanggan';
         roleDesc.textContent = 'Lihat perjalanan pesanan Anda, lanjutkan pembayaran, dan pantau pengirimannya.';

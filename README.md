@@ -33,3 +33,7 @@ Dokumentasi pelatihan, penunjukan 2–3 pendamping, artikel, berita, video, dan 
 npm test menguji autentikasi/peran, pembayaran, webhook, stok, checkout idempoten, migrasi model penjual ke koperasi, larangan akses penjual lama, validasi publikasi, dan isolasi keranjang pembeli. Tes PostgreSQL memakai PGlite dan tidak melakukan pembayaran nyata.
 
 Push ke main memicu deployment Vercel. Berkas akun pribadi dan rahasia server tidak disimpan dalam repository.
+
+## Pembaruan tiga peran
+
+Atas permintaan pemilik, User/Pembeli, Penjual, dan Admin tersedia kembali. Admin mengelola seluruh produk dan pesanan; penjual hanya mengelola produk serta pemenuhan pesanan miliknya. Data dan keranjang tetap tersimpan di Supabase, foto produk di Cloudinary. Menu dan logo staff mengarah ke ruang pengelolaan, bukan beranda belanja. Migrasi 20261008030000_restore_three_roles.sql mengembalikan akses toko milik penjual tanpa memberi hak admin.

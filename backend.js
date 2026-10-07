@@ -39,7 +39,7 @@ function ubahBentukProduk(item) {
     cerita: item.story || '',
     imageUrl: item.image_url,
     sellerId: item.seller_id,
-    sellerName: 'Koperasi Rantai Mawar',
+    sellerName: item.profiles?.display_name || 'Koperasi Rantai Mawar',
     motif: item.motif,
     ukuran: item.size,
     bahan: item.material,
@@ -63,12 +63,12 @@ const Backend = {
     if (error) throw error;
   },
   async stokProdukPenjual(id, action) {
-    const { data, error } = await supabaseClient.rpc('cooperative_product_stock', { p_product_id: Number(id), p_action: action });
+    const { data, error } = await supabaseClient.rpc((await this.penggunaAktif())?.peran === 'Admin' ? 'cooperative_product_stock' : 'seller_product_stock', { p_product_id: Number(id), p_action: action });
     if (error) throw error;
     return data;
   },
   async hapusProdukPenjual(id, restore = false) {
-    const { error } = await supabaseClient.rpc('cooperative_archive_product', { p_product_id: Number(id), p_restore: restore });
+    const { error } = await supabaseClient.rpc((await this.penggunaAktif())?.peran === 'Admin' ? 'cooperative_archive_product' : 'seller_archive_product', { p_product_id: Number(id), p_restore: restore });
     if (error) throw error;
   },
   async produkPenjualDihapus() {
@@ -76,8 +76,14 @@ const Backend = {
     if (error) throw error;
     return data.map(ubahBentukProduk);
   },
-  async pesananPenjual() { return this.semuaPesanan(); },
-  async prosesPesananPenjual(orderId, status) { return this.ubahStatusPesanan(orderId, 'confirmed', status); },
+  async pesananPenjual() {
+    if ((await this.penggunaAktif())?.peran === 'Admin') return this.semuaPesanan();
+    const { data,error } = await supabaseClient.rpc('seller_orders'); if(error) throw error; return data || [];
+  },
+  async prosesPesananPenjual(orderId, status) {
+    if ((await this.penggunaAktif())?.peran === 'Admin') return this.ubahStatusPesanan(orderId, 'confirmed', status);
+    const {error} = await supabaseClient.rpc('advance_seller_order',{p_order_id:orderId,p_status:status}); if(error) throw error;
+  },
   async ambilDetailProduk(id) {
     const { data, error } = await supabaseClient.from('products')
       .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, deleted_at, profiles!products_seller_id_fkey(display_name)')
@@ -294,7 +300,7 @@ const Backend = {
     };
     if (uploaded) productData.image_url = uploaded.secure_url;
     if (productId) {
-      const { data, error } = await supabaseClient.rpc('cooperative_update_product', { p_product_id: Number(productId), p_product: productData });
+      const { data, error } = await supabaseClient.rpc((await this.penggunaAktif())?.peran === 'Admin' ? 'cooperative_update_product' : 'update_seller_product', { p_product_id: Number(productId), p_product: productData });
       if (error) throw error;
       return ubahBentukProduk(Array.isArray(data) ? data[0] : data);
     }

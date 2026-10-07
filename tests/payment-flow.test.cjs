@@ -153,17 +153,17 @@ test('Username aliases preserve authenticated identities and reject role escalat
     ready(); element('login-form').events.submit({preventDefault(){}}); await new Promise(resolve=>setImmediate(resolve));
     return {window,element,logouts,storage};
   }
-  for(const role of ['Pembeli','Admin','Penjual','Guest']) assert.equal((await login(role,role)).window.location.href,role === 'Admin' ? 'akun.html' : 'index.html');
+  for(const role of ['Pembeli','Admin','Penjual','Guest']) assert.equal((await login(role,role)).window.location.href,['Admin','Penjual'].includes(role) ? 'akun.html' : 'index.html');
   const wrong=await login('Admin','Pembeli');
   assert.equal(wrong.window.location.href,undefined);
   assert.equal(wrong.logouts,1);
   assert.match(wrong.element('login-error').textContent,/bukan Admin/);
   assert.equal(wrong.storage.size,0,'wrong-role login does not save a password');
-  for(const role of ['Admin','Pembeli']) {
+  for(const role of ['Admin','Pembeli','Penjual']) {
     const saved=await login(role,role);
     saved.element('login-password').value='';
     saved.element('quick-'+role).events.click();
-    assert.equal(saved.element('login-email').value,role==='Admin'?'admin':'user1','quick login uses username');
+    assert.equal(saved.element('login-email').value,{Admin:'admin',Pembeli:'user1',Penjual:'penjual1'}[role],'quick login uses username');
     assert.equal(saved.element('login-password').value,'test-only','quick login reads the supplied button credential');
   }
 });
@@ -414,6 +414,14 @@ test('PostgreSQL: checkout, permissions, payment verification and stock lifecycl
     await db.exec('reset role');
     await db.query("select set_config('test.uid',$1,false)",[other]); await db.exec('set role authenticated');
     assert.equal((await db.query('select id from products where id=3')).rows.length,0,'another buyer cannot see unpublished cloth');
+    await db.exec('reset role');
+    await db.exec(fs.readFileSync(path.join(root,'supabase/migrations/20261008030000_restore_three_roles.sql'),'utf8'));
+    await asSeller(sellerA);
+    assert.equal((await db.query("select seller_product_stock(3,'plus') as stock")).rows[0].stock,6,'seller can manage their own store again');
+    await assert.rejects(db.query("select seller_product_stock(4,'minus')"),/bukan milik/);
+    assert.equal((await db.query('select seller_orders() as orders')).rows[0].orders[0].order_items.length,1);
+    await assert.rejects(db.query("select cooperative_product_stock(4,'plus')"),/admin koperasi/);
+    assert.equal((await db.query('select id from products where id=4')).rows.length,0,'seller cannot read another seller draft');
     await db.exec('reset role');
   } finally { await db.close(); }
 });

@@ -295,7 +295,7 @@ async function initNavigasiBersama() {
   document.querySelectorAll('nav a').forEach(link => {
     const href = link.getAttribute('href');
     if (!href) return;
-    const targetFile = href.split('#')[0];
+    const targetFile = href.split('#')[0].split('?')[0];
     if (targetFile === currentPath || (currentPath === '' && targetFile === 'index.html')) {
       link.setAttribute('aria-current', 'page');
       link.classList.add('active');
@@ -306,7 +306,7 @@ async function initNavigasiBersama() {
   });
 
   // RENDER TOMBOL AKSI HEADER (ICON TAS & ICON USER)
-  setupHeaderActions();
+  await setupHeaderActions();
 
   // Tombol tutup [data-close] untuk dialog
   document.querySelectorAll('[data-close]').forEach(tombol => {
@@ -336,9 +336,10 @@ async function setupHeaderActions() {
   if (!actionsContainer) return;
 
   const user = await Backend.penggunaAktif();
+  document.documentElement.dataset.roleReady = 'true';
   const navigation = $('navigation');
   const isStaff = user && ['Admin', 'Penjual'].includes(user.peran);
-  if (user && user.peran === 'Penjual') {
+  if (isStaff) {
     document.querySelectorAll('.brand').forEach(link => { link.href = 'akun.html'; });
     if (['index.html', 'koleksi.html', ''].includes(location.pathname.split('/').pop())) {
       location.replace('akun.html');
@@ -348,19 +349,21 @@ async function setupHeaderActions() {
   if (navigation && isStaff) {
     const linksByRole = {
       Admin: [
-        ['akun.html', 'Kelola Koperasi'],
-        ['koleksi.html', 'Katalog'],
+        ['akun.html?view=products', 'Kelola Koperasi'],
+        ['akun.html?view=orders', 'Pesanan masuk'],
         ['belajar.html', 'Panduan & SOP']
       ],
       Penjual: [
-        ['akun.html', 'Informasi Anggota'],
-        ['belajar.html', 'Panduan Anggota']
+        ['akun.html?view=products', 'Etalase Produk'],
+        ['belajar.html', 'Panduan Usaha']
       ]
     };
     const links = linksByRole[user.peran] || linksByRole.Pembeli;
     navigation.replaceChildren(...links.map(([href, label]) => {
       const link = elemen('a', '', label);
       link.href = href;
+      const target = new URL(href, location.href);
+      if (target.pathname === location.pathname && (target.searchParams.get('view') || 'products') === (new URLSearchParams(location.search).get('view') || 'products')) { link.setAttribute('aria-current','page'); link.classList.add('active'); }
       return link;
     }));
 
@@ -468,10 +471,10 @@ async function setupHeaderActions() {
     `;
 
     actionsContainer.append(userWrapper);
-    if (user.peran === 'Penjual') {
+    if (isStaff) {
       const sellerLinks = userWrapper.querySelector('.user-dropdown-links');
       sellerLinks.replaceChildren();
-      for (const [href, label] of [['akun.html', 'Informasi Anggota'], ['belajar.html', 'Panduan Anggota']]) {
+      for (const [href, label] of (user.peran === 'Admin' ? [['akun.html?view=products','Kelola Koperasi'],['akun.html?view=orders','Pesanan masuk'],['belajar.html','Panduan & SOP']] : [['akun.html?view=products', 'Etalase Produk'], ['belajar.html', 'Panduan Usaha']])) {
         const link = elemen('a', 'user-dropdown-item', label);
         link.href = href;
         sellerLinks.append(link);

@@ -45,6 +45,7 @@ function ubahBentukProduk(item) {
     bahan: item.material,
     stok: item.stock,
     status: item.status,
+    deletedAt: item.deleted_at || null,
     catatanReview: item.review_note
   };
 }
@@ -79,7 +80,7 @@ const Backend = {
   async prosesPesananPenjual(orderId, status) { return this.ubahStatusPesanan(orderId, 'confirmed', status); },
   async ambilDetailProduk(id) {
     const { data, error } = await supabaseClient.from('products')
-      .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, profiles!products_seller_id_fkey(display_name)')
+      .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, deleted_at, profiles!products_seller_id_fkey(display_name)')
       .eq('id', id).maybeSingle();
     if (error) throw error;
     return data ? ubahBentukProduk(data) : null;

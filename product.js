@@ -28,19 +28,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (const [label, value] of [['Motif',item.motif],['Ukuran',item.ukuran],['Bahan',item.bahan]]) {
       if (value) $('product-specs').append(elemen('dt','',label), elemen('dd','',value));
     }
+    const available = item.status === 'approved' && !item.deletedAt && item.stok > 0;
     const quantity = $('product-quantity');
     quantity.max = item.stok;
-    quantity.disabled = item.stok < 1;
+    quantity.disabled = !available;
     const minus = $('product-minus');
     const plus = $('product-plus');
     function syncQuantity() {
-      minus.disabled = item.stok < 1 || Number(quantity.value) <= 1;
-      plus.disabled = item.stok < 1 || Number(quantity.value) >= item.stok;
+      minus.disabled = !available || Number(quantity.value) <= 1;
+      plus.disabled = !available || Number(quantity.value) >= item.stok;
     }
     minus.addEventListener('click', () => { quantity.value = Math.max(1, Number(quantity.value) - 1); syncQuantity(); });
     plus.addEventListener('click', () => { quantity.value = Math.min(item.stok, Number(quantity.value) + 1); syncQuantity(); });
     syncQuantity();
-    $('product-stock').textContent = item.stok > 0 ? 'Tersedia ' + item.stok + ' kain' : 'Stok habis';
+    $('product-stock').textContent = available ? 'Tersedia ' + item.stok + ' kain' : 'Saat ini tidak tersedia untuk pembelian';
     async function add(buy) {
       $('product-add').disabled = $('product-buy').disabled = true;
       try {
@@ -60,9 +61,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       $('product-feedback').textContent = amount + ' kain ' + item.nama + ' ditambahkan ke tas.';
       $('product-cart-link').hidden = false;
       } catch(error) { $('product-feedback').textContent = error.message || 'Belum dapat menyimpan keranjang.'; }
-      finally { $('product-add').disabled = $('product-buy').disabled = item.stok < 1; }
+      finally { $('product-add').disabled = $('product-buy').disabled = !available; }
     }
-    $('product-add').disabled = $('product-buy').disabled = item.stok < 1;
+    $('product-add').disabled = $('product-buy').disabled = !available;
     $('product-add').addEventListener('click', () => add(false));
     $('product-buy').addEventListener('click', () => add(true));
     const user = await Backend.penggunaAktif();

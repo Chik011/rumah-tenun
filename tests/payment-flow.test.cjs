@@ -407,5 +407,13 @@ test('PostgreSQL: checkout, permissions, payment verification and stock lifecycl
     await asSeller(sellerA);
     await assert.rejects(db.query("select save_buyer_cart('{}'::jsonb)"),/pembeli/);
     await db.exec('reset role');
+    await db.exec(fs.readFileSync(path.join(root,'supabase/migrations/20261008020000_purchased_product_history.sql'),'utf8'));
+    await db.query("update products set status='pending' where id=3");
+    await context('authenticated'); await db.exec('set role authenticated');
+    assert.equal((await db.query('select id from products where id=3')).rows.length,1,'buyer retains detail access for purchased cloth');
+    await db.exec('reset role');
+    await db.query("select set_config('test.uid',$1,false)",[other]); await db.exec('set role authenticated');
+    assert.equal((await db.query('select id from products where id=3')).rows.length,0,'another buyer cannot see unpublished cloth');
+    await db.exec('reset role');
   } finally { await db.close(); }
 });

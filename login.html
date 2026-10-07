@@ -4,14 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Masuk ke ruang digital Koperasi Rantai Mawar.">
-  <title>Masuk — Rantai Mawar</title>
+  <title>Masuk — Benang-Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=stock-1">
-  <script src="data.js" defer></script>
+  <link rel="stylesheet" href="studio.css?v=cooperative-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=stock-1" defer></script>
-  <script src="common.js?v=story-1" defer></script>
+  <script src="backend.js?v=cooperative-1" defer></script>
+  <script src="common.js?v=cooperative-1" defer></script>
 </head>
 <body class="simple-login-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -19,21 +18,20 @@
 
   <main id="main-content" class="login-split">
     <section class="login-story" aria-label="Rumah Tenun Rantai Mawar">
-      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span><span>rantai mawar<small>RUMAH TENUN & CERITA</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span><span>benang-mawar<small>TENUN SAMBAS · RANTAI MAWAR</small></span></a>
       <div><span class="eyebrow">KARYA, CERITA, DAN KESEHARIAN</span><h1>Sehelai kain.<br> Begitu banyak<br> <em>cerita.</em></h1><p>Temukan tenun pilihan, dukung penenun lokal, dan ikuti perjalanan pesanan Anda dalam satu ruang.</p></div>
     </section>
     <section class="login-form-side">
       <div class="login-card">
         <div class="auth-switch"><a href="login.html" aria-current="page">Login</a><a href="register.html">Register</a></div><span class="eyebrow">RUMAH TENUN RANTAI MAWAR</span><h2>Selamat datang kembali</h2><p class="note">Masuk untuk melanjutkan ceritamu.</p>
         <form id="login-form">
-          <label for="login-role">Masuk sebagai</label><select id="login-role"><option value="Pembeli">User / Pembeli</option><option value="Penjual">Penjual</option><option value="Admin">Admin</option><option value="Guest">Tamu</option></select>
+          <label for="login-role">Masuk sebagai</label><select id="login-role"><option value="Pembeli">User / Pembeli</option><option value="Admin">Admin</option><option value="Guest">Tamu</option></select>
           <label for="login-email">Username</label><input id="login-email" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="254" placeholder="Masukkan username Anda">
           <label for="login-password">Kata sandi</label><input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100" placeholder="Masukkan kata sandi">
           <p id="login-error" class="error" role="alert"></p><p id="login-success" class="note" role="status"></p>
-          <label id="remember-private-label" class="remember-private" hidden><input id="remember-private" type="checkbox" checked> Simpan login cepat di perangkat ini</label>
           <button id="login-submit" class="primary" type="submit">Masuk ke beranda →</button>
         </form>
-        <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-username="user1" data-quick-email="user@gmail.com" data-quick-password="12345678" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-username="penjual1" data-quick-email="penjual@rumah-tenun.example" data-quick-password="12345678" data-role="Penjual">Penjual</button><button type="button" class="outline" data-quick-username="admin" data-quick-email="admin@rumah-tenun.example" data-quick-password="12345678" data-role="Admin">Admin</button></div></div>
+        <div class="login-quick-row"><span class="note">Akses cepat</span><div class="quick-login-options"><button type="button" class="outline" data-quick-username="user1" data-quick-email="user@gmail.com" data-quick-password="12345678" data-role="Pembeli">User</button><button type="button" class="outline" data-quick-username="admin" data-quick-email="admin@rumah-tenun.example" data-quick-password="12345678" data-role="Admin">Admin</button></div></div>
         
         <div class="auth-alternative"><span>Belum punya akun?</span><a class="auth-blue-link" href="register.html">Daftar sekarang</a></div><button id="btn-quick-guest" class="guest-link" type="button">Lanjut sebagai guest</button>
       </div>
@@ -59,7 +57,6 @@
         const guest = roleInput.value === 'Guest';
         userInput.required = passInput.required = !guest;
         userInput.disabled = passInput.disabled = guest;
-        $('remember-private-label').hidden = !['Admin', 'Penjual'].includes(roleInput.value);
         if (!guest) {
           const button = Array.from(document.querySelectorAll('[data-quick-email]')).find(item => item.dataset.role === roleInput.value);
           if (button) isiAkunCepat(button);
@@ -67,13 +64,12 @@
       });
       function isiAkunCepat(button) {
           roleInput.value = button.dataset.role;
-          $('remember-private-label').hidden = !['Admin', 'Penjual'].includes(button.dataset.role);
           userInput.required = passInput.required = true;
           userInput.disabled = passInput.disabled = false;
           userInput.value = button.dataset.quickUsername;
           passInput.value = button.dataset.quickPassword || '';
           errorMsg.textContent = '';
-          submitBtn.textContent = button.dataset.role === 'Penjual' ? 'Masuk ke etalase' : 'Masuk ke beranda';
+          submitBtn.textContent = button.dataset.role === 'Admin' ? 'Masuk ke koperasi' : 'Masuk ke beranda';
           successMsg.textContent = passInput.value ? 'Username dan sandi terisi. Klik tombol masuk untuk melanjutkan.' : 'Masukkan kata sandi untuk melanjutkan.';
           document.querySelectorAll('[data-quick-email]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
           (passInput.value ? submitBtn : passInput).focus();
@@ -94,15 +90,9 @@
             await Backend.keluar();
             throw new Error('Akun ini bukan ' + roleInput.value + '. Pilih peran yang sesuai dengan akun Anda.');
           }
-          if ($('remember-private').checked && ['Admin', 'Penjual'].includes(user.peran)) {
-            let saved = {};
-            try { saved = JSON.parse(localStorage.getItem('rm_private_login_v2') || '{}'); } catch (_) {}
-            saved[user.email] = password;
-            localStorage.setItem('rm_private_login_v2', JSON.stringify(saved));
-          }
           successMsg.textContent = '✓ Berhasil masuk sebagai ' + user.nama + ' (' + user.peran + ')! Mengalihkan...';
           setTimeout(() => {
-            window.location.href = user.peran === 'Penjual' ? 'akun.html' : tujuanSetelahMasuk;
+            window.location.href = user.peran === 'Admin' ? 'akun.html' : tujuanSetelahMasuk;
           }, 600);
         } catch (err) {
           errorMsg.textContent = err.message || 'Gagal masuk. Periksa kembali username dan kata sandi.';

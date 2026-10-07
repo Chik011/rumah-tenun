@@ -39,7 +39,7 @@ function ubahBentukProduk(item) {
     cerita: item.story || '',
     imageUrl: item.image_url,
     sellerId: item.seller_id,
-    sellerName: item.profiles && item.profiles.display_name,
+    sellerName: 'Koperasi Rantai Mawar',
     motif: item.motif,
     ukuran: item.size,
     bahan: item.material,
@@ -50,13 +50,24 @@ function ubahBentukProduk(item) {
 }
 
 const Backend = {
+  async bacaTas() {
+    const user = await this.penggunaAktif();
+    if (!user || user.peran !== 'Pembeli') return {};
+    const { data, error } = await supabaseClient.from('buyer_carts').select('items').eq('buyer_id', user.id).maybeSingle();
+    if (error) throw error;
+    return data?.items || {};
+  },
+  async simpanTas(items) {
+    const { error } = await supabaseClient.rpc('save_buyer_cart', { p_items: items });
+    if (error) throw error;
+  },
   async stokProdukPenjual(id, action) {
-    const { data, error } = await supabaseClient.rpc('seller_product_stock', { p_product_id: Number(id), p_action: action });
+    const { data, error } = await supabaseClient.rpc('cooperative_product_stock', { p_product_id: Number(id), p_action: action });
     if (error) throw error;
     return data;
   },
   async hapusProdukPenjual(id, restore = false) {
-    const { error } = await supabaseClient.rpc('seller_archive_product', { p_product_id: Number(id), p_restore: restore });
+    const { error } = await supabaseClient.rpc('cooperative_archive_product', { p_product_id: Number(id), p_restore: restore });
     if (error) throw error;
   },
   async produkPenjualDihapus() {
@@ -64,15 +75,8 @@ const Backend = {
     if (error) throw error;
     return data.map(ubahBentukProduk);
   },
-  async pesananPenjual() {
-    const { data, error } = await supabaseClient.rpc('seller_orders');
-    if (error) throw error;
-    return data || [];
-  },
-  async prosesPesananPenjual(orderId, status) {
-    const { error } = await supabaseClient.rpc('advance_seller_order', { p_order_id: orderId, p_status: status });
-    if (error) throw error;
-  },
+  async pesananPenjual() { return this.semuaPesanan(); },
+  async prosesPesananPenjual(orderId, status) { return this.ubahStatusPesanan(orderId, 'confirmed', status); },
   async ambilDetailProduk(id) {
     const { data, error } = await supabaseClient.from('products')
       .select('id, name, price, image_position, description, maker_name, story, image_url, seller_id, motif, size, material, stock, status, profiles!products_seller_id_fkey(display_name)')
@@ -137,7 +141,7 @@ const Backend = {
 
   async pesananSaya() {
     const { data, error } = await supabaseClient.from('orders')
-      .select('id, buyer_name, payment_method, payment_status, order_status, payment_provider, payment_url, payment_mode, payment_expires_at, total, created_at, order_items(item_name, unit_price, quantity, image_url)')
+      .select('id, buyer_name, payment_method, payment_status, order_status, payment_provider, payment_url, payment_mode, payment_expires_at, total, created_at, order_items(product_id, item_name, unit_price, quantity, image_url)')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;
@@ -155,7 +159,7 @@ const Backend = {
 
   async semuaPesanan() {
     const { data, error } = await supabaseClient.from('orders')
-      .select('id, buyer_name, phone, shipping_address, payment_method, payment_status, order_status, payment_provider, payment_mode, total, created_at, order_items(item_name, unit_price, quantity, image_url)')
+      .select('id, buyer_name, phone, shipping_address, payment_method, payment_status, order_status, payment_provider, payment_mode, total, created_at, order_items(product_id, item_name, unit_price, quantity, image_url)')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;
@@ -289,7 +293,7 @@ const Backend = {
     };
     if (uploaded) productData.image_url = uploaded.secure_url;
     if (productId) {
-      const { data, error } = await supabaseClient.rpc('update_seller_product', { p_product_id: Number(productId), p_product: productData });
+      const { data, error } = await supabaseClient.rpc('cooperative_update_product', { p_product_id: Number(productId), p_product: productData });
       if (error) throw error;
       return ubahBentukProduk(Array.isArray(data) ? data[0] : data);
     }

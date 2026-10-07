@@ -23,28 +23,25 @@ function elemen(tag, kelas, teks) {
 }
 
 // ============================================================
-// SISTEM KERANJANG PERSISTEN (LOCALSTORAGE)
+// KERANJANG PEMBELI TERSIMPAN DI SUPABASE
 // ============================================================
-const STORAGE_KEY_CART = 'rm_cart_items';
 let katalogProduk = [];
-
-function bacaKeranjang() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_CART);
-    if (raw) return JSON.parse(raw);
-  } catch (e) {
-    console.warn('Gagal membaca keranjang:', e);
-  }
-  return {};
+let keranjangCloud = {};
+let keranjangSiap;
+function muatKeranjangCloud() {
+  if (!keranjangSiap) keranjangSiap = Backend.bacaTas().then(items => { keranjangCloud = items; updateBadgeKeranjang(); });
+  return keranjangSiap;
 }
-
-function simpanKeranjang(keranjang) {
-  try {
-    localStorage.setItem(STORAGE_KEY_CART, JSON.stringify(keranjang));
-  } catch (e) {
-    console.warn('Gagal menyimpan keranjang:', e);
-  }
+function bacaKeranjang() { return { ...keranjangCloud }; }
+async function simpanKeranjang(keranjang) {
+  await Backend.simpanTas(keranjang);
+  keranjangCloud = { ...keranjang };
   updateBadgeKeranjang();
+}
+function tampilkanGalatKeranjang(error) {
+  let message = $('cart-save-message');
+  if (!message) { message = elemen('p','notice'); message.id='cart-save-message'; message.setAttribute('role','alert'); ($('main-content') || document.body).prepend(message); }
+  message.textContent = error.message || 'Keranjang belum tersimpan. Coba lagi.';
 }
 
 function updateBadgeKeranjang() {
@@ -59,7 +56,9 @@ function updateBadgeKeranjang() {
   badge.style.display = totalBanyak > 0 ? 'inline-block' : 'none';
 }
 
-function ubahJumlahKeranjang(id, delta) {
+async function ubahJumlahKeranjang(id, delta) {
+  try {
+  await muatKeranjangCloud();
   const keranjang = bacaKeranjang();
   const current = keranjang[id] || 0;
   const baru = Math.max(0, current + delta);
@@ -68,15 +67,17 @@ function ubahJumlahKeranjang(id, delta) {
   } else {
     keranjang[id] = baru;
   }
-  simpanKeranjang(keranjang);
+  await simpanKeranjang(keranjang);
   renderKeranjangHalaman();
   renderRingkasanCheckout();
+  } catch(error) { tampilkanGalatKeranjang(error); }
 }
 
-function tambahKeKeranjang(id) {
+async function tambahKeKeranjang(id) {
+  await muatKeranjangCloud();
   const keranjang = bacaKeranjang();
   keranjang[id] = (keranjang[id] || 0) + 1;
-  simpanKeranjang(keranjang);
+  await simpanKeranjang(keranjang);
 }
 
 function renderKeranjangHalaman() {
@@ -232,7 +233,7 @@ function initKeranjang() {
       }
       const orderId = await Backend.buatPesanan(detail, cart, pending.id);
       // Once an order exists, retries happen on that order, never by making a second order.
-      localStorage.removeItem(STORAGE_KEY_CART);
+      await simpanKeranjang({});
       sessionStorage.removeItem('rm_checkout_request');
       updateBadgeKeranjang();
       window.location.href = 'pembayaran.html?order=' + encodeURIComponent(orderId);
@@ -347,12 +348,13 @@ async function setupHeaderActions() {
   if (navigation && isStaff) {
     const linksByRole = {
       Admin: [
-        ['akun.html', 'Dashboard Admin'],
-        ['koleksi.html', 'Katalog']
+        ['akun.html', 'Kelola Koperasi'],
+        ['koleksi.html', 'Katalog'],
+        ['belajar.html', 'Panduan & SOP']
       ],
       Penjual: [
-        ['akun.html', 'Etalase Produk'],
-        ['belajar.html', 'Panduan Usaha']
+        ['akun.html', 'Informasi Anggota'],
+        ['belajar.html', 'Panduan Anggota']
       ]
     };
     const links = linksByRole[user.peran] || linksByRole.Pembeli;
@@ -469,7 +471,7 @@ async function setupHeaderActions() {
     if (user.peran === 'Penjual') {
       const sellerLinks = userWrapper.querySelector('.user-dropdown-links');
       sellerLinks.replaceChildren();
-      for (const [href, label] of [['akun.html', 'Etalase Produk'], ['belajar.html', 'Panduan Usaha']]) {
+      for (const [href, label] of [['akun.html', 'Informasi Anggota'], ['belajar.html', 'Panduan Anggota']]) {
         const link = elemen('a', 'user-dropdown-item', label);
         link.href = href;
         sellerLinks.append(link);
@@ -507,9 +509,10 @@ async function setupHeaderActions() {
   }
 
   try {
+    await muatKeranjangCloud();
     katalogProduk = await Backend.ambilProduk();
   } catch (error) {
-    console.error('Gagal memuat katalog untuk keranjang:', error);
+    tampilkanGalatKeranjang(error);
   }
   updateBadgeKeranjang();
   initKeranjang();

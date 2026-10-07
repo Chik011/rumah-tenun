@@ -32,7 +32,7 @@ Deno.serve(async request => {
     .select('role')
     .eq('id', user.id)
     .single();
-  if (profileError || !['admin', 'seller'].includes(profile.role)) {
+  if (profileError || profile.role !== 'admin') {
     return jsonResponse({ error: 'Akun ini tidak diizinkan mengunggah produk.' }, 403);
   }
 

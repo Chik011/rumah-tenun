@@ -472,3 +472,8 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .seller-empty { padding: 28px; border: 1px dashed #bdcfcb; border-radius: 12px; color: #536463; }
 @media(max-width: 900px) { .seller-workspace-grid { grid-template-columns: 1fr; } }
 @media(max-width: 600px) { .seller-summary { gap: 8px; } .seller-stat { padding: 14px 10px; } .seller-stat span { font-size: .75rem; } .seller-stat strong { font-size: 1.2rem; } .seller-editor, .seller-inventory { padding: 22px; } .seller-editor-form { grid-template-columns: 1fr; } }
+
+/* Cooperative identity; graphic illustration until partner photography is supplied. */
+.login-story { background-image:linear-gradient(180deg,#123a3860,#102d35ed),url("https://res.cloudinary.com/w7kqjyeq/image/upload/v1791399362/rumah-tenun/products/wohdyb67dodvest8lmv3.svg"); }
+.seller-workspace .seller-product-title { line-height:1.35; }
+.seller-workspace .seller-product-row .primary { margin:10px 8px 0 0; }

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1200" viewBox="0 0 1000 1200">
+ <defs>
+  <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#163d36"/><stop offset="1" stop-color="#092822"/></linearGradient>
+  <linearGradient id="cloth" x2="1" y2="0"><stop stop-color="#933d39"/><stop offset=".5" stop-color="#bd6152"/><stop offset="1" stop-color="#823436"/></linearGradient>
+  <pattern id="threads" width="9" height="9" patternUnits="userSpaceOnUse"><path d="M0 0h9M0 0v9" stroke="#f5d49a" stroke-opacity=".19" stroke-width="1"/></pattern>
+  <pattern id="diamonds" width="150" height="180" patternUnits="userSpaceOnUse"><path d="M75 18l55 72-55 72-55-72zM75 42l36 48-36 48-36-48z" fill="none" stroke="#e8bf79" stroke-width="3"/><path d="M75 72l14 18-14 18-14-18z" fill="#e8bf79"/></pattern>
+  <filter id="shadow"><feDropShadow dx="0" dy="22" stdDeviation="24" flood-opacity=".3"/></filter>
+ </defs>
+ <path fill="url(#bg)" d="M0 0h1000v1200H0z"/>
+ <circle cx="820" cy="180" r="280" fill="#f2d495" opacity=".06"/>
+ <g transform="translate(160,-70) rotate(12 350 580)" filter="url(#shadow)">
+  <path d="M0 0h680v1170H0z" fill="url(#cloth)"/>
+  <path d="M0 0h680v1170H0z" fill="url(#threads)"/>
+  <path d="M45 0h590v1050H45z" fill="url(#diamonds)"/>
+  <path d="M20 0v1150M660 0v1150" stroke="#e8bf79" stroke-width="9"/>
+  <path d="M0 1065h680M0 1090h680M0 1120h680" stroke="#e8bf79" stroke-width="7"/>
+  <path d="M20 1160v45m25-45v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38m25-38v43m25-43v38" stroke="#e3b677" stroke-width="8"/>
+ </g>
+ <rect width="1000" height="1200" fill="url(#threads)" opacity=".3"/>
+</svg>

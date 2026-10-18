@@ -118,6 +118,26 @@ test('Buyer registration accepts name and password, rejects bad input and never 
   assert.equal(created.length,1);
 });
 
+test('Registration stays signed out and opens login instead of the buyer homepage', async () => {
+  let signedOut=false;
+  const source=fs.readFileSync(path.join(root,'backend.js'),'utf8');
+  const backend=vm.runInNewContext(source+'; Backend',{
+    window:{supabase:{createClient:()=>({auth:{signOut:async options=>{assert.equal(options.scope,'local');signedOut=true;return {error:null};},signInWithPassword:()=>{throw Error('Registration must not log in');}}})}},
+    localStorage:{removeItem(){}}
+  });
+  backend.identitasPembeli=async(action,name,password)=>{
+    assert.equal(action,'register');assert.equal(name,'Pembeli Baru');assert.equal(password,'test-password');return 'internal@example.invalid';
+  };
+  const registered=await backend.daftar('Pembeli Baru','test-password');
+  assert.equal(registered.nama,'Pembeli Baru'); assert.equal(signedOut,true);
+  const script=fs.readFileSync(path.join(root,'register.html'),'utf8').match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const nodes=new Map();const element=id=>{if(!nodes.has(id))nodes.set(id,{value:'',events:{},addEventListener(k,fn){this.events[k]=fn}});return nodes.get(id);};
+  element('reg-name').value='Pembeli Baru';element('reg-password').value='test-password';let ready;const window={location:{}};
+  vm.runInNewContext(script,{$:element,document:{addEventListener:(_,fn)=>{ready=fn},getElementById:element},Backend:backend,window,setTimeout:fn=>fn()});
+  ready();await element('register-form').events.submit({preventDefault(){}});
+  assert.equal(window.location.href,'login.html');
+});
+
 test('Payment page handles pending, paid, expired and unsafe redirect results', async () => {
   const orderId = '11111111-1111-4111-8111-111111111111';
   async function page(result) {

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="style.css?v=studio-1">
   <link rel="stylesheet" href="studio.css?v=guide-page-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=buyer-signup-1" defer></script>
+  <script src="backend.js?v=register-login-1" defer></script>
   <script src="common.js?v=buyer-signup-1" defer></script>
 </head>
 <body class="simple-login-page">
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const nameInput = $('reg-name');
       const passInput = $('reg-password');
       const submitBtn = $('reg-submit');
-      const tujuanSetelahDaftar = 'index.html';
+      const tujuanSetelahDaftar = 'login.html';
 
       form.addEventListener('submit', async event => {
         event.preventDefault();
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
           const user = await Backend.daftar(nameInput.value, passInput.value);
-          successMsg.textContent = '✓ Pendaftaran berhasil! Selamat datang, ' + user.nama + '. Mengalihkan...';
+          successMsg.textContent = 'Pendaftaran berhasil, ' + user.nama + '. Silakan login dengan nama dan kata sandi Anda.';
           setTimeout(() => {
             window.location.href = tujuanSetelahDaftar;
           }, 800);

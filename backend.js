@@ -227,8 +227,11 @@ const Backend = {
   },
 
   async daftar(namaLengkap, password) {
-    const email=await this.identitasPembeli('register',namaLengkap,password);
-    return this.masuk(email,password);
+    await this.identitasPembeli('register',namaLengkap,password);
+    const {error}=await supabaseClient.auth.signOut({scope:'local'});
+    if(error) throw error;
+    localStorage.removeItem(STORAGE_KEY_GUEST);
+    return {nama:namaLengkap.trim()};
   },
 
   async simpanProfil(nama,telepon='',alamat='',email='') {

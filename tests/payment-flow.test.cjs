@@ -91,6 +91,33 @@ test('Payment endpoint refuses missing and invalid buyer sessions', async () => 
   assert.equal((await handler(new Request('https://example.test/pay', { method: 'POST', headers: { Authorization: 'Bearer fake' }, body: '{}' }))).status, 401);
 });
 
+test('Buyer registration accepts name and password, rejects bad input and never forwards a privileged role', async () => {
+  let handler; const created=[]; let allow=true;
+  const admin={rpc:async()=>({data:allow,error:null}),auth:{admin:{createUser:async input=>{created.push(input);return {data:{user:{id:'buyer-test'}},error:null};}}}};
+  loadServer('supabase/functions/buyer-account/index.ts',{
+    Deno:{serve:fn=>{handler=fn},env:{get:()=> 'test-config'}}
+  },{'npm:@supabase/supabase-js@2':{createClient:()=>admin}});
+  const request=body=>handler(new Request('https://test.local/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}));
+  assert.equal((await request({action:'register',name:'A',password:'12345678'})).status,400);
+  assert.equal((await request({action:'register',name:'Nama Baru',password:'short'})).status,400);
+  assert.equal((await request({action:'register',name:'admin',password:'12345678'})).status,400);
+  assert.equal(created.length,0);
+  const response=await request({action:'register',name:'  Nama   Baru  ',password:'12345678',role:'admin',user_metadata:{role:'admin'}});
+  assert.equal(response.status,201);
+  const registered=await response.json();
+  assert.equal(created[0].email,registered.loginEmail);
+  assert.ok(created[0].email.split('@')[0].length<=64);
+  assert.deepEqual(JSON.parse(JSON.stringify(created[0].user_metadata)),{display_name:'Nama Baru',login_name:'Nama Baru'});
+  assert.equal(created[0].role,undefined);
+  assert.equal(created[0].password,'12345678');
+  const login=await request({action:'login',name:'nama baru',password:'12345678'});
+  assert.equal((await login.json()).loginEmail,registered.loginEmail,'login uses the same normalized name');
+  assert.equal(created.length,1,'login never creates another user');
+  allow=false;
+  assert.equal((await request({action:'register',name:'Nama Lain',password:'12345678'})).status,429);
+  assert.equal(created.length,1);
+});
+
 test('Payment page handles pending, paid, expired and unsafe redirect results', async () => {
   const orderId = '11111111-1111-4111-8111-111111111111';
   async function page(result) {
@@ -434,5 +461,19 @@ test('PostgreSQL: checkout, permissions, payment verification and stock lifecycl
     await db.exec('reset role');
     await db.query("update products set status='pending',maker_name='' where id=1");
     await assert.rejects(db.query("update products set status='approved' where id=1"),/Lengkapi pembuat/,'publication validation remains enabled after restoration');
+    await db.exec("alter table profiles add column display_name text not null default 'Buyer'; grant select on profiles to authenticated; grant update(display_name) on profiles to authenticated;");
+    await db.exec(fs.readFileSync(path.join(root,'supabase/migrations/20261018000000_buyer_registration_profiles.sql'),'utf8'));
+    await context('authenticated'); await db.exec('set role authenticated');
+    await db.query('select update_buyer_profile($1,$2,$3,$4)',['Pembeli Baru','081234567890','Alamat uji pembeli','buyer@example.test']);
+    assert.equal((await db.query('select phone from buyer_profile_details')).rows[0].phone,'081234567890');
+    await assert.rejects(db.query("select claim_buyer_signup(repeat('a',64))"),/permission denied/);
+    await db.exec('reset role');
+    await db.query("select set_config('test.uid',$1,false)",[other]); await db.exec('set role authenticated');
+    assert.equal((await db.query('select * from buyer_profile_details')).rows.length,0,'contact details stay private to their buyer');
+    await assert.rejects(db.query('insert into buyer_profile_details(buyer_id,phone) values($1,$2)',[user,'999999']),/row-level security/);
+    await db.exec('reset role'); await asSeller(sellerA);
+    assert.equal((await db.query('select * from buyer_profile_details')).rows.length,0,'seller cannot access private buyer profile');
+    await assert.rejects(db.query("select update_buyer_profile('Seller','081234567890','','')"),/pembeli/);
+    await db.exec('reset role');
   } finally { await db.close(); }
 });

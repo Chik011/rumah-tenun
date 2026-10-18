@@ -3,6 +3,10 @@
 // ============================================================
 const $ = id => document.getElementById(id);
 
+function teksHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+}
+
 function tujuanLoginAman(value, fallback = 'akun.html') {
   if (value === 'checkout.html') return value;
   if (/^pembayaran\.html\?order=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value || '')) return value;
@@ -200,6 +204,8 @@ function initKeranjang() {
       return;
     }
     $('checkout-customer-name').value = user.nama;
+    $('checkout-phone').value = user.telepon || '';
+    $('checkout-address').value = user.alamat || '';
     $('checkout-login-required').hidden = true;
     $('checkout-content').hidden = false;
     renderRingkasanCheckout();
@@ -427,15 +433,15 @@ async function setupHeaderActions() {
     userWrapper.id = 'user-menu-wrapper';
 
     userWrapper.innerHTML = `
-      <button id="user-profile-button" class="user-avatar-btn" aria-haspopup="true" aria-expanded="false" title="Akun: ${user.nama} (${user.peran})">
-        <span>${inisial}</span>
+      <button id="user-profile-button" class="user-avatar-btn" aria-haspopup="true" aria-expanded="false" title="Akun: ${teksHTML(user.nama)} (${teksHTML(user.peran)})">
+        <span>${teksHTML(inisial)}</span>
       </button>
       <div class="user-dropdown" id="user-dropdown" hidden>
         <div class="user-dropdown-header">
-          <div class="user-dropdown-avatar">${inisial}</div>
+          <div class="user-dropdown-avatar">${teksHTML(inisial)}</div>
           <div class="user-dropdown-details">
-            <strong>${user.nama}</strong>
-            <small>@${user.username}</small>
+            <strong>${teksHTML(user.nama)}</strong>
+            <small>@${teksHTML(user.username)}</small>
             <span class="role-badge ${roleClass}">${user.peran}</span>
           </div>
         </div>

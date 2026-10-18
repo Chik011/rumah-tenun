@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="style.css?v=studio-1">
   <link rel="stylesheet" href="studio.css?v=guide-page-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=guide-page-1" defer></script>
-  <script src="common.js?v=logout-login-1" defer></script>
+  <script src="backend.js?v=buyer-signup-1" defer></script>
+  <script src="common.js?v=buyer-signup-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -70,11 +70,15 @@
         <!-- FORM SIMPAN PROFIL -->
         <div id="profile-panel" style="background: white; border: 1px solid var(--garis); border-radius: 8px; padding: 28px; margin-bottom: 30px;">
           <h2 style="font-size: 1.5rem; margin-top: 0;">Perbarui Profil</h2>
-          <p class="note">Nama tampilan disimpan pada profil Supabase Anda.</p>
+          <p class="note">Lengkapi kontak dan alamat Anda agar lebih mudah saat berbelanja.</p>
           <form id="profile-form" style="margin-bottom: 0;">
             <label for="profile-name">Nama Tampilan</label>
             <input id="profile-name" required minlength="2" maxlength="80">
-            <button class="primary" type="submit" style="justify-self: start; margin-top: 6px;">Simpan Perubahan Nama</button>
+            <label for="profile-login-name">Nama untuk login</label><input id="profile-login-name" readonly aria-describedby="profile-login-help"><p id="profile-login-help" class="note">Gunakan nama ini saat masuk ke akun Anda.</p>
+            <label for="profile-phone">Nomor HP</label><input id="profile-phone" type="tel" autocomplete="tel" maxlength="30" placeholder="Contoh: 081234567890">
+            <label for="profile-address">Alamat pengiriman</label><textarea id="profile-address" autocomplete="street-address" maxlength="1000" rows="3" placeholder="Jalan, nomor rumah, kelurahan, kota, dan kode pos"></textarea>
+            <label for="profile-email">Gmail / email</label><input id="profile-email" type="email" autocomplete="email" maxlength="254" placeholder="nama@gmail.com">
+            <button class="primary" type="submit" style="justify-self: start; margin-top: 6px;">Simpan profil</button>
             <p id="profile-message" role="status" style="min-height: 20px; margin: 0; font-weight: 500;"></p>
           </form>
         </div>
@@ -161,6 +165,10 @@
       $('account-title').textContent = 'Ruang ' + pengguna.peran + '.';
       $('account-info').textContent = 'Selamat datang, ' + pengguna.nama + ' (@' + pengguna.username + ')';
       $('profile-name').value = pengguna.nama;
+      $('profile-login-name').value = pengguna.username;
+      $('profile-phone').value = pengguna.telepon || '';
+      $('profile-address').value = pengguna.alamat || '';
+      $('profile-email').value = pengguna.email || '';
       $('account-eyebrow').textContent = pengguna.peran === 'Admin'
         ? 'PUSAT KENDALI KOPERASI'
         : pengguna.peran === 'Penjual'
@@ -620,7 +628,7 @@
       $('profile-form').addEventListener('submit', async event => {
         event.preventDefault();
         try {
-          const updated = await Backend.simpanProfil($('profile-name').value);
+          const updated = await Backend.simpanProfil($('profile-name').value,$('profile-phone').value,$('profile-address').value,$('profile-email').value);
           $('account-info').textContent = 'Selamat datang, ' + updated.nama + ' (@' + updated.username + ')';
           $('profile-message').style.color = '#2a5a52';
           $('profile-message').textContent = 'Profil berhasil diperbarui.';

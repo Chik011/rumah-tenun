@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="style.css?v=studio-1">
   <link rel="stylesheet" href="studio.css?v=guide-page-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=guide-page-1" defer></script>
-  <script src="common.js?v=logout-login-1" defer></script>
+  <script src="backend.js?v=buyer-signup-1" defer></script>
+  <script src="common.js?v=buyer-signup-1" defer></script>
 </head>
 <body class="simple-login-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -26,7 +26,7 @@
         <div class="auth-switch"><a href="login.html" aria-current="page">Login</a><a href="register.html">Register</a></div><span class="eyebrow">RUMAH TENUN RANTAI MAWAR</span><h2>Selamat datang kembali</h2><p class="note">Masuk untuk melanjutkan ceritamu.</p>
         <form id="login-form">
           <label for="login-role">Masuk sebagai</label><select id="login-role"><option value="Pembeli">User / Pembeli</option><option value="Penjual">Penjual</option><option value="Admin">Admin</option><option value="Guest">Tamu</option></select>
-          <label for="login-email">Username</label><input id="login-email" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="254" placeholder="Masukkan username Anda">
+          <label for="login-email">Nama / username</label><input id="login-email" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="254" placeholder="Masukkan nama yang dipakai saat daftar">
           <label for="login-password">Kata sandi</label><input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="100" placeholder="Masukkan kata sandi">
           <p id="login-error" class="error" role="alert"></p><p id="login-success" class="note" role="status"></p>
           <button id="login-submit" class="primary" type="submit">Masuk ke beranda →</button>

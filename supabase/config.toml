@@ -386,6 +386,9 @@ deno_version = 2
 [functions.xendit-payment]
 verify_jwt = false
 
+[functions.buyer-account]
+verify_jwt = false
+
 [functions.xendit-webhook]
 verify_jwt = false
 

@@ -19,10 +19,18 @@ async function bacaProfil(user) {
     .eq('id', user.id)
     .single();
   if (error) throw error;
+  let details = {};
+  if (data.role === 'buyer') {
+    const result = await supabaseClient.from('buyer_profile_details').select('phone, address, contact_email').eq('buyer_id',user.id).maybeSingle();
+    if (result.error) throw result.error;
+    details = result.data || {};
+  }
   return {
     id: user.id,
-    username: user.email,
-    email: user.email,
+    username: user.user_metadata?.login_name || user.email,
+    email: details.contact_email || (user.email.endsWith('@accounts.rumah-tenun.invalid') ? '' : user.email),
+    telepon: details.phone || '',
+    alamat: details.address || '',
     nama: data.display_name,
     peran: peranTampilan(data.role)
   };
@@ -198,6 +206,7 @@ const Backend = {
 
   async masuk(email, password) {
     localStorage.removeItem(STORAGE_KEY_GUEST);
+    if (!alamatAkunLogin(email).includes('@')) email = await this.identitasPembeli('login',email,password);
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: alamatAkunLogin(email),
       password
@@ -206,23 +215,26 @@ const Backend = {
     return bacaProfil(data.user);
   },
 
-  async daftar(email, password, namaLengkap) {
-    const { data, error } = await supabaseClient.auth.signUp({
-      email: email.trim().toLowerCase(),
-      password,
-      options: { data: { display_name: namaLengkap.trim() } }
-    });
-    if (error) throw error;
-    if (!data.session) return { konfirmasiEmail: true, nama: namaLengkap.trim() };
-    return bacaProfil(data.user);
+  async identitasPembeli(action,name,password) {
+    const {data,error} = await supabaseClient.functions.invoke('buyer-account',{body:{action,name,password}});
+    if(error) {
+      let message='Akun belum dapat diproses. Coba lagi.';
+      try { message=(await error.context.json()).error || message; } catch(_) {}
+      throw new Error(message);
+    }
+    if(!data?.loginEmail) throw new Error(data?.error || 'Akun belum dapat diproses.');
+    return data.loginEmail;
   },
 
-  async simpanProfil(nama) {
+  async daftar(namaLengkap, password) {
+    const email=await this.identitasPembeli('register',namaLengkap,password);
+    return this.masuk(email,password);
+  },
+
+  async simpanProfil(nama,telepon='',alamat='',email='') {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     if (authError || !user) throw new Error('Silakan masuk terlebih dahulu.');
-    const { error } = await supabaseClient.from('profiles')
-      .update({ display_name: nama.trim() })
-      .eq('id', user.id);
+    const { error } = await supabaseClient.rpc('update_buyer_profile',{p_name:nama.trim(),p_phone:telepon.trim(),p_address:alamat.trim(),p_email:email.trim()});
     if (error) throw error;
     return bacaProfil(user);
   },

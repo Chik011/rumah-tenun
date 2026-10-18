@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="style.css?v=studio-1">
   <link rel="stylesheet" href="studio.css?v=guide-page-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=guide-page-1" defer></script>
-  <script src="common.js?v=logout-login-1" defer></script>
+  <script src="backend.js?v=buyer-signup-1" defer></script>
+  <script src="common.js?v=buyer-signup-1" defer></script>
 </head>
 <body class="simple-login-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -24,11 +24,10 @@
     <section class="login-form-side">
       <div class="login-card">
         <div class="auth-switch"><a href="login.html">Login</a><a href="register.html" aria-current="page">Register</a></div>
-        <span class="eyebrow">RUMAH TENUN RANTAI MAWAR</span><h2>Mulai cerita bersama kami</h2><p class="note">Daftar sebagai pembeli dan temukan tenun pilihanmu.</p>
+        <span class="eyebrow">RUMAH TENUN RANTAI MAWAR</span><h2>Mulai cerita bersama kami</h2><p class="note">Cukup isi nama dan kata sandi. Nomor HP, alamat, serta Gmail bisa dilengkapi di profil nanti.</p>
         <form id="register-form">
-          <label for="reg-name">Nama lengkap</label><input id="reg-name" name="nama" type="text" autocomplete="name" required minlength="2" maxlength="80" placeholder="Masukkan nama lengkap">
-          <label for="reg-username">Email</label><input id="reg-username" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="Masukkan email Anda">
-          <label for="reg-password">Kata sandi</label><input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="100" placeholder="Minimal 10 karakter">
+          <label for="reg-name">Nama</label><input id="reg-name" name="nama" type="text" autocomplete="name" required minlength="2" maxlength="80" placeholder="Nama yang akan dipakai untuk login">
+          <label for="reg-password">Kata sandi</label><input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="100" placeholder="Minimal 8 karakter">
           <p id="reg-error" class="error" role="alert"></p><p id="reg-success" class="note" role="status"></p><button id="reg-submit" class="primary" type="submit">Daftar akun</button>
         </form>
         <div class="auth-alternative"><span>Sudah punya akun?</span><a class="auth-blue-link" href="login.html">Login sekarang</a></div><button id="register-guest" class="guest-link" type="button">Lanjut sebagai guest</button>
@@ -47,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const errorMsg = $('reg-error');
       const successMsg = $('reg-success');
       const nameInput = $('reg-name');
-      const userInput = $('reg-username');
       const passInput = $('reg-password');
       const submitBtn = $('reg-submit');
       const tujuanSetelahDaftar = 'index.html';
@@ -59,12 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
-          const user = await Backend.daftar(userInput.value, passInput.value, nameInput.value);
-          if (user.konfirmasiEmail) {
-            successMsg.textContent = 'Akun dibuat. Silakan periksa email untuk konfirmasi sebelum masuk.';
-            submitBtn.disabled = false;
-            return;
-          }
+          const user = await Backend.daftar(nameInput.value, passInput.value);
           successMsg.textContent = '✓ Pendaftaran berhasil! Selamat datang, ' + user.nama + '. Mengalihkan...';
           setTimeout(() => {
             window.location.href = tujuanSetelahDaftar;

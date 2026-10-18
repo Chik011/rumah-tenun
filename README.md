@@ -39,3 +39,11 @@ Push ke main memicu deployment Vercel. Berkas akun pribadi dan rahasia server ti
 Atas permintaan pemilik, User/Pembeli, Penjual, dan Admin tersedia kembali. Admin mengelola seluruh produk dan pesanan; penjual hanya mengelola produk serta pemenuhan pesanan miliknya. Data dan keranjang tetap tersimpan di Supabase, foto produk di Cloudinary. Menu dan logo staff mengarah ke ruang pengelolaan, bukan beranda belanja. Migrasi 20261008030000_restore_three_roles.sql mengembalikan akses toko milik penjual tanpa memberi hak admin.
 
 Koleksi awal (12 produk) yang sebelumnya tayang telah dipulihkan melalui migrasi 20261008050000_restore_published_collection.sql. Pemulihan hanya berlaku pada produk yang diubah menjadi draf oleh migrasi proposal; draf baru penjual serta produk dihapus tidak ditayangkan otomatis. Harga, stok, dan riwayat pesanan tidak diubah.
+
+## Pendaftaran pembeli dengan nama
+
+Pembaruan 18 Oktober 2026: pembeli mendaftar dengan nama dan kata sandi minimal 8 karakter. Nama yang sama (tanpa membedakan kapital dan spasi berulang) dipakai untuk login. Alias akun lama dan login email lama tetap didukung. Edge Function buyer-account membuat akun Auth dengan identitas internal dan peran buyer dari trigger; tidak menerima peran istimewa dari formulir. Kata sandi ditangani Supabase Auth, tidak disimpan dalam tabel profil.
+
+Nomor HP, alamat, dan email kontak bersifat opsional dan disimpan belakangan melalui profil. Tabel buyer_profile_details memakai RLS per pemilik; update_buyer_profile menyimpan nama dan detail dalam satu transaksi. Data kontak dipakai untuk mengisi checkout. Email kontak tidak mengubah nama login.
+
+Migrasi: 20261018000000_buyer_registration_profiles.sql. Deploy buyer-account dengan verify_jwt=false karena pendaftaran terbuka sebelum login. Pembuatan akun dibatasi server; fungsi pembatasan hanya dapat dipanggil service_role. Validasi menguji alur nama, kata sandi, larangan eskalasi peran, dan isolasi profil antar pengguna.

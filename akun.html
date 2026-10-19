@@ -271,10 +271,10 @@
           <details class="seller-trash"><summary>Produk dihapus</summary><div id="seller-trash-list"></div></details>
           </section></div></div>
           <section id="seller-orders-section" class="seller-orders-panel" hidden>
-            <div class="seller-orders-heading"><div><h2>Pesanan masuk</h2><p class="note">Terima pesanan yang sudah dibayar, proses barangnya, lalu perbarui pengiriman.</p></div>
+            <div class="seller-orders-heading"><div><h2>Pesanan masuk</h2><p class="note">Setujui pesanan terlebih dahulu. Setelah pembeli membayar, proses barang dan perbarui pengiriman.</p></div>
             <button id="seller-refresh-orders" class="outline" type="button">Perbarui pesanan</button></div>
             <label for="seller-order-filter">Status pesanan</label>
-            <select id="seller-order-filter"><option value="all">Semua pesanan</option><option value="awaiting_approval">Menunggu persetujuan</option><option value="checking">Pesanan baru</option><option value="packaging">Sedang diproses</option><option value="shipping">Sedang dikirim</option><option value="delivered">Tiba di tujuan</option><option value="completed">Selesai</option><option value="awaiting_payment">Menunggu pembayaran</option><option value="cancelled">Dibatalkan</option></select>
+            <select id="seller-order-filter"><option value="all">Semua pesanan</option><option value="awaiting_approval">Menunggu persetujuan</option><option value="checking">Sudah dibayar · siap diproses</option><option value="packaging">Sedang diproses</option><option value="shipping">Sedang dikirim</option><option value="delivered">Tiba di tujuan</option><option value="completed">Selesai</option><option value="awaiting_payment">Menunggu pembayaran</option><option value="cancelled">Dibatalkan</option></select>
             <p id="seller-orders-message" role="status" aria-live="polite"></p>
             <div id="seller-orders-list" class="workflow-list"></div>
           </section>
@@ -470,7 +470,7 @@
           }
         });
         let sellerOrders = [];
-        const sellerOrderLabels = { awaiting_approval: 'Perlu persetujuan Anda', checking: 'Pesanan baru', packaging: 'Diterima · sedang diproses', shipping: 'Sedang dikirim', delivered: 'Tiba di tujuan', completed: 'Selesai', awaiting_payment: 'Menunggu pembayaran', cancelled: 'Dibatalkan' };
+        const sellerOrderLabels = { awaiting_approval: 'Perlu persetujuan Anda', checking: 'Sudah dibayar · siap diproses', packaging: 'Diterima · sedang diproses', shipping: 'Sedang dikirim', delivered: 'Tiba di tujuan', completed: 'Selesai', awaiting_payment: 'Menunggu pembayaran', cancelled: 'Dibatalkan' };
         function renderSellerOrders() {
           const host = $('seller-orders-list');
           host.replaceChildren();

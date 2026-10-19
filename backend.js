@@ -88,6 +88,10 @@ const Backend = {
     if ((await this.penggunaAktif())?.peran === 'Admin') return this.semuaPesanan();
     const { data,error } = await supabaseClient.rpc('seller_orders'); if(error) throw error; return data || [];
   },
+  async tinjauPesanan(orderId, approve) {
+    const { error } = await supabaseClient.rpc('review_order', { p_order_id: orderId, p_approve: approve });
+    if (error) throw error;
+  },
   async prosesPesananPenjual(orderId, status) {
     if ((await this.penggunaAktif())?.peran === 'Admin') return this.ubahStatusPesanan(orderId, 'confirmed', status);
     const {error} = await supabaseClient.rpc('advance_seller_order',{p_order_id:orderId,p_status:status}); if(error) throw error;

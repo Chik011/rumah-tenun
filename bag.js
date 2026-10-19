@@ -1,4 +1,4 @@
-const BAG_ORDER_LABELS = { awaiting_payment:'Menunggu pembayaran', checking:'Pesanan diperiksa', packaging:'Sedang dikemas', shipping:'Dalam pengiriman', delivered:'Barang tiba', completed:'Pesanan selesai', cancelled:'Dibatalkan' };
+const BAG_ORDER_LABELS = { awaiting_approval:'Menunggu persetujuan penjual', awaiting_payment:'Menunggu pembayaran', checking:'Pesanan diperiksa', packaging:'Sedang dikemas', shipping:'Dalam pengiriman', delivered:'Barang tiba', completed:'Pesanan selesai', cancelled:'Dibatalkan' };
 const BAG_PAYMENT_LABELS = { waiting:'Belum dibayar', submitted:'Menunggu verifikasi', confirmed:'Pembayaran diterima', rejected:'Pembayaran ditolak', expired:'Pembayaran berakhir' };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -51,9 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
           card.append(row);
         }
         card.append(elemen('p','shipment-payment',BAG_PAYMENT_LABELS[order.payment_status] || 'Pembayaran sedang diperiksa'));
+        if (order.order_status === 'awaiting_approval') card.append(elemen('p','payment-assurance','Pesanan telah diajukan. Tunggu persetujuan penjual; Anda belum perlu membayar.'));
+        if (order.order_status === 'awaiting_payment') card.append(elemen('p','payment-assurance','Pesanan siap dibayar. Selesaikan pembayaran agar penjual dapat memproses kain Anda.'));
         if (order.payment_mode === 'test') card.append(elemen('p','payment-test','Pesanan uji coba · Tanpa uang nyata'));
         if (order.order_status !== 'cancelled') {
-          const steps = ['checking','packaging','shipping','delivered','completed'];
+          const steps = ['awaiting_approval','awaiting_payment','checking','packaging','shipping','delivered','completed'];
           const progress = elemen('ol','shipment-progress');
           progress.setAttribute('aria-label','Perjalanan pesanan');
           const active = steps.indexOf(order.order_status);

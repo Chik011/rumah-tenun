@@ -219,10 +219,9 @@ function initKeranjang() {
     const submit = $('checkout-submit');
     const errorMessage = $('checkout-submit-error');
     submit.disabled = true;
-    submit.textContent = 'Menyiapkan pembayaran…';
+    submit.textContent = 'Mengajukan pesanan…';
     errorMessage.textContent = '';
     try {
-      await Backend.pembayaranXendit('ready');
       const detail = {
         nama: $('checkout-customer-name').value,
         telepon: $('checkout-phone').value,
@@ -242,13 +241,13 @@ function initKeranjang() {
       await simpanKeranjang({});
       sessionStorage.removeItem('rm_checkout_request');
       updateBadgeKeranjang();
-      window.location.href = 'pembayaran.html?order=' + encodeURIComponent(orderId);
+      window.location.href = 'keranjang.html?tab=pengiriman&order=' + encodeURIComponent(orderId);
     } catch (error) {
       errorMessage.textContent = error.message || 'Pesanan gagal disimpan. Keranjang Anda tetap tersimpan.';
     } finally {
       submitting = false;
       submit.disabled = false;
-      submit.textContent = 'Lanjut ke pembayaran →';
+      submit.textContent = 'Ajukan pesanan';
     }
   });
 }

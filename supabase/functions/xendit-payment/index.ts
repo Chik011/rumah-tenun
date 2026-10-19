@@ -32,11 +32,13 @@ Deno.serve(async request => {
       !['create', 'status'].includes(body.action || '')) return json({ error: 'Permintaan tidak valid.' }, 400);
 
   try {
-    const config = paymentConfig(key => Deno.env.get(key));
     const { data: order, error: orderError } = await admin.from('orders').select('*')
       .eq('id', body.orderId).eq('buyer_id', user.id).single();
     if (orderError || !order) return json({ error: 'Pesanan tidak ditemukan.' }, 404);
     if (order.payment_provider !== 'xendit') return json({ error: 'Pesanan ini menggunakan pembayaran manual.' }, 409);
+    if (order.order_status === 'awaiting_approval') return json({ orderId: order.id, status: 'AWAITING_APPROVAL' });
+    if (order.order_status === 'cancelled') return json({ orderId: order.id, status: 'CANCELED' });
+    const config = paymentConfig(key => Deno.env.get(key));
     const { data: saved, error: savedError } = await admin.from('payment_sessions').select('*').eq('order_id', order.id).maybeSingle();
     if (savedError) throw new Error('Pembayaran belum dapat diperiksa.');
     if (saved?.session_id) {

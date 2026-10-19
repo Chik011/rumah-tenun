@@ -49,6 +49,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         title.textContent = 'Pembayaran telah berakhir.';
         description.textContent = 'Pesanan dibatalkan dan stok dikembalikan. Pilih kembali kain Anda untuk membuat pesanan baru.';
         $('payment-expiry').textContent = '';
+      } else if (result.status === 'AWAITING_APPROVAL') {
+        title.textContent = 'Menunggu persetujuan penjual';
+        description.textContent = 'Pesanan sudah diajukan. Pembayaran tersedia setelah semua penjual menyetujuinya. Lihat perkembangannya di Tas belanja, bagian Pengiriman.';
+        $('payment-expiry').textContent = '';
       } else if (result.status === 'CREATING') {
         title.textContent = 'Pembayaran sedang disiapkan.';
         description.textContent = 'Periksa lagi sebentar. Jika belum berubah, hubungi pengelola dengan nomor pesanan ini; jangan membuat pesanan ganda.';

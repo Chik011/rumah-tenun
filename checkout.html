@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="style.css?v=studio-1">
   <link rel="stylesheet" href="studio.css?v=guide-page-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=register-login-1" defer></script>
-  <script src="common.js?v=buyer-signup-1" defer></script>
+  <script src="backend.js?v=approval-1" defer></script>
+  <script src="common.js?v=approval-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -42,8 +42,8 @@
     <a class="cart-back-link" href="keranjang.html">← Kembali ke tas</a>
     <span class="eyebrow">LANGKAH TERAKHIR</span>
     <h1>Selangkah lagi,<br><em>menjadi milik Anda.</em></h1>
-    <p class="intro">Lengkapi alamat, lalu lanjutkan ke halaman pembayaran Xendit.</p>
-    <ol class="checkout-steps" aria-label="Langkah belanja"><li>Tas belanja</li><li aria-current="step">Detail pengiriman</li><li>Pembayaran</li></ol>
+    <p class="intro">Lengkapi alamat dan ajukan pesanan. Anda baru membayar setelah penjual menyetujui pesanan.</p>
+    <ol class="checkout-steps" aria-label="Langkah belanja"><li>Tas belanja</li><li aria-current="step">Detail pengiriman</li><li>Persetujuan penjual</li><li>Pembayaran</li></ol>
 
     <div id="checkout-login-required" class="checkout-message" hidden>
       <span class="eyebrow">AKUN DIPERLUKAN</span>
@@ -81,7 +81,7 @@
           <label class="payment-option"><input type="radio" name="payment-method" value="QRIS" checked><span><strong>QRIS</strong><small>Bank atau dompet digital</small></span></label>
           <label class="payment-option"><input type="radio" name="payment-method" value="Transfer bank"><span><strong>Transfer bank</strong><small>Virtual account pada bank yang tersedia</small></span></label>
           <label class="payment-option"><input type="radio" name="payment-method" value="Dompet digital"><span><strong>Dompet digital</strong><small>Pembayaran melalui aplikasi pilihan Anda</small></span></label>
-          <p class="payment-assurance"> Pembayaran melalui Xendit. Pilihan di atas adalah preferensi; metode akhir dipilih pada halaman pembayaran sesuai kanal yang tersedia.</p>
+          <p class="payment-assurance"> Pembayaran dibuka setelah persetujuan penjual, melalui Xendit. Pilihan di atas adalah preferensi; metode akhir dipilih pada halaman pembayaran sesuai kanal yang tersedia.</p>
           <p id="checkout-test-note" class="notice" hidden>Mode uji coba: pembayaran simulasi, tanpa pemotongan uang nyata.</p>
         </section>
       </form>
@@ -94,7 +94,7 @@
         <div class="cart-summary-line"><span>Ongkir ditagihkan di sini</span><span>Rp0</span></div>
         <div class="cart-summary-total"><span>Total pembayaran</span><strong id="checkout-total"></strong></div>
         <p id="checkout-submit-error" class="error" role="alert"></p>
-        <button id="checkout-submit" class="primary checkout-submit" type="submit" form="checkout-form">Lanjut ke pembayaran <span aria-hidden="true">→</span></button>
+        <button id="checkout-submit" class="primary checkout-submit" type="submit" form="checkout-form">Ajukan pesanan</button>
         <p class="note">Total ini mencakup produk saja. Biaya pengiriman tambahan, jika ada, harus disepakati dengan koperasi sebelum melanjutkan.</p>
       </aside>
     </div>

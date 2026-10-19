@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="style.css?v=studio-1">
   <link rel="stylesheet" href="studio.css?v=guide-page-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=register-login-1" defer></script>
-  <script src="common.js?v=buyer-signup-1" defer></script>
+  <script src="backend.js?v=approval-1" defer></script>
+  <script src="common.js?v=approval-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -195,6 +195,7 @@
         rejected: 'Pembayaran berakhir / ditolak'
       }[status] || status);
       const labelStatusPesanan = status => ({
+        awaiting_approval: 'Menunggu persetujuan penjual',
         awaiting_payment: 'Menunggu pembayaran',
         checking: 'Pemeriksaan pesanan',
         packaging: 'Pengemasan',
@@ -273,7 +274,7 @@
             <div class="seller-orders-heading"><div><h2>Pesanan masuk</h2><p class="note">Terima pesanan yang sudah dibayar, proses barangnya, lalu perbarui pengiriman.</p></div>
             <button id="seller-refresh-orders" class="outline" type="button">Perbarui pesanan</button></div>
             <label for="seller-order-filter">Status pesanan</label>
-            <select id="seller-order-filter"><option value="all">Semua pesanan</option><option value="checking">Pesanan baru</option><option value="packaging">Sedang diproses</option><option value="shipping">Sedang dikirim</option><option value="delivered">Tiba di tujuan</option><option value="completed">Selesai</option><option value="awaiting_payment">Menunggu pembayaran</option><option value="cancelled">Dibatalkan</option></select>
+            <select id="seller-order-filter"><option value="all">Semua pesanan</option><option value="awaiting_approval">Menunggu persetujuan</option><option value="checking">Pesanan baru</option><option value="packaging">Sedang diproses</option><option value="shipping">Sedang dikirim</option><option value="delivered">Tiba di tujuan</option><option value="completed">Selesai</option><option value="awaiting_payment">Menunggu pembayaran</option><option value="cancelled">Dibatalkan</option></select>
             <p id="seller-orders-message" role="status" aria-live="polite"></p>
             <div id="seller-orders-list" class="workflow-list"></div>
           </section>
@@ -469,7 +470,7 @@
           }
         });
         let sellerOrders = [];
-        const sellerOrderLabels = { checking: 'Pesanan baru', packaging: 'Diterima · sedang diproses', shipping: 'Sedang dikirim', delivered: 'Tiba di tujuan', completed: 'Selesai', awaiting_payment: 'Menunggu pembayaran', cancelled: 'Dibatalkan' };
+        const sellerOrderLabels = { awaiting_approval: 'Perlu persetujuan Anda', checking: 'Pesanan baru', packaging: 'Diterima · sedang diproses', shipping: 'Sedang dikirim', delivered: 'Tiba di tujuan', completed: 'Selesai', awaiting_payment: 'Menunggu pembayaran', cancelled: 'Dibatalkan' };
         function renderSellerOrders() {
           const host = $('seller-orders-list');
           host.replaceChildren();
@@ -484,6 +485,7 @@
               elemen('span', 'workflow-status', sellerOrderLabels[order.order_status] || order.order_status),
               elemen('p', '', 'Pembayaran: ' + labelStatusPembayaran(order.payment_status)));
             if (order.payment_mode === 'test') details.append(elemen('p', 'payment-test', 'Pembayaran uji Xendit'));
+            if (order.overall_status === 'awaiting_approval' && order.order_status === 'awaiting_payment') details.append(elemen('p', 'payment-assurance', 'Anda sudah menyetujui. Menunggu persetujuan penjual lain sebelum pembeli membayar.'));
             (order.order_items || []).forEach(item => {
               const row = elemen('div', 'seller-order-item');
               const photo = elemen('img', 'seller-product-thumb'); photo.src = item.image_url || 'assets/tenun.jpg'; photo.alt = item.item_name;
@@ -504,7 +506,22 @@
             const address = elemen('details', 'shipment-address');
             address.append(elemen('summary', '', 'Pembeli & alamat pengiriman'), elemen('p', '', order.buyer_name + ' · ' + order.phone), elemen('p', '', order.shipping_address));
             details.append(address);
-            const actionByStatus = { checking: ['packaging', 'Terima & proses pesanan'], packaging: ['shipping', 'Tandai dikirim'], shipping: ['delivered', 'Tandai tiba di tujuan'] };
+            const actionByStatus = { checking: ['packaging', 'Proses & kemas pesanan'], packaging: ['shipping', 'Tandai dikirim'], shipping: ['delivered', 'Tandai tiba di tujuan'] };
+            if (order.order_status === 'awaiting_approval') {
+              details.append(elemen('p', 'payment-assurance', 'Periksa ketersediaan kain. Pembeli membayar setelah pesanan disetujui.'));
+              const actions = elemen('div', 'shipment-actions');
+              for (const [approve, label] of [[true, 'Setujui pesanan'], [false, 'Tolak pesanan']]) {
+                const button = elemen('button', approve ? 'primary' : 'outline', label); button.type = 'button';
+                button.addEventListener('click', async () => {
+                  if (!approve && !confirm('Tolak pesanan ini? Pesanan dibatalkan dan stok dikembalikan.')) return;
+                  const buttons = actions.querySelectorAll('button'); buttons.forEach(b => b.disabled = true);
+                  try { await Backend.tinjauPesanan(order.id, approve); await loadSellerOrders(); }
+                  catch (error) { $('seller-orders-message').textContent = error.message || 'Keputusan belum tersimpan.'; buttons.forEach(b => b.disabled = false); }
+                });
+                actions.append(button);
+              }
+              details.append(actions);
+            }
             const action = actionByStatus[order.order_status];
             if (action && order.payment_status === 'confirmed') {
               const button = elemen('button', 'primary', action[1]);

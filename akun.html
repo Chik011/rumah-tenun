@@ -209,6 +209,10 @@
       }[status] || status);
 
       if (['Admin','Penjual'].includes(pengguna.peran)) {
+        $('logout-button').addEventListener('click', async () => {
+          await Backend.keluar();
+          window.location.href = 'login.html';
+        });
         await initMarketplaceWorkspace(pengguna);
         return;
       }

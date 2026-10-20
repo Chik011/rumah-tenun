@@ -59,6 +59,17 @@ function ubahBentukProduk(item) {
 }
 
 const Backend = {
+  async notifikasi() {
+    const { data, error } = await supabaseClient.from('order_notifications').select('id,order_id,title,message,read_at,created_at').order('created_at',{ascending:false}).limit(30);
+    if(error)throw error;
+    const countResult=await supabaseClient.from('order_notifications').select('id',{count:'exact',head:true}).is('read_at',null);
+    if(countResult.error)throw countResult.error;
+    return {items:data || [],count:countResult.count || 0};
+  },
+  async bacaNotifikasi(id) {const {error}=await supabaseClient.rpc('read_order_notification',{p_id:id});if(error)throw error;},
+  async drafProduk(id) {const {error}=await supabaseClient.rpc('seller_product_draft',{p_product_id:Number(id)});if(error)throw error;},
+  async simpanResi(id,courier,number,url,ship=false) {const {error}=await supabaseClient.rpc('save_shipment',{p_order_id:id,p_courier:courier,p_number:number,p_url:url,p_ship:ship});if(error)throw error;},
+  async pantauKoperasi() {const {data,error}=await supabaseClient.rpc('admin_overview');if(error)throw error;return data;},
   async bacaTas() {
     const user = await this.penggunaAktif();
     if (!user || user.peran !== 'Pembeli') return {};
@@ -173,12 +184,14 @@ const Backend = {
       .select('id, buyer_name, shipping_address, payment_method, payment_status, order_status, payment_provider, payment_mode, total, created_at, order_items(product_id, item_name, unit_price, quantity, image_url)')
       .eq('buyer_id', user.id).order('created_at', { ascending: false });
     if (error) throw error;
-    return data;
+    const shipments=await supabaseClient.rpc('buyer_shipments');
+    if(shipments.error)throw shipments.error;
+    return data.map(order=>({...order,shipments:(shipments.data || []).filter(s=>s.order_id===order.id)}));
   },
 
   async semuaPesanan() {
     const { data, error } = await supabaseClient.from('orders')
-      .select('id, buyer_name, phone, shipping_address, payment_method, payment_status, order_status, payment_provider, payment_mode, total, created_at, order_items(product_id, item_name, unit_price, quantity, image_url)')
+      .select('id, buyer_id, buyer_name, phone, shipping_address, payment_method, payment_status, order_status, payment_provider, payment_mode, total, created_at, order_items(product_id, seller_id, item_name, unit_price, quantity, image_url)')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;

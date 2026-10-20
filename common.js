@@ -1,3 +1,20 @@
+function tautanPelacakan(value) {
+  try { const url=new URL(value); return url.protocol==='https:' && !url.username && !url.password ? url.href : null; } catch (_) { return null; }
+}
+function renderResi(shipments) {
+  const box=elemen('section','tracking-list');
+  for(const shipment of shipments || []) {
+    if(!shipment.tracking_number) continue;
+    const row=elemen('div','tracking-card');
+    row.append(elemen('strong','',shipment.courier+' · '+(shipment.seller_name || 'Pengiriman')),
+      elemen('p','tracking-code','Resi: '+shipment.tracking_number));
+    const url=tautanPelacakan(shipment.tracking_url);
+    if(url) { const a=elemen('a','tracking-link','Lacak pengiriman');a.href=url;a.target='_blank';a.rel='noopener noreferrer';row.append(a); }
+    box.append(row);
+  }
+  return box;
+}
+
 // ============================================================
 // HELPER BERSAMA DAN STATUS MULTI-PAGE
 // ============================================================
@@ -24,6 +41,27 @@ function elemen(tag, kelas, teks) {
   if (kelas) hasil.className = kelas;
   if (teks !== undefined) hasil.textContent = teks;
   return hasil;
+}
+
+function pasangAksiProduk(card,item) {
+  const link=elemen('a','product-link');link.href='produk.html?id='+encodeURIComponent(item.id);
+  link.append(...Array.from(card.childNodes));
+  const add=elemen('button','product-add-button');add.type='button';add.disabled=Number(item.stok)<=0;
+  add.setAttribute('aria-label','Tambahkan '+item.nama+' ke keranjang');add.title='Tambahkan ke keranjang';
+  add.innerHTML='<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h2l2.5 12h11L21 7H6M9 20h.01M18 20h.01M12 4v6M9 7h6"/></svg>';
+  add.addEventListener('click',async()=>{
+    add.disabled=true;
+    try {
+      const user=await Backend.penggunaAktif();
+      if(!user || user.peran==='Guest'){location.href='login.html';return;}
+      if(user.peran!=='Pembeli')throw new Error('Gunakan akun pembeli untuk berbelanja.');
+      await tambahKeKeranjang(item.id);
+      let notice=$('catalog-cart-notice');if(!notice){notice=elemen('p','catalog-cart-notice');notice.id='catalog-cart-notice';notice.setAttribute('role','status');document.body.append(notice);}
+      notice.textContent=item.nama+' ditambahkan ke keranjang.';notice.hidden=false;
+      clearTimeout(notice.hideTimer);notice.hideTimer=setTimeout(()=>notice.hidden=true,3500);
+    }catch(error){tampilkanGalatKeranjang(error);}finally{add.disabled=Number(item.stok)<=0;}
+  });
+  card.replaceChildren(link,add);
 }
 
 // ============================================================
@@ -354,12 +392,16 @@ async function setupHeaderActions() {
   if (navigation && isStaff) {
     const linksByRole = {
       Admin: [
-        ['akun.html?view=products', 'Kelola Koperasi'],
+        ['akun.html?view=sellers', 'Penjual'],
+        ['akun.html?view=buyers', 'Pembeli'],
+        ['akun.html?view=products', 'Katalog'],
+        ['akun.html?view=activity', 'Aktivitas'],
         ['akun.html?view=orders', 'Pesanan masuk'],
         ['belajar.html', 'Panduan & SOP']
       ],
       Penjual: [
         ['akun.html?view=products', 'Etalase Produk'],
+        ['akun.html?view=orders', 'Pesanan masuk'],
         ['belajar.html', 'Panduan Usaha']
       ]
     };
@@ -479,7 +521,8 @@ async function setupHeaderActions() {
     if (isStaff) {
       const sellerLinks = userWrapper.querySelector('.user-dropdown-links');
       sellerLinks.replaceChildren();
-      for (const [href, label] of (user.peran === 'Admin' ? [['akun.html?view=products','Kelola Koperasi'],['akun.html?view=orders','Pesanan masuk'],['belajar.html','Panduan & SOP']] : [['akun.html?view=products', 'Etalase Produk'], ['belajar.html', 'Panduan Usaha']])) {
+      for (const [href, label] of (user.peran === 'Admin' ? [['akun.html?view=sellers','Pantau penjual'],['akun.html?view=buyers','Pantau pembeli'],['akun.html?view=orders','Pesanan'],['akun.html?view=activity','Aktivitas']] : [['akun.html?view=products', 'Etalase Produk'],
+        ['akun.html?view=orders', 'Pesanan masuk'], ['belajar.html', 'Panduan Usaha']])) {
         const link = elemen('a', 'user-dropdown-item', label);
         link.href = href;
         sellerLinks.append(link);
@@ -524,6 +567,7 @@ async function setupHeaderActions() {
   }
   updateBadgeKeranjang();
   initKeranjang();
+  if(typeof initOrderNotifications==='function') initOrderNotifications(user,actionsContainer);
 }
 
 document.addEventListener('DOMContentLoaded', () => initNavigasiBersama());

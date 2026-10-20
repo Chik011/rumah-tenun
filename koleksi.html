@@ -7,10 +7,12 @@
   <title>Koleksi Tenun — Benang-Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=studio-1">
-  <link rel="stylesheet" href="studio.css?v=guide-page-1">
+  <link rel="stylesheet" href="studio.css?v=market-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=approval-1" defer></script>
-  <script src="common.js?v=approval-1" defer></script>
+  <script src="backend.js?v=market-1" defer></script>
+  <script src="common.js?v=market-1" defer></script>
+  <script src="notifications.js?v=market-1" defer></script>
+  <link rel="stylesheet" href="market.css?v=market-1">
 </head>
 <body class="catalog-page">
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -125,7 +127,7 @@
         $('catalog-count').textContent = daftar.length + ' helai dalam koleksi';
         wadah.replaceChildren();
         daftar.forEach(item => {
-          const kartu = elemen('a', 'product');
+          const kartu = elemen('article', 'product');
           const foto = elemen('div', 'product-photo');
           if (item.imageUrl) {
             foto.style.backgroundImage = `url("${item.imageUrl}")`;
@@ -142,7 +144,7 @@
             elemen('strong', '', rupiah(item.harga)),
             elemen('small', 'product-seller', 'Stok ' + item.stok + ' · ' + (item.sellerName || 'Koperasi Rantai Mawar'))
           );
-          kartu.href = 'produk.html?id=' + encodeURIComponent(item.id);
+          pasangAksiProduk(kartu,item);
           wadah.append(kartu);
         });
       }

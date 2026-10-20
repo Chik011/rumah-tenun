@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
           });
           card.append(progress);
         }
+        if(order.shipments?.length) card.append(renderResi(order.shipments));
         const address = elemen('details','shipment-address');
         address.append(elemen('summary','','Alamat pengiriman'),elemen('p','',order.buyer_name),elemen('p','',order.shipping_address));
         card.append(address);

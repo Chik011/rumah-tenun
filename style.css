@@ -336,7 +336,7 @@ nav a[aria-current="page"], nav a.active { color: var(--marun); font-weight: 600
 .quantity button { width: 34px; height: 34px; border: 1px solid var(--garis); background: white; color: var(--marun); }
 .quantity span { min-width: 18px; text-align: center; }
 .cart-page-quantity { flex-wrap: wrap; }
-.cart-remove { width: auto !important; height: auto !important; border: 0 !important; background: transparent !important; color: var(--sekunder) !important; text-decoration: underline; font-size: .78rem; }
+.cart-remove { width: auto; height: 36px; border: 1px solid #eed6d1; background: #fff4f2; color: #a34a40; text-decoration: none; font-size: .78rem; padding:0 10px; }
 .cart-summary, .checkout-summary { background: #f3eee7; border-top: 3px solid var(--marun); padding: 24px; }
 .cart-summary h2, .checkout-summary h2 { margin: 8px 0 20px; }
 .cart-summary-line, .cart-summary-total { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; padding: 12px 0; border-bottom: 1px solid var(--garis); font-size: .9rem; }

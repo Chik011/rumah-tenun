@@ -4,12 +4,15 @@ async function initOrderNotifications(user,actions) {
   root.innerHTML='<button class="icon-btn notification-button" type="button" aria-label="Notifikasi pesanan" aria-expanded="false"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-count" hidden></span></button><section class="notification-panel" aria-label="Notifikasi pesanan" hidden><div class="notification-heading"><strong>Notifikasi pesanan</strong><button type="button" class="notification-read-all">Tandai dibaca</button></div><div class="notification-items"></div><p class="notification-status" role="status"></p></section>';
   actions.prepend(root);
   const button=root.querySelector('.notification-button'),badge=root.querySelector('.notification-count'),panel=root.querySelector('.notification-panel'),list=root.querySelector('.notification-items'),status=root.querySelector('.notification-status');
-  let busy=false;
+  let busy=false,lastSignature='';
   const target=id=>user.peran==='Penjual'?'akun.html?view=orders&order='+encodeURIComponent(id):'keranjang.html?tab=pengiriman&order='+encodeURIComponent(id);
   async function refresh() {
     if(busy)return;busy=true;
     try {
       const result=await Backend.notifikasi();badge.textContent=result.count>99?'99+':String(result.count);badge.hidden=!result.count;button.setAttribute('aria-label','Notifikasi pesanan'+(result.count?', '+result.count+' belum dibaca':''));
+      const signature=JSON.stringify(result.items);
+      if(signature===lastSignature)return;
+      lastSignature=signature;
       list.replaceChildren();status.textContent='';
       for(const item of result.items) {
         const a=elemen('a',item.read_at?'notification-item':'notification-item unread');a.href=target(item.order_id);

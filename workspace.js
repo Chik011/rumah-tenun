@@ -101,6 +101,7 @@ async function initMarketplaceWorkspace(user) {
       const inputs={};for(const [key,label,value,placeholder] of [['courier','Jasa pengiriman',order.courier,'Contoh: JNE'],['number','Nomor resi',order.tracking_number,'Masukkan nomor resi'],['url','Tautan pelacakan',order.tracking_url,'https://...']]) {
         const wrap=elemen('label','tracking-field',label);const input=elemen('input');input.type=key==='url'?'url':'text';input.required=true;input.maxLength=key==='url'?1000:key==='number'?120:80;input.value=value || '';input.placeholder=placeholder;inputs[key]=input;wrap.append(input);form.append(wrap);
       }
+      form.addEventListener('input',()=>{form.dataset.dirty='true';});
       const save=elemen('button','primary',order.order_status==='packaging'?'Simpan resi & tandai dikirim':'Simpan resi');save.type='submit';form.append(save);
       form.addEventListener('submit',e=>{e.preventDefault();if(!tautanPelacakan(inputs.url.value)){report(new Error('Gunakan tautan pelacakan HTTPS yang valid.'));return;}act(save,()=>Backend.simpanResi(order.id,inputs.courier.value,inputs.number.value,inputs.url.value,order.order_status==='packaging'));});card.append(form);
     }else if(order.tracking_number)card.append(renderResi([order]));
@@ -122,7 +123,7 @@ async function initMarketplaceWorkspace(user) {
     }if(!people.children.length)people.append(elemen('p','notice','Tidak ada akun yang sesuai.'));};search.addEventListener('input',draw);draw();
   }
   await load();
-  const timer=setInterval(()=>{if(!document.hidden && view==='orders')load();},15000);
+  const timer=setInterval(()=>{if(!document.hidden && view==='orders' && !content.querySelector('.tracking-editor[data-dirty],.tracking-editor:focus-within'))load();},15000);
   window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
 }
 

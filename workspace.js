@@ -1,6 +1,7 @@
 const WORKFLOW_LABELS = {awaiting_approval:'Menunggu persetujuan',awaiting_payment:'Menunggu pembayaran',checking:'Sudah dibayar',packaging:'Sedang dikemas',shipping:'Dalam pengiriman',delivered:'Barang tiba',completed:'Selesai',cancelled:'Dibatalkan'};
 async function initMarketplaceWorkspace(user) {
   const admin=user.peran==='Admin';
+  document.title=(admin?'Pantau Koperasi':'Etalase Produk')+' — Benang-Mawar';
   document.body.classList.add('seller-workspace','market-workspace');
   $('profile-panel').hidden=true;
   $('account-title').textContent=admin?'Pantau koperasi':'Etalase Produk';
@@ -79,6 +80,8 @@ async function initMarketplaceWorkspace(user) {
     for(const [value,label] of [['all','Semua status'],...Object.entries(WORKFLOW_LABELS)]) {const o=elemen('option','',label);o.value=value;filter.append(o);}
     const list=elemen('div','order-card-list');content.append(filter,list);
     const draw=()=>{list.replaceChildren();for(const order of orders.filter(o=>filter.value==='all'||o.order_status===filter.value))list.append(orderCard(order));if(!list.children.length)list.append(elemen('p','notice','Belum ada pesanan pada status ini.'));};filter.addEventListener('change',draw);draw();
+    const selected=params.get('order');
+    if(selected && !host.dataset.orderFocused){const card=$('order-'+selected);if(card){card.scrollIntoView({behavior:'smooth',block:'start'});host.dataset.orderFocused='true';}}
   }
   function orderCard(order) {
     const card=elemen('article','market-order');card.id='order-'+order.id;

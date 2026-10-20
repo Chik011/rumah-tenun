@@ -1,4 +1,5 @@
 /* Marketplace inventory, notifications, and shipment tracking. */
+.header-wrapper .notification-button{background:transparent;color:#fff8ea;border-color:#ffffff40}
 .workspace-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 30px;border-bottom:1px solid #dce4df;padding-bottom:14px}
 .workspace-tabs a{padding:11px 18px;border-radius:10px;text-decoration:none;color:#526760;background:#f0f4f2;font-weight:600;font-size:.86rem}
 .workspace-tabs a.active{background:#234b40;color:white}

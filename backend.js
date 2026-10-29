@@ -284,7 +284,17 @@ const Backend = {
     const { data, error } = await supabaseClient.functions.invoke('create-seller', {
       body: { email: email.trim().toLowerCase(), password, displayName: nama.trim() }
     });
-    if (error) throw error;
+    if (error) {
+      let message = 'Gagal membuat akun penjual di database.';
+      try {
+        const body = await error.context.json();
+        message = body.error || message;
+      } catch (_) {
+        message = error.message || message;
+      }
+      throw new Error(message);
+    }
+    if (data?.error) throw new Error(data.error);
     return data;
   },
 

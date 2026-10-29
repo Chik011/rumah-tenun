@@ -6,14 +6,14 @@
   <meta name="description" content="Ruang Anggota Koperasi Rantai Mawar.">
   <title>Ruang Anggota — Benang-Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
-  <link rel="stylesheet" href="style.css?v=market-2">
-  <link rel="stylesheet" href="studio.css?v=market-2">
+  <link rel="stylesheet" href="style.css?v=market-3">
+  <link rel="stylesheet" href="studio.css?v=market-3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="backend.js?v=market-2" defer></script>
-  <script src="common.js?v=market-2" defer></script>
-  <script src="workspace.js?v=market-2" defer></script>
-  <script src="notifications.js?v=market-2" defer></script>
-  <link rel="stylesheet" href="market.css?v=market-2">
+  <script src="backend.js?v=market-3" defer></script>
+  <script src="common.js?v=market-3" defer></script>
+  <script src="workspace.js?v=market-3" defer></script>
+  <script src="notifications.js?v=market-3" defer></script>
+  <link rel="stylesheet" href="market.css?v=market-3">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Langsung ke konten</a>
@@ -150,6 +150,47 @@
       </select>
       <p id="payment-description" class="notice"></p>
     </div>
+  </dialog>
+
+  <!-- DIALOG TAMBAH AKUN PENJUAL -->
+  <dialog id="seller-modal" class="modal-dialog" aria-labelledby="seller-modal-title">
+    <div class="modal-header">
+      <div>
+        <span class="eyebrow" style="color: var(--marun);">AKUN KOPERASI</span>
+        <h2 id="seller-modal-title" style="margin: 4px 0 0; font-size: 1.55rem;">Tambah Akun Penjual</h2>
+      </div>
+      <button type="button" class="close-button" data-close aria-label="Tutup">×</button>
+    </div>
+    <p class="note" style="margin-top: 8px; margin-bottom: 20px;">
+      Buat akun baru untuk pengrajin atau kelompok tenun. Akun ini langsung terdaftar dan terhubung ke database online.
+    </p>
+    <form id="seller-account-form" style="margin: 0; display: grid; gap: 14px;">
+      <div>
+        <label for="seller-name" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem;">Nama Penjual / Kelompok Tenun</label>
+        <input id="seller-name" type="text" required minlength="2" maxlength="80" placeholder="Contoh: Tenun Sambas Melati" autocomplete="organization">
+        <small class="note" style="display: block; margin-top: 4px; color: var(--sekunder);">Nama tampilan yang muncul pada katalog kain dan etalase.</small>
+      </div>
+
+      <div>
+        <label for="seller-email" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem;">Email Akun Penjual</label>
+        <input id="seller-email" type="email" required maxlength="254" placeholder="penjual@rumah-tenun.example atau email@gmail.com" autocomplete="username">
+        <small class="note" style="display: block; margin-top: 4px; color: var(--sekunder);">Digunakan untuk login ke ruang penjual.</small>
+      </div>
+
+      <div>
+        <label for="seller-password" style="display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem;">Kata Sandi Akun</label>
+        <input id="seller-password" type="password" required minlength="10" maxlength="100" placeholder="Minimal 10 karakter" autocomplete="new-password">
+        <small class="note" style="display: block; margin-top: 4px; color: var(--sekunder);">Minimal 10 karakter sesuai standar keamanan database.</small>
+      </div>
+
+      <p id="seller-form-error" class="error" role="alert" style="min-height: 20px; margin: 0; font-weight: 500;"></p>
+      <p id="seller-form-success" class="note" role="status" style="min-height: 20px; margin: 0; color: #24623e; font-weight: 600;"></p>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; flex-wrap: wrap;">
+        <button type="button" class="outline" data-close style="min-height: 44px; padding: 10px 18px;">Batal</button>
+        <button id="seller-submit-btn" type="submit" class="primary" style="min-height: 44px; padding: 10px 22px;">Simpan Akun Penjual</button>
+      </div>
+    </form>
   </dialog>
 
   <script>

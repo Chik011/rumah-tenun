@@ -113,7 +113,25 @@ async function initMarketplaceWorkspace(user) {
       heading('Aktivitas terbaru','Catatan aktivitas mulai tersimpan sejak pembaruan fitur pemantauan.');const list=elemen('div','activity-list');
       for(const item of data.activity) {const row=elemen('article','activity-row');row.append(elemen('strong','',item.actor_name+' · '+item.action),elemen('p','note',(item.detail.name || '#'+item.entity_id.slice(0,8))+' · '+new Date(item.created_at).toLocaleString('id-ID')),elemen('p','note',[WORKFLOW_LABELS[item.detail.status] || item.detail.status,item.detail.stock!==undefined?'Stok '+item.detail.stock:null].filter(Boolean).join(' · ')));list.append(row);}if(!list.children.length)list.append(elemen('p','notice','Belum ada aktivitas baru.'));content.append(list);return;
     }
-    const sellers=view==='sellers';heading(sellers?'Penjual terdaftar':'Pembeli terdaftar',sellers?'Pilih penjual untuk melihat barang dan aktivitasnya.':'Pilih pembeli untuk melihat riwayat pesanannya.');
+    const sellers=view==='sellers';
+    const addSellerBtn = sellers ? elemen('button','primary','+ Tambah akun penjual') : null;
+    if (addSellerBtn) {
+      addSellerBtn.type = 'button';
+      addSellerBtn.id = 'btn-open-add-seller';
+      addSellerBtn.addEventListener('click', () => {
+        const modal = $('seller-modal');
+        if (modal) {
+          const form = $('seller-account-form');
+          if (form) form.reset();
+          const err = $('seller-form-error'); if (err) err.textContent = '';
+          const succ = $('seller-form-success'); if (succ) succ.textContent = '';
+          const submitBtn = $('seller-submit-btn');
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Simpan Akun Penjual'; }
+          modal.showModal();
+        }
+      });
+    }
+    heading(sellers?'Penjual terdaftar':'Pembeli terdaftar',sellers?'Pilih penjual untuk melihat barang dan aktivitasnya.':'Pilih pembeli untuk melihat riwayat pesanannya.', addSellerBtn);
     const search=elemen('input','workspace-search');search.type='search';search.placeholder=sellers?'Cari penjual':'Cari pembeli';search.setAttribute('aria-label',search.placeholder);
     const people=elemen('div','people-grid');const details=elemen('section','person-detail');content.append(search,people,details);
     const allProducts=sellers?await Backend.ambilProduk():[];const allOrders=await Backend.semuaPesanan();
@@ -121,6 +139,68 @@ async function initMarketplaceWorkspace(user) {
       const b=elemen('button','person-card');b.type='button';b.append(elemen('span','person-avatar',person.name.charAt(0)),elemen('strong','',person.name),elemen('span','note',sellers?person.products+' produk':person.orders+' pesanan'),elemen('span','person-open','Lihat rincian'));
       b.addEventListener('click',()=>{details.replaceChildren(elemen('h3','',person.name));if(sellers)for(const product of allProducts.filter(p=>p.sellerId===person.id))details.append(productCard(product,false));for(const order of allOrders.filter(o=>sellers?o.order_items.some(i=>i.seller_id===person.id):o.buyer_id===person.id))details.append(orderCard(order));if(details.children.length===1)details.append(elemen('p','notice','Belum ada data untuk ditampilkan.'));details.scrollIntoView({behavior:'smooth',block:'start'});});people.append(b);
     }if(!people.children.length)people.append(elemen('p','notice','Tidak ada akun yang sesuai.'));};search.addEventListener('input',draw);draw();
+  }
+  if (admin) {
+    const sellerForm = $('seller-account-form');
+    const modal = $('seller-modal');
+    if (sellerForm && !sellerForm.dataset.initialized) {
+      sellerForm.dataset.initialized = 'true';
+      if (modal) {
+        modal.addEventListener('click', e => {
+          if (e.target === modal) modal.close();
+        });
+      }
+      sellerForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const err = $('seller-form-error');
+        const succ = $('seller-form-success');
+        const submitBtn = $('seller-submit-btn');
+        if (err) err.textContent = '';
+        if (succ) succ.textContent = '';
+
+        const nama = $('seller-name')?.value.trim() || '';
+        const email = $('seller-email')?.value.trim().toLowerCase() || '';
+        const password = $('seller-password')?.value || '';
+
+        if (nama.length < 2 || nama.length > 80) {
+          if (err) err.textContent = 'Nama penjual harus 2–80 karakter.';
+          $('seller-name')?.focus();
+          return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          if (err) err.textContent = 'Format email tidak valid. Masukkan format email yang benar.';
+          $('seller-email')?.focus();
+          return;
+        }
+        if (password.length < 10 || password.length > 100) {
+          if (err) err.textContent = 'Kata sandi minimal 10 karakter.';
+          $('seller-password')?.focus();
+          return;
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Menyimpan ke database...';
+        }
+
+        try {
+          await Backend.buatAkunPenjual(email, password, nama);
+          if (succ) succ.textContent = `✓ Akun penjual "${nama}" (${email}) berhasil ditambahkan ke database online!`;
+          sellerForm.reset();
+          await load();
+          setTimeout(() => {
+            if (modal && modal.open) modal.close();
+          }, 1400);
+        } catch (error) {
+          if (err) err.textContent = error.message || 'Gagal membuat akun penjual di database.';
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Simpan Akun Penjual';
+          }
+        }
+      });
+    }
   }
   await load();
   const timer=setInterval(()=>{if(!document.hidden && view==='orders' && !content.querySelector('.tracking-editor[data-dirty],.tracking-editor:focus-within'))load();},15000);

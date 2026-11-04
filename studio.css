@@ -478,7 +478,10 @@ input:focus, textarea:focus, select:focus { border-color: var(--hijau); }
 .seller-workspace .seller-product-title { line-height:1.35; }
 .seller-workspace .seller-product-row .primary { margin:10px 8px 0 0; }
 
-html:not([data-role-ready]) #navigation { visibility:hidden; }
+/* Navigation hides until role is ready — cached user renders instantly so flash is eliminated */
+html:not([data-role-ready]) #navigation { visibility: hidden; }
+/* Login button: hide when user is logged in (before JS renders the avatar) */
+html[data-has-user="true"] #login-button { display: none !important; }
 
 /* Dedicated, readable learning pages. */
 .lesson-detail-page { max-width:1020px; }

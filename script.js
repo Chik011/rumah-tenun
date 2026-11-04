@@ -274,7 +274,7 @@ async function mulai() {
     kartu.append(
       elemen('span', 'eyebrow', 'PANDUAN 0' + (index + 1) + ' · ' + materi.durasi),
       elemen('h2', '', materi.judul),
-      elemen('span', 'text-link', 'Mulai belajar →')
+      elemen('span', 'text-link', 'Baca panduan →')
     );
     kartu.addEventListener('click', () => {
       materiDipilih = index;

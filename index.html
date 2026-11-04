@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <script>try{var u=localStorage.getItem('rm_cached_user');if(u&&localStorage.getItem('rm_guest_mode')!=='1'){document.documentElement.setAttribute('data-has-user','true');document.documentElement.setAttribute('data-role-ready','true');}}catch(_){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Rumah tenun dan ruang belajar digital Koperasi Rantai Mawar.">
@@ -24,7 +25,8 @@
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
         <a href="koleksi.html">Belanja Tenun</a>
-        <a href="belajar.html">Ruang Belajar</a>
+        <a href="belajar.html">Panduan</a>
+        <a href="berita.html">Berita</a>
         <a href="tentang.html">Tentang Kami</a>
       </nav>
       <div class="header-actions">
@@ -60,7 +62,7 @@
         <figcaption>
           <span>PELAN, TELITI, SEPENUH HATI</span>
           <h2>Tradisi yang terus hidup.</h2>
-          <small>Proses menenun di Lombok · Foto ilustrasi</small>
+          <small>Proses menenun di Dusun Semberang, Sambas · Foto ilustrasi</small>
         </figcaption>
       </figure>
     </section>
@@ -85,7 +87,7 @@
     <section class="container story-section">
       <figure class="story-photo">
         <img src="assets/tenun-background.jpg" alt="Penenun bekerja dengan alat tenun tradisional" loading="lazy">
-        <figcaption>Proses menenun di Lombok · Foto ilustrasi</figcaption>
+        <figcaption>Proses menenun di Dusun Semberang, Sambas · Foto ilustrasi</figcaption>
       </figure>
       <div class="story-copy">
         <span class="eyebrow">LEBIH DARI SEHELAI KAIN</span>
@@ -95,18 +97,45 @@
         <div class="story-detail"><span>Tradisi yang hidup</span><span>Komunitas yang bertumbuh</span></div>
       </div>
     </section>
-    <!-- BANNER RUANG BELAJAR -->
+    <!-- BANNER PANDUAN -->
     <section class="container">
       <div class="learning-banner">
         <div>
           <span class="eyebrow">MULAI BERSAMA</span>
-          <h2>Belajar hal baru,<br><em>tak harus sendiri.</em></h2>
-          <p>Panduan sederhana literasi digital & pembayaran aman, satu langkah setiap waktu.</p>
+          <h2>Panduan koperasi,<br><em>satu langkah setiap waktu.</em></h2>
+          <p>Panduan sederhana untuk belanja, mengelola kain, hingga memahami alur koperasi.</p>
         </div>
-        <a class="primary" href="belajar.html">Masuk ruang belajar </a>
+        <a class="primary" href="belajar.html">Baca panduan koperasi </a>
       </div>
     </section>
+
+    <!-- SEKSI ARTIKEL TERBARU (EDITORIAL STYLE) -->
+    <section class="container editorial-articles-section">
+      <div class="editorial-header-row">
+        <h2 class="editorial-title">Artikel Terbaru</h2>
+        <a class="outline" href="berita.html">Lihat semua artikel →</a>
+      </div>
+      <div id="featured-articles" class="editorial-articles-grid" role="list">
+        <p class="editorial-empty">Memuat artikel…</p>
+      </div>
+    </section>
+
   </main>
+
+  <!-- MODAL BACA ARTIKEL -->
+  <dialog id="article-reader-modal" aria-labelledby="modal-article-title">
+    <button class="close-button" data-close aria-label="Tutup" style="position: absolute; right: 16px; top: 16px; z-index: 10; background: rgba(255,255,255,0.85);">×</button>
+    <img id="modal-article-cover" class="reader-cover" src="" alt="" hidden>
+    <div class="reader-content">
+      <div id="modal-article-category" class="reader-category"></div>
+      <h2 id="modal-article-title" class="reader-title"></h2>
+      <div id="modal-article-meta" class="reader-meta"></div>
+      <div id="modal-article-body" class="reader-body"></div>
+      <div style="margin-top: 24px;">
+        <button type="button" class="outline" data-close>Tutup</button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- FOOTER MULTI-KOLOM ELEGAN -->
   <footer class="site-footer">
@@ -120,7 +149,8 @@
         <ul class="footer-links">
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
-          <li><a href="belajar.html">Ruang Belajar Digital</a></li>
+          <li><a href="belajar.html">Panduan Koperasi</a></li>
+          <li><a href="berita.html">Kabar &amp; Berita</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -129,7 +159,7 @@
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
           <li><a href="register.html">Daftar Akun Pembeli</a></li>
-          <li><a href="akun.html">Ruang Dashboard</a></li>
+          <li><a href="akun.html">Profil</a></li>
           <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
         </ul>
       </div>
@@ -198,6 +228,64 @@
         pasangAksiProduk(kartu,item);
         wadah.append(kartu);
       });
+
+      // Muat artikel terbaru dari database (Supabase)
+      const wadahArtikel = $('featured-articles');
+      function warnaKategori(cat, idx) {
+        const c = (cat || '').toLowerCase();
+        if (c.includes('budaya') || c.includes('tokoh')) return 'color-green';
+        if (c.includes('kegiatan') || c.includes('pelatihan')) return 'color-terracotta';
+        if (c.includes('wawasan')) return 'color-purple';
+        const colors = ['color-blue', 'color-green', 'color-blue', 'color-purple', 'color-terracotta'];
+        return colors[idx % colors.length];
+      }
+
+      function bukaModalArtikel(art) {
+        const modal = $('article-reader-modal');
+        if (!modal) return;
+        const cover = $('modal-article-cover');
+        if (art.image_url) {
+          cover.src = art.image_url;
+          cover.alt = art.title;
+          cover.hidden = false;
+        } else {
+          cover.hidden = true;
+        }
+        $('modal-article-category').textContent = art.category || 'Pustaka Tenun';
+        $('modal-article-title').textContent = art.title;
+        const tgl = art.created_at ? new Date(art.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' }) : '';
+        $('modal-article-meta').textContent = (art.author_name || 'Admin Koperasi') + (tgl ? ' · ' + tgl : '');
+        $('modal-article-body').textContent = art.content;
+        modal.showModal();
+      }
+
+      try {
+        const artikelList = await Backend.ambilArtikel();
+        wadahArtikel.replaceChildren();
+        if (!artikelList.length) {
+          wadahArtikel.innerHTML = '<p class="editorial-empty">Belum ada artikel yang ditambahkan. Masuk sebagai admin untuk menerbitkan artikel baru.</p>';
+        } else {
+          artikelList.slice(0, 4).forEach((art, idx) => {
+            const card = document.createElement('article');
+            card.className = 'editorial-card ' + warnaKategori(art.category, idx);
+            card.setAttribute('role', 'listitem');
+            const imgUrl = art.image_url || 'assets/tenun-background.jpg';
+            card.innerHTML = `
+              <div class="editorial-photo-wrap">
+                <img class="editorial-photo" src="${teksHTML(imgUrl)}" alt="${teksHTML(art.title)}" loading="lazy">
+              </div>
+              <span class="editorial-accent-bar" aria-hidden="true"></span>
+              <span class="editorial-category">${teksHTML(art.category || 'Pustaka Tenun')}</span>
+              <h3 class="editorial-card-title">${teksHTML(art.title)}</h3>
+              <p class="editorial-desc">${teksHTML(art.summary || (art.content || '').slice(0, 110))}</p>
+            `;
+            card.addEventListener('click', () => bukaModalArtikel(art));
+            wadahArtikel.append(card);
+          });
+        }
+      } catch (_) {
+        wadahArtikel.innerHTML = '<p class="editorial-empty">Belum ada artikel yang ditambahkan.</p>';
+      }
     });
   </script>
 </body>

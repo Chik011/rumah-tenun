@@ -229,10 +229,6 @@ function initKeranjang() {
   const checkoutForm = $('checkout-form');
   if (!checkoutForm) return;
 
-  Backend.pembayaranXendit('ready').then(config => {
-    $('checkout-test-note').hidden = config.mode !== 'test';
-  }).catch(() => {});
-
   Backend.penggunaAktif().then(user => {
     const jumlahItem = Object.values(bacaKeranjang()).reduce((jumlah, banyak) => jumlah + banyak, 0);
     if (!jumlahItem) return;
@@ -374,12 +370,132 @@ async function initNavigasiBersama() {
   updateBadgeKeranjang();
 }
 
+function renderUserHeader(user) {
+  document.documentElement.dataset.roleReady = 'true';
+  if (user && user.peran !== 'Guest') {
+    document.documentElement.dataset.hasUser = 'true';
+  } else {
+    delete document.documentElement.dataset.hasUser;
+  }
+  const actionsContainer = document.querySelector('.header-actions');
+  if (!actionsContainer) return;
+  const navigation = $('navigation');
+  const isStaff = user && ['Admin', 'Penjual'].includes(user.peran);
+
+  // Render nav links for buyers/guests
+  if (navigation && !isStaff) {
+    const buyerLinks = [
+      ['index.html', 'Beranda'],
+      ['koleksi.html', 'Belanja Tenun'],
+      ['belajar.html', 'Panduan'],
+      ['berita.html', 'Berita'],
+      ['tentang.html', 'Tentang Kami']
+    ];
+    navigation.replaceChildren(...buyerLinks.map(([href, label]) => {
+      const link = elemen('a', '', label);
+      link.href = href;
+      const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+      if (href.split('?')[0] === currentPath || (currentPath === '' && href === 'index.html')) {
+        link.setAttribute('aria-current', 'page');
+        link.classList.add('active');
+      }
+      return link;
+    }));
+  }
+
+  // Render login/user button immediately (synchronous)
+  const existingLoginBtn = $('login-button');
+  const existingUserWrapper = $('user-menu-wrapper');
+  if (existingLoginBtn) existingLoginBtn.remove();
+  if (existingUserWrapper) existingUserWrapper.remove();
+
+  if (!user || user.peran === 'Guest') {
+    const loginLink = elemen('a', 'primary', 'Masuk ');
+    loginLink.id = 'login-button';
+    loginLink.href = 'login.html';
+    loginLink.style.cssText = 'padding: 8px 18px; min-height: 42px; font-size: 0.9rem;';
+    actionsContainer.append(loginLink);
+  } else {
+    const inisial = (user.nama || user.username || 'U').charAt(0).toUpperCase();
+    const roleClass = user.peran ? user.peran.toLowerCase() : 'pembeli';
+    const userWrapper = elemen('div', 'user-menu-wrapper');
+    userWrapper.id = 'user-menu-wrapper';
+    userWrapper.innerHTML = `
+      <button id="user-profile-button" class="user-avatar-btn" aria-haspopup="true" aria-expanded="false" title="Akun: ${teksHTML(user.nama)} (${teksHTML(user.peran)})">
+        <span>${teksHTML(inisial)}</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown" hidden>
+        <div class="user-dropdown-header">
+          <div class="user-dropdown-avatar">${teksHTML(inisial)}</div>
+          <div class="user-dropdown-details">
+            <strong>${teksHTML(user.nama)}</strong>
+            <small>@${teksHTML(user.username)}</small>
+            <span class="role-badge ${roleClass}">${user.peran}</span>
+          </div>
+        </div>
+        <div class="user-dropdown-links">
+          <a href="keranjang.html?tab=pengiriman" class="user-dropdown-item">Pesanan &amp; pengiriman</a>
+          <a href="akun.html" class="user-dropdown-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Profil
+          </a>
+        </div>
+        <div class="user-dropdown-footer">
+          <button id="dropdown-logout" class="dropdown-logout-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Keluar Akun
+          </button>
+        </div>
+      </div>
+    `;
+    actionsContainer.append(userWrapper);
+
+    // Toggle dropdown
+    const avatarBtn = $('user-profile-button');
+    const dropdown = $('user-dropdown');
+    if (avatarBtn && dropdown) {
+      avatarBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !dropdown.hidden;
+        dropdown.hidden = isOpen;
+        avatarBtn.setAttribute('aria-expanded', String(!isOpen));
+      });
+      document.addEventListener('click', (e) => {
+        if (!userWrapper.contains(e.target)) {
+          dropdown.hidden = true;
+          avatarBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+    const logoutBtn = $('dropdown-logout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        await Backend.keluar();
+        window.location.href = 'login.html';
+      });
+    }
+  }
+}
+
 async function setupHeaderActions() {
   const actionsContainer = document.querySelector('.header-actions');
   if (!actionsContainer) return;
 
-  const user = await Backend.penggunaAktif();
-  document.documentElement.dataset.roleReady = 'true';
+  // Render immediately from cache (zero flash)
+  const cached = Backend.getCachedUser();
+  renderUserHeader(cached);
+
+  // Then verify in background and re-render if state changed
+  let user;
+  try { user = await Backend.penggunaAktif(); } catch (_) { user = cached; }
+
   const navigation = $('navigation');
   const isStaff = user && ['Admin', 'Penjual'].includes(user.peran);
   if (isStaff) {
@@ -395,13 +511,16 @@ async function setupHeaderActions() {
         ['akun.html?view=sellers', 'Penjual'],
         ['akun.html?view=buyers', 'Pembeli'],
         ['akun.html?view=products', 'Katalog'],
-        ['akun.html?view=activity', 'Aktivitas'],
         ['akun.html?view=orders', 'Pesanan masuk'],
+        ['akun.html?view=articles', 'Kelola Berita'],
+        ['akun.html?view=payments', 'Pembayaran'],
+        ['akun.html?view=activity', 'Aktivitas'],
         ['belajar.html', 'Panduan & SOP']
       ],
       Penjual: [
         ['akun.html?view=products', 'Etalase Produk'],
         ['akun.html?view=orders', 'Pesanan masuk'],
+        ['akun.html?view=articles', 'Kabar & Artikel'],
         ['belajar.html', 'Panduan Usaha']
       ]
     };
@@ -431,133 +550,81 @@ async function setupHeaderActions() {
     }
   }
 
-  // 1. PASTIKAN TOMBOL TAS MENGGUNAKAN ICON TAS ELEGAN
-  let cartBtn = $('cart-button');
-  if (!cartBtn) {
-    cartBtn = elemen('button', 'icon-btn');
-    cartBtn.id = 'cart-button';
-    actionsContainer.prepend(cartBtn);
-  } else {
-    cartBtn.className = 'icon-btn';
+  // Re-render header after async user check (handles state change: logged in/out)
+  const cachedId = cached?.id || null;
+  const freshId = user?.id || null;
+  const cachedRole = cached?.peran || null;
+  const freshRole = user?.peran || null;
+  if (cachedId !== freshId || cachedRole !== freshRole) {
+    renderUserHeader(user);
   }
-  cartBtn.hidden = Boolean(isStaff);
-  cartBtn.setAttribute('aria-label', 'Tas Belanja');
-  cartBtn.setAttribute('title', 'Buka Tas Belanja');
-  cartBtn.innerHTML = `
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <path d="M16 10a4 4 0 0 1-8 0"></path>
-    </svg>
-    <span id="cart-count" class="cart-badge">0</span>
-  `;
 
-  // 2. KELOLA TOMBOL USER: JIKA BELUM LOGIN -> TOMBOL MASUK; JIKA SUDAH -> ICON USER DENGAN DROPDOWN INFO
-  const existingLoginBtn = $('login-button');
-  const existingUserWrapper = $('user-menu-wrapper');
-  if (existingLoginBtn) existingLoginBtn.remove();
-  if (existingUserWrapper) existingUserWrapper.remove();
-
-  if (!user || user.peran === 'Guest') {
-    // Belum login: Tampilkan tombol Masuk
-    const loginLink = elemen('a', 'primary', 'Masuk ');
-    loginLink.id = 'login-button';
-    loginLink.href = 'login.html';
-    loginLink.style.cssText = 'padding: 8px 18px; min-height: 42px; font-size: 0.9rem;';
-    actionsContainer.append(loginLink);
-  } else {
-    // Sudah login: Buat ICON USER dengan DROPDOWN MENU
-    const inisial = (user.nama || user.username || 'U').charAt(0).toUpperCase();
-    const roleClass = user.peran ? user.peran.toLowerCase() : 'pembeli';
-
-    const userWrapper = elemen('div', 'user-menu-wrapper');
-    userWrapper.id = 'user-menu-wrapper';
-
-    userWrapper.innerHTML = `
-      <button id="user-profile-button" class="user-avatar-btn" aria-haspopup="true" aria-expanded="false" title="Akun: ${teksHTML(user.nama)} (${teksHTML(user.peran)})">
-        <span>${teksHTML(inisial)}</span>
-      </button>
-      <div class="user-dropdown" id="user-dropdown" hidden>
-        <div class="user-dropdown-header">
-          <div class="user-dropdown-avatar">${teksHTML(inisial)}</div>
-          <div class="user-dropdown-details">
-            <strong>${teksHTML(user.nama)}</strong>
-            <small>@${teksHTML(user.username)}</small>
-            <span class="role-badge ${roleClass}">${user.peran}</span>
-          </div>
-        </div>
-        <div class="user-dropdown-links">
-          <a href="keranjang.html?tab=pengiriman" class="user-dropdown-item">Pesanan & pengiriman</a>
-          <a href="akun.html" class="user-dropdown-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            Ruang Anggota
-          </a>
-          <a href="koleksi.html" class="user-dropdown-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            Koleksi Tenun
-          </a>
-        </div>
-        <div class="user-dropdown-footer">
-          <button id="dropdown-logout" class="dropdown-logout-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-            Keluar Akun
-          </button>
-        </div>
-      </div>
-    `;
-
-    actionsContainer.append(userWrapper);
-    if (isStaff) {
-      const sellerLinks = userWrapper.querySelector('.user-dropdown-links');
-      sellerLinks.replaceChildren();
-      for (const [href, label] of (user.peran === 'Admin' ? [['akun.html?view=sellers','Pantau penjual'],['akun.html?view=buyers','Pantau pembeli'],['akun.html?view=orders','Pesanan'],['akun.html?view=activity','Aktivitas']] : [['akun.html?view=products', 'Etalase Produk'],
-        ['akun.html?view=orders', 'Pesanan masuk'], ['belajar.html', 'Panduan Usaha']])) {
-        const link = elemen('a', 'user-dropdown-item', label);
+  // Staff-specific nav/footer replacement
+  if (navigation && isStaff) {
+    document.querySelectorAll('.brand').forEach(link => { link.href = 'akun.html'; });
+    if (['index.html', 'koleksi.html', ''].includes(location.pathname.split('/').pop())) {
+      location.replace('akun.html');
+      return;
+    }
+    const linksByRole = {
+      Admin: [
+        ['akun.html?view=sellers', 'Penjual'],
+        ['akun.html?view=buyers', 'Pembeli'],
+        ['akun.html?view=products', 'Katalog'],
+        ['akun.html?view=orders', 'Pesanan masuk'],
+        ['akun.html?view=articles', 'Kelola Berita'],
+        ['akun.html?view=payments', 'Pembayaran'],
+        ['akun.html?view=activity', 'Aktivitas'],
+        ['belajar.html', 'Panduan & SOP']
+      ],
+      Penjual: [
+        ['akun.html?view=products', 'Etalase Produk'],
+        ['akun.html?view=orders', 'Pesanan masuk'],
+        ['akun.html?view=articles', 'Kabar & Artikel'],
+        ['belajar.html', 'Panduan Usaha']
+      ]
+    };
+    const links = linksByRole[user.peran] || linksByRole.Pembeli;
+    navigation.replaceChildren(...links.map(([href, label]) => {
+      const link = elemen('a', '', label);
+      link.href = href;
+      const target = new URL(href, location.href);
+      if (target.pathname === location.pathname && (target.searchParams.get('view') || 'products') === (new URLSearchParams(location.search).get('view') || 'products')) { link.setAttribute('aria-current','page'); link.classList.add('active'); }
+      return link;
+    }));
+    const footerColumns = document.querySelectorAll('.site-footer .footer-col');
+    if (footerColumns.length >= 3) {
+      footerColumns[1].querySelector('h4').textContent = user.peran === 'Admin' ? 'Menu Admin' : 'Menu Penjual';
+      const footerList = footerColumns[1].querySelector('ul');
+      footerList.replaceChildren();
+      footerColumns[2].querySelector('ul').replaceChildren();
+      links.forEach(([href, label]) => {
+        const item = elemen('li');
+        const link = elemen('a', '', label);
         link.href = href;
-        sellerLinks.append(link);
+        item.append(link);
+        footerList.append(item);
+      });
+      footerColumns[2].hidden = true;
+    }
+    // Update staff dropdown links
+    const userWrapper = $('user-menu-wrapper');
+    if (userWrapper) {
+      const sellerLinks = userWrapper.querySelector('.user-dropdown-links');
+      if (sellerLinks) {
+        sellerLinks.replaceChildren();
+        for (const [href, label] of (user.peran === 'Admin' ? [['akun.html?view=sellers','Pantau penjual'],['akun.html?view=buyers','Pantau pembeli'],['akun.html?view=orders','Pesanan'],['akun.html?view=articles','Kelola Berita'],['akun.html?view=payments','Pembayaran'],['akun.html?view=activity','Aktivitas']] : [['akun.html?view=products', 'Etalase Produk'],['akun.html?view=orders', 'Pesanan masuk'],['akun.html?view=articles', 'Kabar & Artikel'], ['belajar.html', 'Panduan Usaha']])) {
+          const link = elemen('a', 'user-dropdown-item', label);
+          link.href = href;
+          sellerLinks.append(link);
+        }
       }
     }
-
-    // Toggle Dropdown
-    const avatarBtn = $('user-profile-button');
-    const dropdown = $('user-dropdown');
-    if (avatarBtn && dropdown) {
-      avatarBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = !dropdown.hidden;
-        dropdown.hidden = isOpen;
-        avatarBtn.setAttribute('aria-expanded', String(!isOpen));
-      });
-
-      // Tutup saat klik di luar
-      document.addEventListener('click', (e) => {
-        if (!userWrapper.contains(e.target)) {
-          dropdown.hidden = true;
-          avatarBtn.setAttribute('aria-expanded', 'false');
-        }
-      });
-    }
-
-    // Logout via Dropdown
-    const logoutBtn = $('dropdown-logout');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async () => {
-        await Backend.keluar();
-        window.location.href = 'login.html';
-      });
-    }
   }
+
+  // Cart button visibility
+  const cartBtn = $('cart-button');
+  if (cartBtn) cartBtn.hidden = Boolean(isStaff);
 
   try {
     await muatKeranjangCloud();

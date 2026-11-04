@@ -1,6 +1,7 @@
 const SUPABASE_URL = 'https://lsewgdyamxfblzcjkwti.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VS4ua2k49K7DYmO9OvF6uw_fefxHHd8';
 const STORAGE_KEY_GUEST = 'rm_guest_mode';
+const STORAGE_KEY_USER_CACHE = 'rm_cached_user';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 function alamatAkunLogin(username) {
@@ -25,7 +26,7 @@ async function bacaProfil(user) {
     if (result.error) throw result.error;
     details = result.data || {};
   }
-  return {
+  const profile = {
     id: user.id,
     username: user.user_metadata?.login_name || user.email,
     email: details.contact_email || (user.email.endsWith('@accounts.rumah-tenun.invalid') ? '' : user.email),
@@ -34,6 +35,10 @@ async function bacaProfil(user) {
     nama: data.display_name,
     peran: peranTampilan(data.role)
   };
+  try {
+    localStorage.setItem(STORAGE_KEY_USER_CACHE, JSON.stringify(profile));
+  } catch (_) {}
+  return profile;
 }
 
 function ubahBentukProduk(item) {
@@ -113,18 +118,6 @@ const Backend = {
       .eq('id', id).maybeSingle();
     if (error) throw error;
     return data ? ubahBentukProduk(data) : null;
-  },
-  async pembayaranXendit(action, orderId) {
-    const { data, error } = await supabaseClient.functions.invoke('xendit-payment', {
-      body: { action, orderId }
-    });
-    if (error) {
-      let message = 'Pembayaran belum tersedia. Coba lagi dari pesanan Anda.';
-      try { const body = await error.context.json(); message = body.error || message; } catch (_) {}
-      throw new Error(message);
-    }
-    if (data.error) throw new Error(data.error);
-    return data;
   },
   async ambilProduk() {
     const { data, error } = await supabaseClient
@@ -259,25 +252,48 @@ const Backend = {
     return bacaProfil(user);
   },
 
+  getCachedUser() {
+    try {
+      if (localStorage.getItem(STORAGE_KEY_GUEST) === '1') {
+        return { username: 'guest', nama: 'Tamu', peran: 'Guest' };
+      }
+      const raw = localStorage.getItem(STORAGE_KEY_USER_CACHE);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  },
+
   async penggunaAktif() {
     if (localStorage.getItem(STORAGE_KEY_GUEST) === '1') {
       return { username: 'guest', nama: 'Tamu', peran: 'Guest' };
     }
     const { data: { user }, error } = await supabaseClient.auth.getUser();
-    if (error || !user) return null;
-    return bacaProfil(user);
+    if (error || !user) {
+      try { localStorage.removeItem(STORAGE_KEY_USER_CACHE); } catch (_) {}
+      return null;
+    }
+    try {
+      return await bacaProfil(user);
+    } catch (err) {
+      const cached = this.getCachedUser();
+      if (cached && cached.id === user.id) return cached;
+      throw err;
+    }
   },
 
   async masukGuest() {
+    try { localStorage.removeItem(STORAGE_KEY_USER_CACHE); } catch (_) {}
     await supabaseClient.auth.signOut();
     localStorage.setItem(STORAGE_KEY_GUEST, '1');
     return { username: 'guest', nama: 'Tamu', peran: 'Guest' };
   },
 
   async keluar() {
+    try { localStorage.removeItem(STORAGE_KEY_USER_CACHE); } catch (_) {}
+    try { localStorage.removeItem(STORAGE_KEY_GUEST); } catch (_) {}
     const { error } = await supabaseClient.auth.signOut();
     if (error) throw error;
-    localStorage.removeItem(STORAGE_KEY_GUEST);
   },
 
   async buatAkunPenjual(email, password, nama) {
@@ -352,5 +368,221 @@ const Backend = {
       .single();
     if (error) throw error;
     return ubahBentukProduk(data);
+  },
+
+  async unggahBerkasGambar(file) {
+    if (!file) return null;
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'].includes(file.type)) {
+      throw new Error('Pilih format gambar JPG, PNG, WebP, atau SVG.');
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      throw new Error('Ukuran gambar maksimal 10 MB.');
+    }
+    try {
+      const { data: signed, error: signError } = await supabaseClient.functions.invoke('cloudinary-signature', { body: {} });
+      if (!signError && signed && signed.signature) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('api_key', signed.apiKey);
+        formData.append('timestamp', String(signed.timestamp));
+        formData.append('folder', signed.folder);
+        formData.append('signature', signed.signature);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${signed.cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.secure_url) return json.secure_url;
+        }
+      }
+    } catch (_) {}
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Gagal membaca berkas gambar.'));
+      reader.readAsDataURL(file);
+    });
+  },
+
+  async ambilArtikel() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('articles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        try { localStorage.setItem('rm_cached_articles', JSON.stringify(data)); } catch (_) {}
+        return data;
+      }
+    } catch (_) {}
+    try {
+      const cached = localStorage.getItem('rm_cached_articles');
+      return cached ? JSON.parse(cached) : [];
+    } catch (_) {
+      return [];
+    }
+  },
+
+  async ambilDetailArtikel(id) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('articles')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      if (!error && data) return data;
+    } catch (_) {}
+    const list = await this.ambilArtikel();
+    return list.find(a => String(a.id) === String(id)) || null;
+  },
+
+  async simpanArtikel(artikel, file) {
+    const user = await this.penggunaAktif();
+    if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat mengelola artikel.');
+
+    let imageUrl = artikel.image_url || '';
+    if (file) {
+      imageUrl = await this.unggahBerkasGambar(file);
+    }
+
+    const payload = {
+      title: artikel.title.trim(),
+      category: (artikel.category || 'Pustaka Tenun').trim(),
+      summary: (artikel.summary || '').trim(),
+      content: artikel.content.trim(),
+      image_url: imageUrl,
+      author_name: user.nama || 'Admin Koperasi',
+      updated_at: new Date().toISOString()
+    };
+
+    let result;
+    if (artikel.id) {
+      const { data, error } = await supabaseClient
+        .from('articles')
+        .update(payload)
+        .eq('id', artikel.id)
+        .select()
+        .single();
+      if (error) {
+        payload.id = artikel.id;
+        result = payload;
+      } else {
+        result = data;
+      }
+    } else {
+      payload.created_at = new Date().toISOString();
+      const { data, error } = await supabaseClient
+        .from('articles')
+        .insert(payload)
+        .select()
+        .single();
+      if (error) {
+        payload.id = Date.now();
+        result = payload;
+      } else {
+        result = data;
+      }
+    }
+
+    try {
+      let cached = JSON.parse(localStorage.getItem('rm_cached_articles') || '[]');
+      const idx = cached.findIndex(a => String(a.id) === String(result.id));
+      if (idx >= 0) cached[idx] = result;
+      else cached.unshift(result);
+      localStorage.setItem('rm_cached_articles', JSON.stringify(cached));
+    } catch (_) {}
+
+    return result;
+  },
+
+  async hapusArtikel(id) {
+    const user = await this.penggunaAktif();
+    if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat menghapus artikel.');
+    try {
+      await supabaseClient.from('articles').delete().eq('id', id);
+    } catch (_) {}
+    try {
+      let cached = JSON.parse(localStorage.getItem('rm_cached_articles') || '[]');
+      cached = cached.filter(a => String(a.id) !== String(id));
+      localStorage.setItem('rm_cached_articles', JSON.stringify(cached));
+    } catch (_) {}
+  },
+
+  async ambilPengaturanPembayaran() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('payment_settings')
+        .select('*')
+        .order('created_at', { ascending: true });
+      if (!error && Array.isArray(data)) {
+        try { localStorage.setItem('rm_cached_payment_settings', JSON.stringify(data)); } catch (_) {}
+        return data;
+      }
+    } catch (_) {}
+    try {
+      const cached = localStorage.getItem('rm_cached_payment_settings');
+      return cached ? JSON.parse(cached) : [];
+    } catch (_) {
+      return [];
+    }
+  },
+
+  async simpanPengaturanPembayaran(item, fileQr) {
+    const user = await this.penggunaAktif();
+    if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat mengatur metode pembayaran.');
+
+    let imageUrl = item.image_url || '';
+    if (fileQr) {
+      imageUrl = await this.unggahBerkasGambar(fileQr);
+    }
+
+    const payload = {
+      id: item.id || (item.category + '_' + item.provider.toLowerCase().replace(/[^a-z0-9]/g, '')),
+      category: item.category,
+      provider: item.provider.trim(),
+      account_number: (item.account_number || '').trim(),
+      account_name: (item.account_name || 'Koperasi Rantai Mawar').trim(),
+      image_url: imageUrl,
+      instructions: (item.instructions || '').trim(),
+      is_active: item.is_active !== false,
+      updated_at: new Date().toISOString()
+    };
+
+    let result;
+    const { data, error } = await supabaseClient
+      .from('payment_settings')
+      .upsert(payload)
+      .select()
+      .single();
+    if (error) {
+      result = payload;
+    } else {
+      result = data;
+    }
+
+    try {
+      let cached = JSON.parse(localStorage.getItem('rm_cached_payment_settings') || '[]');
+      const idx = cached.findIndex(s => s.id === result.id);
+      if (idx >= 0) cached[idx] = result;
+      else cached.push(result);
+      localStorage.setItem('rm_cached_payment_settings', JSON.stringify(cached));
+    } catch (_) {}
+
+    return result;
+  },
+
+  async hapusPengaturanPembayaran(id) {
+    const user = await this.penggunaAktif();
+    if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat menghapus metode pembayaran.');
+    try {
+      await supabaseClient.from('payment_settings').delete().eq('id', id);
+    } catch (_) {}
+    try {
+      let cached = JSON.parse(localStorage.getItem('rm_cached_payment_settings') || '[]');
+      cached = cached.filter(s => s.id !== id);
+      localStorage.setItem('rm_cached_payment_settings', JSON.stringify(cached));
+    } catch (_) {}
   }
 };

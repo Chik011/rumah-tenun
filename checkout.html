@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <script>try{var u=localStorage.getItem('rm_cached_user');if(u&&localStorage.getItem('rm_guest_mode')!=='1'){document.documentElement.setAttribute('data-has-user','true');document.documentElement.setAttribute('data-role-ready','true');}}catch(_){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Checkout kain tenun dari katalog Rantai Mawar.">
@@ -23,7 +24,8 @@
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
         <a href="koleksi.html">Belanja Tenun</a>
-        <a href="belajar.html">Ruang Belajar</a>
+        <a href="belajar.html">Panduan</a>
+        <a href="berita.html">Berita</a>
         <a href="tentang.html">Tentang Kami</a>
       </nav>
       <div class="header-actions">
@@ -80,11 +82,11 @@
         <section class="checkout-section">
           <span class="eyebrow">02 / PEMBAYARAN</span>
           <h2>Bayar dengan cara Anda</h2>
-          <label class="payment-option"><input type="radio" name="payment-method" value="QRIS" checked><span><strong>QRIS</strong><small>Bank atau dompet digital</small></span></label>
-          <label class="payment-option"><input type="radio" name="payment-method" value="Transfer bank"><span><strong>Transfer bank</strong><small>Virtual account pada bank yang tersedia</small></span></label>
-          <label class="payment-option"><input type="radio" name="payment-method" value="Dompet digital"><span><strong>Dompet digital</strong><small>Pembayaran melalui aplikasi pilihan Anda</small></span></label>
-          <p class="payment-assurance"> Pembayaran dibuka setelah persetujuan penjual, melalui Xendit. Pilihan di atas adalah preferensi; metode akhir dipilih pada halaman pembayaran sesuai kanal yang tersedia.</p>
-          <p id="checkout-test-note" class="notice" hidden>Mode uji coba: pembayaran simulasi, tanpa pemotongan uang nyata.</p>
+          <label class="payment-option"><input type="radio" name="payment-method" value="QRIS" checked><span><strong>QRIS</strong><small>GoPay, m-Banking, dan semua e-wallet</small></span></label>
+          <label class="payment-option"><input type="radio" name="payment-method" value="Transfer bank"><span><strong>Transfer bank</strong><small>Transfer langsung ke rekening bank koperasi</small></span></label>
+          <label class="payment-option"><input type="radio" name="payment-method" value="Dompet digital"><span><strong>Dompet digital</strong><small>GoPay, DANA, ShopeePay, atau OVO</small></span></label>
+          <p class="payment-assurance">Pembayaran dibuka setelah semua penjual menyetujui. Instruksi pembayaran tersedia di halaman konfirmasi pesanan.</p>
+          
         </section>
       </form>
 
@@ -123,7 +125,8 @@
         <ul class="footer-links">
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Belanja Tenun</a></li>
-          <li><a href="belajar.html">Ruang Belajar Digital</a></li>
+          <li><a href="belajar.html">Panduan Koperasi</a></li>
+          <li><a href="berita.html">Kabar &amp; Berita</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -132,7 +135,7 @@
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
           <li><a href="register.html">Daftar Akun Pembeli</a></li>
-          <li><a href="akun.html">Ruang Dashboard</a></li>
+          <li><a href="akun.html">Profil</a></li>
         </ul>
       </div>
       <div class="footer-col">

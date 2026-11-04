@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <script>try{var u=localStorage.getItem('rm_cached_user');if(u&&localStorage.getItem('rm_guest_mode')!=='1'){document.documentElement.setAttribute('data-has-user','true');document.documentElement.setAttribute('data-role-ready','true');}}catch(_){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Detail kain, harga, dan penjual tenun pilihan Rantai Mawar.">
@@ -24,7 +25,8 @@
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
         <a href="koleksi.html">Belanja Tenun</a>
-        <a href="belajar.html">Ruang Belajar</a>
+        <a href="belajar.html">Panduan</a>
+        <a href="berita.html">Berita</a>
         <a href="tentang.html">Tentang Kami</a>
       </nav>
       <div class="header-actions">
@@ -78,7 +80,8 @@
         <ul class="footer-links">
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
-          <li><a href="belajar.html">Ruang Belajar Digital</a></li>
+          <li><a href="belajar.html">Panduan Koperasi</a></li>
+          <li><a href="berita.html">Kabar &amp; Berita</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -87,7 +90,7 @@
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
           <li><a href="register.html">Daftar Akun Pembeli</a></li>
-          <li><a href="akun.html">Ruang Dashboard</a></li>
+          <li><a href="akun.html">Profil</a></li>
           <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
         </ul>
       </div>
@@ -113,7 +116,7 @@
   <dialog id="cart-dialog" aria-labelledby="cart-title">
     <button class="close-button" data-close aria-label="Tutup">×</button>
     <h2 id="cart-title">Tas belanja Anda</h2>
-    <p class="note">Pilih jumlah barang. Order disimpan saat checkout. Pembayaran dilanjutkan melalui Xendit.</p>
+    <p class="note">Pilih kain, periksa jumlah, lalu lanjutkan ke checkout.</p>
     <div id="cart-items"></div>
     <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
     <button id="checkout-button" class="primary">Lanjut ke checkout →</button>

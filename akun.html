@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <script>try{var u=localStorage.getItem('rm_cached_user');if(u&&localStorage.getItem('rm_guest_mode')!=='1'){document.documentElement.setAttribute('data-has-user','true');document.documentElement.setAttribute('data-role-ready','true');}}catch(_){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Ruang Anggota Koperasi Rantai Mawar.">
-  <title>Ruang Anggota — Benang-Mawar</title>
+  <title>Profil — Benang-Mawar</title>
   <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=market-3">
   <link rel="stylesheet" href="studio.css?v=market-3">
@@ -25,7 +26,8 @@
       <nav id="navigation" aria-label="Menu utama">
         <a href="index.html">Beranda</a>
         <a href="koleksi.html">Belanja Tenun</a>
-        <a href="belajar.html">Ruang Belajar</a>
+        <a href="belajar.html">Panduan</a>
+        <a href="berita.html">Berita</a>
         <a href="tentang.html">Tentang Kami</a>
       </nav>
       <div class="header-actions">
@@ -44,8 +46,8 @@
 
   <main id="main-content" class="container section">
     <div class="account-page">
-      <span id="account-eyebrow" class="eyebrow">RUANG ANGGOTA</span>
-      <h1 id="account-title">Akun Anda.</h1>
+      <span id="account-eyebrow" class="eyebrow">PROFIL</span>
+      <h1 id="account-title">Profil Anda.</h1>
       
       <div id="unauth-view" hidden>
         <div class="notice" style="border-left: 3px solid #702c3b;">
@@ -102,7 +104,8 @@
         <ul class="footer-links">
           <li><a href="index.html">Beranda</a></li>
           <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
-          <li><a href="belajar.html">Ruang Belajar Digital</a></li>
+          <li><a href="belajar.html">Panduan Koperasi</a></li>
+          <li><a href="berita.html">Kabar &amp; Berita</a></li>
           <li><a href="tentang.html">Tentang Koperasi</a></li>
         </ul>
       </div>
@@ -111,7 +114,7 @@
         <ul class="footer-links">
           <li><a href="login.html">Masuk ke Akun</a></li>
           <li><a href="register.html">Daftar Akun Pembeli</a></li>
-          <li><a href="akun.html">Ruang Dashboard</a></li>
+          <li><a href="akun.html">Profil</a></li>
           <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
         </ul>
       </div>
@@ -206,18 +209,14 @@
 
       $('unauth-view').hidden = true;
       $('auth-view').hidden = false;
-      $('account-title').textContent = 'Ruang ' + pengguna.peran + '.';
+      $('account-title').textContent = 'Profil Saya';
       $('account-info').textContent = 'Selamat datang, ' + pengguna.nama + ' (@' + pengguna.username + ')';
       $('profile-name').value = pengguna.nama;
       $('profile-login-name').value = pengguna.username;
       $('profile-phone').value = pengguna.telepon || '';
       $('profile-address').value = pengguna.alamat || '';
       $('profile-email').value = pengguna.email || '';
-      $('account-eyebrow').textContent = pengguna.peran === 'Admin'
-        ? 'PUSAT KENDALI KOPERASI'
-        : pengguna.peran === 'Penjual'
-          ? 'DASHBOARD PENGRAJIN'
-          : 'RUANG PEMBELI';
+      $('account-eyebrow').textContent = 'PROFIL';
 
       const badge = $('user-role-badge');
       badge.textContent = 'Peran: ' + pengguna.peran;
@@ -257,91 +256,9 @@
         await initMarketplaceWorkspace(pengguna);
         return;
       }
-      {
-        roleTitle.textContent = 'Ruang Pembeli / Pelanggan';
-        roleDesc.textContent = 'Lihat perjalanan pesanan Anda, lanjutkan pembayaran, dan pantau pengirimannya.';
-        roleExtra.innerHTML = `
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-            <a href="koleksi.html" class="primary" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Mulai Belanja Tenun </a>
-            <button onclick="$('cart-button').click()" class="outline" style="font-size: 0.88rem; min-height: 40px; padding: 8px 16px;">Buka Tas Belanja</button>
-          </div>
-          <section class="workflow-section">
-            <h3>Pesanan saya</h3>
-            <p id="buyer-order-status" class="note" role="status"></p>
-            <div id="buyer-orders" class="workflow-list"></div>
-          </section>
-        `;
-      }
-
-      if (pengguna.peran === 'Pembeli') {
-        async function renderBuyerOrders() {
-          const host = $('buyer-orders');
-          const status = $('buyer-order-status');
-          host.replaceChildren();
-          status.textContent = '';
-          try {
-            const orders = await Backend.pesananSaya();
-            if (!orders.length) {
-              status.textContent = 'Pesanan Anda akan muncul di sini setelah checkout.';
-              return;
-            }
-            orders.forEach(order => {
-              const card = elemen('article', 'workflow-card');
-              const details = elemen('div', 'workflow-details');
-              details.append(
-                elemen('strong', '', 'Pesanan #' + order.id.slice(0, 8)),
-                elemen('p', '', 'Total ' + rupiah(order.total) + ' · ' + order.payment_method),
-                elemen('span', 'workflow-status', labelStatusPembayaran(order.payment_status) + ' · ' + labelStatusPesanan(order.order_status))
-              );
-              (order.order_items || []).forEach(item => {
-                details.append(elemen('p', 'workflow-order-item', item.item_name + ' × ' + item.quantity));
-              });
-              const actions = elemen('div', 'workflow-actions');
-              if (order.payment_mode === 'test') details.append(elemen('p', 'payment-test', 'Uji coba · Tanpa uang nyata'));
-              if (order.payment_provider === 'xendit' && order.order_status === 'awaiting_payment') {
-                const link = elemen('a', 'primary', 'Bayar / periksa status ');
-                link.href = 'pembayaran.html?order=' + encodeURIComponent(order.id);
-                actions.append(link);
-              }
-              if (order.payment_provider !== 'xendit' && order.order_status === 'awaiting_payment' && ['waiting', 'rejected'].includes(order.payment_status)) {
-                const report = elemen('button', 'primary', 'Laporkan pembayaran manual');
-                report.type = 'button';
-                report.addEventListener('click', async () => {
-                  report.disabled = true;
-                  try {
-                    await Backend.laporPembayaran(order.id);
-                    await renderBuyerOrders();
-                  } catch (error) {
-                    status.textContent = error.message || 'Gagal melaporkan pembayaran.';
-                    report.disabled = false;
-                  }
-                });
-                actions.append(report);
-              }
-              if (order.order_status === 'delivered' && order.payment_status === 'confirmed') {
-                const received = elemen('button', 'primary', 'Konfirmasi produk diterima');
-                received.type = 'button';
-                received.addEventListener('click', async () => {
-                  received.disabled = true;
-                  try {
-                    await Backend.ubahStatusPesanan(order.id, 'confirmed', 'completed');
-                    await renderBuyerOrders();
-                  } catch (error) {
-                    status.textContent = error.message || 'Gagal menyelesaikan pesanan.';
-                    received.disabled = false;
-                  }
-                });
-                actions.append(received);
-              }
-              card.append(details, actions);
-              host.append(card);
-            });
-          } catch (error) {
-            status.textContent = error.message || 'Gagal memuat pesanan.';
-          }
-        }
-        await renderBuyerOrders();
-      }
+      
+      // Khusus pembeli: sembunyikan panel pesanan di akun.html agar halaman ini fokus untuk Profil & Perbarui Profil
+      $('role-panel').hidden = true;
 
       $('profile-form').addEventListener('submit', async event => {
         event.preventDefault();

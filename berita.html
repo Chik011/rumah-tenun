@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <script>try{var u=localStorage.getItem('rm_cached_user');if(u&&localStorage.getItem('rm_guest_mode')!=='1'){document.documentElement.setAttribute('data-has-user','true');document.documentElement.setAttribute('data-role-ready','true');}}catch(_){}</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Kabar dan artikel terbaru dari Koperasi Rantai Mawar — Tenun Sambas, Dusun Semberang, Kabupaten Sambas.">
+  <title>Artikel &amp; Berita — Benang-Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css?v=market-2">
+  <link rel="stylesheet" href="studio.css?v=market-2">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="backend.js?v=market-2" defer></script>
+  <script src="common.js?v=market-2" defer></script>
+  <script src="notifications.js?v=market-2" defer></script>
+  <link rel="stylesheet" href="market.css?v=market-2">
+  <style>
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 32px 0; }
+    .filter-btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border, #e5e1d8); background: var(--surface, #faf9f6); font-size: 0.85rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .filter-btn.active { background: var(--ink, #1a1a1a); color: #fff; border-color: var(--ink, #1a1a1a); }
+    .news-header-action { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+  </style>
+</head>
+<body class="news-page">
+  <a class="skip-link" href="#main-content">Langsung ke konten</a>
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span> <span>benang-mawar<small>TENUN SAMBAS · RANTAI MAWAR</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Belanja Tenun</a>
+        <a href="belajar.html">Panduan</a>
+        <a href="berita.html">Berita</a>
+        <a href="tentang.html">Tentang Kami</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span id="cart-count" class="cart-badge">0</span>
+        </button>
+        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="container section">
+    <div class="news-header-action">
+      <div>
+        <span class="eyebrow">DARI KOPERASI &amp; KOMUNITAS</span>
+        <h1 style="margin-bottom: 6px;">Artikel Terbaru</h1>
+        <p class="intro" style="margin-bottom: 0;">Catatan kegiatan, wawasan budaya, dan cerita dari komunitas penenun Sambas.</p>
+      </div>
+      <div id="admin-article-action" hidden>
+        <a href="akun.html?view=articles" class="primary">+ Kelola Artikel (Admin)</a>
+      </div>
+    </div>
+
+    <div class="filter-bar" id="category-filter-bar" role="group" aria-label="Saring berdasarkan kategori" hidden>
+      <button class="filter-btn active" data-filter="semua">Semua</button>
+    </div>
+
+    <div id="articles-list" class="editorial-articles-grid" role="list">
+      <p class="editorial-empty">Memuat artikel…</p>
+    </div>
+  </main>
+
+  <!-- MODAL BACA ARTIKEL -->
+  <dialog id="article-reader-modal" aria-labelledby="modal-article-title">
+    <button class="close-button" data-close aria-label="Tutup" style="position: absolute; right: 16px; top: 16px; z-index: 10; background: rgba(255,255,255,0.85);">×</button>
+    <img id="modal-article-cover" class="reader-cover" src="" alt="" hidden>
+    <div class="reader-content">
+      <div id="modal-article-category" class="reader-category"></div>
+      <h2 id="modal-article-title" class="reader-title"></h2>
+      <div id="modal-article-meta" class="reader-meta"></div>
+      <div id="modal-article-body" class="reader-body"></div>
+      <div style="margin-top: 24px;">
+        <button type="button" class="outline" data-close>Tutup</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;"><span class="brand-mark" aria-hidden="true">✳</span> <span>benang-mawar<small>TENUN SAMBAS · RANTAI MAWAR</small></span></a>
+        <p>Merawat warisan Tenun Sambas dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Jelajahi</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
+          <li><a href="belajar.html">Panduan Koperasi</a></li>
+          <li><a href="berita.html">Kabar &amp; Berita</a></li>
+          <li><a href="tentang.html">Tentang Koperasi</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Akses Cepat</h4>
+        <ul class="footer-links">
+          <li><a href="login.html">Masuk ke Akun</a></li>
+          <li><a href="register.html">Daftar Akun Pembeli</a></li>
+          <li><a href="akun.html">Profil</a></li>
+          <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kolaborasi &amp; Riset</h4>
+        <p>Program pemberdayaan bersama Telkom University, Universitas Tanjungpura, dan Disperindag Sambas.</p>
+        <div class="footer-partners">
+          <div class="footer-logo-card" title="Telkom University">
+            <img src="assets/telkom-university-logo.png" alt="Telkom University Logo" class="footer-logo logo-telkom">
+          </div>
+          <div class="footer-logo-card" title="Smart Grow Laboratory">
+            <img src="assets/logo-full.png" alt="Smart Grow Laboratory Logo" class="footer-logo logo-sgl">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© 2026 Benang-Mawar · Koperasi Rantai Mawar</span>
+    </div>
+  </footer>
+
+  <!-- DIALOG TAS BELANJA -->
+  <dialog id="cart-dialog" aria-labelledby="cart-title">
+    <button class="close-button" data-close aria-label="Tutup">×</button>
+    <h2 id="cart-title">Tas belanja Anda</h2>
+    <p class="note">Pilih kain, periksa jumlah, lalu lanjutkan ke checkout.</p>
+    <div id="cart-items"></div>
+    <div class="cart-total"><strong>Total produk</strong><strong id="cart-total"></strong></div>
+    <button id="checkout-button" class="primary">Lanjut ke checkout →</button>
+    <div id="payment-panel" hidden>
+      <label for="payment-method">Pilihan pembayaran</label>
+      <select id="payment-method">
+        <option>QRIS</option>
+        <option>Transfer bank</option>
+        <option>Dompet digital</option>
+      </select>
+      <p id="payment-description" class="notice"></p>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const grid = document.getElementById('articles-list');
+      const filterBar = document.getElementById('category-filter-bar');
+      const modal = document.getElementById('article-reader-modal');
+
+      // Tampilkan tombol kelola artikel jika admin
+      try {
+        const user = await Backend.penggunaAktif();
+        if (user && user.peran === 'Admin') {
+          const act = document.getElementById('admin-article-action');
+          if (act) act.hidden = false;
+        }
+      } catch (_) {}
+
+      function warnaKategori(cat, idx) {
+        const c = (cat || '').toLowerCase();
+        if (c.includes('budaya') || c.includes('tokoh')) return 'color-green';
+        if (c.includes('kegiatan') || c.includes('pelatihan')) return 'color-terracotta';
+        if (c.includes('wawasan')) return 'color-purple';
+        const colors = ['color-blue', 'color-green', 'color-blue', 'color-purple', 'color-terracotta'];
+        return colors[idx % colors.length];
+      }
+
+      function bukaModalArtikel(art) {
+        if (!modal) return;
+        const cover = document.getElementById('modal-article-cover');
+        if (art.image_url) {
+          cover.src = art.image_url;
+          cover.alt = art.title;
+          cover.hidden = false;
+        } else {
+          cover.hidden = true;
+        }
+        document.getElementById('modal-article-category').textContent = art.category || 'Pustaka Tenun';
+        document.getElementById('modal-article-title').textContent = art.title;
+        const tgl = art.created_at ? new Date(art.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' }) : '';
+        document.getElementById('modal-article-meta').textContent = (art.author_name || 'Admin Koperasi') + (tgl ? ' · ' + tgl : '');
+        document.getElementById('modal-article-body').textContent = art.content;
+        modal.showModal();
+      }
+
+      let semuaArtikel = [];
+      let activeFilter = 'semua';
+
+      function renderGrid(daftar) {
+        grid.replaceChildren();
+        if (!daftar.length) {
+          const kosong = document.createElement('p');
+          kosong.className = 'editorial-empty';
+          kosong.textContent = activeFilter === 'semua'
+            ? 'Belum ada artikel yang ditambahkan. Masuk sebagai admin untuk menerbitkan artikel baru.'
+            : 'Belum ada artikel dalam kategori ini.';
+          grid.append(kosong);
+          return;
+        }
+        daftar.forEach((art, idx) => {
+          const card = document.createElement('article');
+          card.className = 'editorial-card ' + warnaKategori(art.category, idx);
+          card.setAttribute('role', 'listitem');
+          const imgUrl = art.image_url || 'assets/tenun-background.jpg';
+          card.innerHTML = `
+            <div class="editorial-photo-wrap">
+              <img class="editorial-photo" src="${teksHTML(imgUrl)}" alt="${teksHTML(art.title)}" loading="lazy">
+            </div>
+            <span class="editorial-accent-bar" aria-hidden="true"></span>
+            <span class="editorial-category">${teksHTML(art.category || 'Pustaka Tenun')}</span>
+            <h3 class="editorial-card-title">${teksHTML(art.title)}</h3>
+            <p class="editorial-desc">${teksHTML(art.summary || (art.content || '').slice(0, 110))}</p>
+          `;
+          card.addEventListener('click', () => bukaModalArtikel(art));
+          grid.append(card);
+        });
+      }
+
+      try {
+        semuaArtikel = await Backend.ambilArtikel();
+        // Buat filter kategori dinamis jika ada artikel
+        const categories = [...new Set(semuaArtikel.map(a => a.category).filter(Boolean))];
+        if (categories.length > 1) {
+          filterBar.replaceChildren();
+          const btnSemua = document.createElement('button');
+          btnSemua.className = 'filter-btn active';
+          btnSemua.dataset.filter = 'semua';
+          btnSemua.textContent = 'Semua';
+          btnSemua.addEventListener('click', () => {
+            activeFilter = 'semua';
+            filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btnSemua));
+            renderGrid(semuaArtikel);
+          });
+          filterBar.append(btnSemua);
+
+          categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn';
+            btn.dataset.filter = cat;
+            btn.textContent = cat;
+            btn.addEventListener('click', () => {
+              activeFilter = cat;
+              filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+              renderGrid(semuaArtikel.filter(a => a.category === cat));
+            });
+            filterBar.append(btn);
+          });
+          filterBar.hidden = false;
+        }
+        renderGrid(semuaArtikel);
+      } catch (err) {
+        grid.innerHTML = '<p class="editorial-empty">Artikel belum dapat dimuat. Periksa koneksi Anda.</p>';
+      }
+
+      // Dialog close
+      modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
+    });
+  </script>
+</body>
+</html>

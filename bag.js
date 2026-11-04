@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         address.append(elemen('summary','','Alamat pengiriman'),elemen('p','',order.buyer_name),elemen('p','',order.shipping_address));
         card.append(address);
         const actions = elemen('div','shipment-actions');
-        if (order.order_status === 'awaiting_payment' && order.payment_provider === 'xendit') {
+        if (order.order_status === 'awaiting_payment' && ['waiting', 'rejected', 'submitted'].includes(order.payment_status)) {
           const pay = elemen('a','primary','Lanjutkan pembayaran ');
           pay.href = 'pembayaran.html?order=' + encodeURIComponent(order.id); actions.append(pay);
         }

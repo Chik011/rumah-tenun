@@ -292,7 +292,8 @@ async function initMarketplaceWorkspace(user) {
       }
       const grid = elemen('div', 'editorial-articles-grid');
       articles.forEach((art, idx) => {
-        const card = elemen('article', 'editorial-card ' + warnaKategori(art.category, idx));
+        const card = elemen('a', 'editorial-card ' + warnaKategori(art.category, idx));
+        card.href = 'berita-detail.html?id=' + encodeURIComponent(art.id);
         const imgUrl = art.image_url || 'assets/tenun-background.jpg';
         card.innerHTML = `
           <div class="editorial-photo-wrap">
@@ -303,7 +304,6 @@ async function initMarketplaceWorkspace(user) {
           <h3 class="editorial-card-title">${teksHTML(art.title)}</h3>
           <p class="editorial-desc">${teksHTML(art.summary || (art.content || '').slice(0, 110))}</p>
         `;
-        card.addEventListener('click', () => bukaModalPembaca(art));
         grid.append(card);
       });
       content.append(grid);
@@ -349,6 +349,12 @@ async function initMarketplaceWorkspace(user) {
         const actions = elemen('div', 'inventory-actions');
         actions.style.marginTop = '0';
 
+        const viewLink = elemen('a', 'outline', 'Lihat');
+        viewLink.href = 'berita-detail.html?id=' + encodeURIComponent(art.id);
+        viewLink.target = '_blank';
+        viewLink.style.padding = '6px 14px';
+        viewLink.style.fontSize = '0.88rem';
+
         const editBtn = elemen('button', 'button-edit', 'Edit');
         editBtn.type = 'button';
         editBtn.addEventListener('click', () => bukaDialogArtikel(art));
@@ -364,7 +370,7 @@ async function initMarketplaceWorkspace(user) {
           }
         });
 
-        actions.append(editBtn, delBtn);
+        actions.append(viewLink, editBtn, delBtn);
         row.append(thumb, info, actions);
         listWrap.append(row);
       });
@@ -382,11 +388,13 @@ async function initMarketplaceWorkspace(user) {
       document.body.append(dialog);
     }
     const isEdit = Boolean(art && art.id);
+    let existingGallery = Array.isArray(art?.gallery_urls) ? [...art.gallery_urls] : [];
+
     dialog.innerHTML = `
       <div class="modal-header">
         <div>
-          <h2 style="font-size:1.35rem;margin:0 0 4px 0;">${isEdit ? 'Edit Artikel' : 'Tulis Artikel Baru'}</h2>
-          <p class="note" style="margin:0;">Lengkapi judul, gambar, dan isi teks artikel.</p>
+          <h2 style="font-size:1.35rem;margin:0 0 4px 0;">${isEdit ? 'Edit Berita & Artikel' : 'Tulis Berita Baru'}</h2>
+          <p class="note" style="margin:0;">Lengkapi judul, thumbnail utama, galeri foto isi berita, dan teks lengkap.</p>
         </div>
         <button type="button" class="close-button" data-close aria-label="Tutup">×</button>
       </div>
@@ -412,26 +420,36 @@ async function initMarketplaceWorkspace(user) {
             <input type="text" name="custom_category" placeholder="Opsional (misal: Kabar Dusun)">
           </label>
         </div>
-        <label class="editor-field">
-          Gambar Artikel (Upload Foto atau Masukkan Tautan URL)
+
+        <div style="background:#faf8f5;border:1px solid #e7eee9;border-radius:10px;padding:14px;">
+          <strong style="color:#1b3b30;display:block;margin-bottom:6px;">1. Foto Sampul / Thumbnail Berita (1 Foto Utama)</strong>
+          <p class="note" style="margin:0 0 10px 0;">Foto ini akan muncul di kartu daftar berita depan & header berita.</p>
           <input type="file" name="image_file" accept="image/jpeg,image/png,image/webp">
-          <input type="url" name="image_url" placeholder="https://... (opsional jika sudah upload berkas)" value="${teksHTML(art?.image_url || '')}" style="margin-top:6px;">
-        </label>
-        <div id="art-preview-wrap" style="display:${art?.image_url ? 'block' : 'none'};margin-top:-4px;">
-          <img id="art-preview-img" src="${teksHTML(art?.image_url || '')}" alt="Preview" style="max-height:140px;border-radius:8px;object-fit:cover;">
+          <input type="url" name="image_url" placeholder="https://... (atau tempel tautan foto)" value="${teksHTML(art?.image_url || '')}" style="margin-top:6px;">
+          <div id="art-preview-wrap" style="display:${art?.image_url ? 'block' : 'none'};margin-top:8px;">
+            <img id="art-preview-img" src="${teksHTML(art?.image_url || '')}" alt="Preview Sampul" style="max-height:140px;border-radius:8px;object-fit:cover;">
+          </div>
         </div>
+
+        <div style="background:#faf8f5;border:1px solid #e7eee9;border-radius:10px;padding:14px;">
+          <strong style="color:#1b3b30;display:block;margin-bottom:6px;">2. Foto-foto di Dalam Berita (Galeri / Banyak Gambar)</strong>
+          <p class="note" style="margin:0 0 10px 0;">Pilih beberapa foto sekaligus untuk ditampilkan di dalam isi berita.</p>
+          <input type="file" name="gallery_files" multiple accept="image/jpeg,image/png,image/webp">
+          <div id="art-gallery-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"></div>
+        </div>
+
         <label class="editor-field">
-          Ringkasan Singkat (1-2 kalimat untuk kartu beranda)
-          <input type="text" name="summary" maxlength="250" placeholder="Ringkasan singkat artikel..." value="${teksHTML(art?.summary || '')}">
+          Ringkasan Singkat (1-2 kalimat untuk kartu depan)
+          <input type="text" name="summary" maxlength="250" placeholder="Ringkasan singkat berita..." value="${teksHTML(art?.summary || '')}">
         </label>
         <label class="editor-field">
           Isi Deskripsi / Teks Berita Lengkap *
-          <textarea name="content" required rows="7" placeholder="Tuliskan berita atau wawasan lengkap di sini...">${teksHTML(art?.content || '')}</textarea>
+          <textarea name="content" required rows="8" placeholder="Tuliskan berita atau wawasan lengkap di sini...">${teksHTML(art?.content || '')}</textarea>
         </label>
         <p id="art-form-status" class="note" style="margin:0;"></p>
         <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
           <button type="button" class="outline" data-close>Batal</button>
-          <button type="submit" class="primary" id="art-submit-btn">${isEdit ? 'Simpan Perubahan' : 'Terbitkan Artikel'}</button>
+          <button type="submit" class="primary" id="art-submit-btn">${isEdit ? 'Simpan Perubahan' : 'Terbitkan Berita'}</button>
         </div>
       </form>
     `;
@@ -440,6 +458,42 @@ async function initMarketplaceWorkspace(user) {
     const urlInput = dialog.querySelector('input[name="image_url"]');
     const prevWrap = dialog.querySelector('#art-preview-wrap');
     const prevImg = dialog.querySelector('#art-preview-img');
+    const galleryInput = dialog.querySelector('input[name="gallery_files"]');
+    const galleryWrap = dialog.querySelector('#art-gallery-preview');
+
+    function renderGalleryPreviews() {
+      galleryWrap.replaceChildren();
+      existingGallery.forEach((url, i) => {
+        const item = elemen('div', '');
+        item.style.position = 'relative';
+        item.style.display = 'inline-block';
+        item.innerHTML = `
+          <img src="${teksHTML(url)}" style="width:74px;height:74px;object-fit:cover;border-radius:6px;border:1px solid #ccc;">
+          <button type="button" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.65);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;line-height:1;">×</button>
+        `;
+        item.querySelector('button').addEventListener('click', () => {
+          existingGallery.splice(i, 1);
+          renderGalleryPreviews();
+        });
+        galleryWrap.append(item);
+      });
+    }
+    renderGalleryPreviews();
+
+    galleryInput.addEventListener('change', () => {
+      if (galleryInput.files && galleryInput.files.length) {
+        Array.from(galleryInput.files).forEach(f => {
+          const reader = new FileReader();
+          reader.onload = ev => {
+            const temp = elemen('div', '');
+            temp.style.display = 'inline-block';
+            temp.innerHTML = `<img src="${ev.target.result}" style="width:74px;height:74px;object-fit:cover;border-radius:6px;border:2px dashed #26874a;">`;
+            galleryWrap.append(temp);
+          };
+          reader.readAsDataURL(f);
+        });
+      }
+    });
 
     fileInput.addEventListener('change', () => {
       if (fileInput.files && fileInput.files[0]) {
@@ -466,11 +520,12 @@ async function initMarketplaceWorkspace(user) {
       const btn = dialog.querySelector('#art-submit-btn');
       const status = dialog.querySelector('#art-form-status');
       btn.disabled = true;
-      status.textContent = 'Menyimpan artikel ke database…';
+      status.textContent = 'Mengunggah gambar dan menyimpan berita ke database…';
 
       const customCat = form.custom_category.value.trim();
       const cat = customCat || form.category.value;
-      const file = fileInput.files[0] || null;
+      const fileThumb = fileInput.files[0] || null;
+      const filesGal = galleryInput.files ? Array.from(galleryInput.files) : [];
 
       try {
         await Backend.simpanArtikel({
@@ -479,15 +534,16 @@ async function initMarketplaceWorkspace(user) {
           category: cat,
           summary: form.summary.value,
           content: form.content.value,
-          image_url: form.image_url.value
-        }, file);
-        status.textContent = '✓ Artikel berhasil disimpan!';
+          image_url: form.image_url.value,
+          gallery_urls: existingGallery
+        }, fileThumb, filesGal);
+        status.textContent = '✓ Berita berhasil disimpan!';
         setTimeout(() => {
           dialog.close();
           load();
         }, 800);
       } catch (err) {
-        status.textContent = err.message || 'Gagal menyimpan artikel.';
+        status.textContent = err.message || 'Gagal menyimpan berita.';
         btn.disabled = false;
       }
     });

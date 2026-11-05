@@ -461,13 +461,23 @@ const Backend = {
     return list.find(a => String(a.id) === String(id)) || null;
   },
 
-  async simpanArtikel(artikel, file) {
+  async simpanArtikel(artikel, fileThumbnail, filesGallery = []) {
     const user = await this.penggunaAktif();
     if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat mengelola artikel.');
 
     let imageUrl = artikel.image_url || '';
-    if (file) {
-      imageUrl = await this.unggahBerkasGambar(file);
+    if (fileThumbnail) {
+      imageUrl = await this.unggahBerkasGambar(fileThumbnail);
+    }
+
+    let galleryUrls = Array.isArray(artikel.gallery_urls) ? [...artikel.gallery_urls] : [];
+    if (filesGallery && filesGallery.length) {
+      for (const f of filesGallery) {
+        if (f) {
+          const up = await this.unggahBerkasGambar(f);
+          if (up) galleryUrls.push(up);
+        }
+      }
     }
 
     const payload = {
@@ -476,6 +486,7 @@ const Backend = {
       summary: (artikel.summary || '').trim(),
       content: artikel.content.trim(),
       image_url: imageUrl,
+      gallery_urls: galleryUrls,
       author_name: user.nama || 'Admin Koperasi',
       updated_at: new Date().toISOString()
     };

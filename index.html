@@ -266,7 +266,8 @@
           wadahArtikel.innerHTML = '<p class="editorial-empty">Belum ada artikel yang ditambahkan. Masuk sebagai admin untuk menerbitkan artikel baru.</p>';
         } else {
           artikelList.slice(0, 4).forEach((art, idx) => {
-            const card = document.createElement('article');
+            const card = document.createElement('a');
+            card.href = 'berita-detail.html?id=' + encodeURIComponent(art.id);
             card.className = 'editorial-card ' + warnaKategori(art.category, idx);
             card.setAttribute('role', 'listitem');
             const imgUrl = art.image_url || 'assets/tenun-background.jpg';
@@ -279,7 +280,6 @@
               <h3 class="editorial-card-title">${teksHTML(art.title)}</h3>
               <p class="editorial-desc">${teksHTML(art.summary || (art.content || '').slice(0, 110))}</p>
             `;
-            card.addEventListener('click', () => bukaModalArtikel(art));
             wadahArtikel.append(card);
           });
         }

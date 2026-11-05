@@ -8,11 +8,15 @@ create table if not exists public.articles (
   category text not null default 'Pustaka Tenun',
   summary text,
   content text not null,
-  image_url text,
+  image_url text, -- thumbnail utama
+  gallery_urls text[] default array[]::text[], -- kumpulan banyak gambar di dalam berita
   author_name text default 'Admin Koperasi',
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
+
+-- Pastikan kolom gallery_urls ada jika tabel sudah terlanjur dibuat sebelumnya
+alter table public.articles add column if not exists gallery_urls text[] default array[]::text[];
 
 alter table public.articles enable row level security;
 

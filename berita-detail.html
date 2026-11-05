@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <script>try{var u=localStorage.getItem('rm_cached_user');if(u&&localStorage.getItem('rm_guest_mode')!=='1'){document.documentElement.setAttribute('data-has-user','true');document.documentElement.setAttribute('data-role-ready','true');}}catch(_){}</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Baca berita dan cerita seputar Tenun Sambas dari Koperasi Rantai Mawar.">
+  <title>Berita — Benang-Mawar</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css?v=market-2">
+  <link rel="stylesheet" href="studio.css?v=market-2">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="backend.js?v=market-2" defer></script>
+  <script src="common.js?v=market-2" defer></script>
+  <script src="notifications.js?v=market-2" defer></script>
+  <link rel="stylesheet" href="market.css?v=market-2">
+  <style>
+    .article-page { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
+    .article-header { margin-bottom: 28px; }
+    .article-breadcrumbs { margin-bottom: 20px; font-size: 0.9rem; color: #666; display: flex; align-items: center; gap: 8px; }
+    .article-breadcrumbs a { color: #1c3c32; text-decoration: none; }
+    .article-breadcrumbs a:hover { text-decoration: underline; }
+    .article-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: #e8f3ed; color: #1c5c40; margin-bottom: 14px; }
+    .article-main-title { font-family: "Playfair Display", Georgia, serif; font-size: 2.4rem; line-height: 1.25; color: #15221c; margin: 0 0 14px 0; }
+    .article-byline { display: flex; align-items: center; gap: 14px; font-size: 0.92rem; color: #6b7770; border-bottom: 1px solid #e7eee9; padding-bottom: 20px; }
+    .article-hero-wrap { margin: 24px 0 36px 0; border-radius: 12px; overflow: hidden; background: #f0ede6; }
+    .article-hero-img { width: 100%; max-height: 520px; object-fit: cover; display: block; }
+    .article-summary-lead { font-size: 1.2rem; line-height: 1.6; color: #2d3b34; font-weight: 500; font-style: italic; margin-bottom: 28px; padding-left: 18px; border-left: 4px solid #26874a; }
+    .article-body-text { font-size: 1.05rem; line-height: 1.85; color: #222e28; white-space: pre-wrap; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    
+    .article-gallery-section { margin-top: 48px; padding-top: 32px; border-top: 1px solid #e7eee9; }
+    .article-gallery-title { font-size: 1.35rem; font-weight: 700; color: #1c3c32; margin: 0 0 16px 0; }
+    .article-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    .article-gallery-item { border-radius: 10px; overflow: hidden; background: #eee; cursor: pointer; aspect-ratio: 4 / 3; transition: transform 0.2s, box-shadow 0.2s; }
+    .article-gallery-item:hover { transform: scale(1.02); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+    .article-gallery-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .article-nav-back { display: inline-flex; align-items: center; gap: 6px; margin-top: 40px; padding: 10px 20px; border-radius: 8px; border: 1px solid #cbd5cf; background: #faf9f6; color: #1c3c32; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .article-nav-back:hover { background: #eef4f0; }
+
+    @media (max-width: 680px) {
+      .article-main-title { font-size: 1.8rem; }
+      .article-hero-img { max-height: 320px; }
+      .article-gallery-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Langsung ke konten</a>
+  
+  <header class="header-wrapper">
+    <div class="header">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✳</span> <span>benang-mawar<small>TENUN SAMBAS · RANTAI MAWAR</small></span></a>
+      <button id="menu-button" class="outline menu-button" aria-controls="navigation" aria-expanded="false">Menu ☰</button>
+      <nav id="navigation" aria-label="Menu utama">
+        <a href="index.html">Beranda</a>
+        <a href="koleksi.html">Belanja Tenun</a>
+        <a href="belajar.html">Panduan</a>
+        <a href="berita.html" class="active" aria-current="page">Berita</a>
+        <a href="tentang.html">Tentang Kami</a>
+      </nav>
+      <div class="header-actions">
+        <button id="cart-button" class="icon-btn" aria-label="Tas Belanja" title="Buka Tas Belanja">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span id="cart-count" class="cart-badge">0</span>
+        </button>
+        <a id="login-button" href="login.html" class="primary" style="padding: 8px 18px; min-height: 42px; font-size: 0.9rem;">Masuk </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="container">
+    <div class="article-page">
+      <nav class="article-breadcrumbs" aria-label="Jejak halaman">
+        <a href="index.html">Beranda</a>
+        <span>/</span>
+        <a href="berita.html">Berita &amp; Kabar</a>
+        <span>/</span>
+        <span id="crumb-current" style="color:#888;">Membaca Berita</span>
+      </nav>
+
+      <div id="loading-state" style="padding:60px 0;text-align:center;">
+        <p class="intro">Memuat naskah berita…</p>
+      </div>
+
+      <div id="error-state" hidden style="padding:40px 20px;background:#fdf5f5;border:1px solid #f0cfcf;border-radius:12px;text-align:center;">
+        <h2 style="color:#b22828;">Berita Tidak Ditemukan</h2>
+        <p>Berita yang Anda tuju mungkin telah dihapus atau tautan tidak valid.</p>
+        <a href="berita.html" class="primary" style="display:inline-block;margin-top:12px;">Kembali ke Daftar Berita</a>
+      </div>
+
+      <article id="article-detail" hidden>
+        <header class="article-header">
+          <span id="article-category" class="article-tag">Pustaka Tenun</span>
+          <h1 id="article-title" class="article-main-title"></h1>
+          <div class="article-byline">
+            <span id="article-author" style="font-weight:600;color:#22332a;"></span>
+            <span>•</span>
+            <time id="article-date"></time>
+          </div>
+        </header>
+
+        <div id="hero-wrap" class="article-hero-wrap" hidden>
+          <img id="article-hero" class="article-hero-img" src="" alt="">
+        </div>
+
+        <div id="article-summary" class="article-summary-lead" hidden></div>
+
+        <div id="article-content" class="article-body-text"></div>
+
+        <section id="gallery-section" class="article-gallery-section" hidden>
+          <h2 class="article-gallery-title">Dokumentasi &amp; Foto Kegiatan</h2>
+          <div id="gallery-grid" class="article-gallery-grid"></div>
+        </section>
+
+        <div style="margin-top:40px;">
+          <a href="berita.html" class="article-nav-back">← Kembali ke Semua Berita</a>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- LIGHTBOX / LIHAT FOTO BESAR -->
+  <dialog id="photo-dialog" style="max-width:90vw;max-height:90vh;border:none;border-radius:12px;padding:0;overflow:hidden;background:#000;">
+    <button class="close-button" data-close aria-label="Tutup" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.8);z-index:2;">×</button>
+    <img id="dialog-photo-img" src="" alt="" style="max-width:90vw;max-height:85vh;display:block;margin:auto;object-fit:contain;">
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <a class="brand" href="index.html" style="margin-bottom: 14px; display: inline-flex;"><span class="brand-mark" aria-hidden="true">✳</span> <span>benang-mawar<small>TENUN SAMBAS · RANTAI MAWAR</small></span></a>
+        <p>Merawat warisan Tenun Sambas dan menguatkan kemandirian ekonomi kelompok perempuan produktif melalui literasi digital dan pasar yang adil.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Jelajahi</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="koleksi.html">Koleksi Kain Tenun</a></li>
+          <li><a href="belajar.html">Panduan Koperasi</a></li>
+          <li><a href="berita.html">Kabar &amp; Berita</a></li>
+          <li><a href="tentang.html">Tentang Koperasi</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Akses Cepat</h4>
+        <ul class="footer-links">
+          <li><a href="login.html">Masuk ke Akun</a></li>
+          <li><a href="register.html">Daftar Akun Pembeli</a></li>
+          <li><a href="akun.html">Profil</a></li>
+          <li><a href="javascript:void(0)" onclick="$('cart-button').click()">Tas Belanja Tenun</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kolaborasi &amp; Riset</h4>
+        <p>Program pemberdayaan bersama Telkom University, Universitas Tanjungpura, dan Disperindag Sambas.</p>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© 2026 Benang-Mawar · Koperasi Rantai Mawar</span>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(location.search);
+      const articleId = params.get('id');
+
+      const loadState = document.getElementById('loading-state');
+      const errState = document.getElementById('error-state');
+      const articleWrap = document.getElementById('article-detail');
+
+      if (!articleId) {
+        loadState.hidden = true;
+        errState.hidden = false;
+        return;
+      }
+
+      try {
+        const art = await Backend.ambilDetailArtikel(articleId);
+        if (!art) {
+          loadState.hidden = true;
+          errState.hidden = false;
+          return;
+        }
+
+        document.title = (art.title || 'Berita') + ' — Benang-Mawar';
+        document.getElementById('crumb-current').textContent = art.title;
+        document.getElementById('article-title').textContent = art.title;
+        document.getElementById('article-category').textContent = art.category || 'Pustaka Tenun';
+        document.getElementById('article-author').textContent = art.author_name || 'Admin Koperasi';
+
+        if (art.created_at) {
+          const tgl = new Date(art.created_at).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          });
+          document.getElementById('article-date').textContent = tgl;
+        }
+
+        // Thumbnail Utama
+        if (art.image_url) {
+          const heroWrap = document.getElementById('hero-wrap');
+          const heroImg = document.getElementById('article-hero');
+          heroImg.src = art.image_url;
+          heroImg.alt = art.title;
+          heroWrap.hidden = false;
+        }
+
+        // Summary / Intro
+        if (art.summary) {
+          const summaryEl = document.getElementById('article-summary');
+          summaryEl.textContent = art.summary;
+          summaryEl.hidden = false;
+        }
+
+        // Teks Isi Berita
+        document.getElementById('article-content').textContent = art.content || '';
+
+        // Galeri Foto-foto di dalam berita
+        const gallery = Array.isArray(art.gallery_urls) ? art.gallery_urls.filter(Boolean) : [];
+        if (gallery.length > 0) {
+          const gSection = document.getElementById('gallery-section');
+          const gGrid = document.getElementById('gallery-grid');
+          const pDialog = document.getElementById('photo-dialog');
+          const dPhotoImg = document.getElementById('dialog-photo-img');
+
+          gGrid.replaceChildren();
+          gallery.forEach((picUrl, idx) => {
+            const item = document.createElement('div');
+            item.className = 'article-gallery-item';
+            item.innerHTML = `<img class="article-gallery-img" src="${teksHTML(picUrl)}" alt="Foto dokumentasi ${idx+1}" loading="lazy">`;
+            item.addEventListener('click', () => {
+              dPhotoImg.src = picUrl;
+              pDialog.showModal();
+            });
+            gGrid.append(item);
+          });
+          gSection.hidden = false;
+
+          pDialog.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => pDialog.close()));
+          pDialog.addEventListener('click', e => { if (e.target === pDialog) pDialog.close(); });
+        }
+
+        loadState.hidden = true;
+        articleWrap.hidden = false;
+      } catch (e) {
+        console.error(e);
+        loadState.hidden = true;
+        errState.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

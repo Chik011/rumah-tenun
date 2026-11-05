@@ -466,11 +466,10 @@ const Backend = {
         .select()
         .single();
       if (error) {
-        payload.id = artikel.id;
-        result = payload;
-      } else {
-        result = data;
+        console.error('Supabase update articles error:', error);
+        throw new Error('Gagal menyimpan ke database Supabase: ' + (error.message || 'Periksa tabel articles dan RLS Supabase.'));
       }
+      result = data;
     } else {
       payload.created_at = new Date().toISOString();
       const { data, error } = await supabaseClient
@@ -479,11 +478,10 @@ const Backend = {
         .select()
         .single();
       if (error) {
-        payload.id = Date.now();
-        result = payload;
-      } else {
-        result = data;
+        console.error('Supabase insert articles error:', error);
+        throw new Error('Gagal menyimpan ke database Supabase: ' + (error.message || 'Periksa apakah tabel articles sudah dibuat di Supabase SQL Editor.'));
       }
+      result = data;
     }
 
     try {
@@ -500,9 +498,11 @@ const Backend = {
   async hapusArtikel(id) {
     const user = await this.penggunaAktif();
     if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat menghapus artikel.');
-    try {
-      await supabaseClient.from('articles').delete().eq('id', id);
-    } catch (_) {}
+    const { error } = await supabaseClient.from('articles').delete().eq('id', id);
+    if (error) {
+      console.error('Supabase delete articles error:', error);
+      throw new Error('Gagal menghapus dari database Supabase: ' + error.message);
+    }
     try {
       let cached = JSON.parse(localStorage.getItem('rm_cached_articles') || '[]');
       cached = cached.filter(a => String(a.id) !== String(id));
@@ -550,17 +550,16 @@ const Backend = {
       updated_at: new Date().toISOString()
     };
 
-    let result;
     const { data, error } = await supabaseClient
       .from('payment_settings')
       .upsert(payload)
       .select()
       .single();
     if (error) {
-      result = payload;
-    } else {
-      result = data;
+      console.error('Supabase upsert payment_settings error:', error);
+      throw new Error('Gagal menyimpan ke database Supabase: ' + (error.message || 'Periksa tabel payment_settings di Supabase SQL Editor.'));
     }
+    const result = data;
 
     try {
       let cached = JSON.parse(localStorage.getItem('rm_cached_payment_settings') || '[]');
@@ -576,9 +575,11 @@ const Backend = {
   async hapusPengaturanPembayaran(id) {
     const user = await this.penggunaAktif();
     if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat menghapus metode pembayaran.');
-    try {
-      await supabaseClient.from('payment_settings').delete().eq('id', id);
-    } catch (_) {}
+    const { error } = await supabaseClient.from('payment_settings').delete().eq('id', id);
+    if (error) {
+      console.error('Supabase delete payment_settings error:', error);
+      throw new Error('Gagal menghapus dari database Supabase: ' + error.message);
+    }
     try {
       let cached = JSON.parse(localStorage.getItem('rm_cached_payment_settings') || '[]');
       cached = cached.filter(s => s.id !== id);

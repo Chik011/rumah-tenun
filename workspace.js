@@ -16,7 +16,7 @@ async function initMarketplaceWorkspace(user) {
     await initProductEditor(host,user,params.get('id'));return;
   }
   const view=params.get('view') || (admin?'sellers':'products');
-  const tabs=admin?[['sellers','Penjual'],['buyers','Pembeli'],['products','Katalog produk'],['orders','Pesanan'],['articles','Kelola Berita'],['payments','Pengaturan Pembayaran'],['activity','Aktivitas']]:[['products','Produk Anda'],['orders','Pesanan masuk'],['articles','Kabar & Artikel']];
+  const tabs=admin?[['sellers','Penjual'],['buyers','Pembeli'],['products','Katalog produk'],['orders','Pesanan'],['articles','Kelola Berita'],['payments','Pengaturan Pembayaran'],['activity','Aktivitas']]:[['products','Produk Anda'],['orders','Pesanan masuk'],['articles','Kabar & Artikel'],['payments','Pengaturan Pembayaran']];
   const nav=elemen('div','workspace-tabs');
   for(const [key,label] of tabs) {const a=elemen('a',view===key?'active':'',label);a.href='akun.html?view='+key;if(view===key)a.setAttribute('aria-current','page');nav.append(a);}
   const content=elemen('div','workspace-content');const message=elemen('p','workspace-message');message.setAttribute('role','status');
@@ -29,7 +29,7 @@ async function initMarketplaceWorkspace(user) {
       message.textContent='';content.replaceChildren();
       if(view==='orders') await ordersView();
       else if(view==='articles') await articlesView();
-      else if(admin && view==='payments') await paymentsView();
+      else if(view==='payments') await paymentsView();
       else if(admin && ['sellers','buyers','activity'].includes(view)) await monitorView();
       else await productsView();
     }catch(error){report(error);}finally{busy=false;}

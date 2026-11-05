@@ -62,12 +62,31 @@ drop policy if exists "payment_settings_select_all" on public.payment_settings;
 create policy "payment_settings_select_all" on public.payment_settings
   for select using (true);
 
--- Hanya admin yang bisa mengelola metode pembayaran
+-- Admin & Penjual bisa mengelola metode pembayaran
 drop policy if exists "payment_settings_admin_all" on public.payment_settings;
 create policy "payment_settings_admin_all" on public.payment_settings
   for all using (
-    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+    exists (select 1 from public.profiles where id = auth.uid() and role in ('admin', 'seller'))
   );
+
+-- 3. STORAGE BUCKET UNTUK GAMBAR (QRIS, ARTIKEL, PRODUK)
+insert into storage.buckets (id, name, public)
+values ('images', 'images', true)
+on conflict (id) do update set public = true;
+
+-- Policy Storage: Publik dapat melihat gambar
+drop policy if exists "public_view_images" on storage.objects;
+create policy "public_view_images" on storage.objects
+  for select using (bucket_id = 'images');
+
+-- Policy Storage: User terotentikasi (admin/penjual) dapat upload gambar
+drop policy if exists "authenticated_upload_images" on storage.objects;
+create policy "authenticated_upload_images" on storage.objects
+  for insert with check (bucket_id = 'images' and auth.role() = 'authenticated');
+
+drop policy if exists "authenticated_update_images" on storage.objects;
+create policy "authenticated_update_images" on storage.objects
+  for update using (bucket_id = 'images' and auth.role() = 'authenticated');
 
 -- Grant privileges
 grant select on public.articles to anon, authenticated;

@@ -521,6 +521,7 @@ async function setupHeaderActions() {
         ['akun.html?view=products', 'Etalase Produk'],
         ['akun.html?view=orders', 'Pesanan masuk'],
         ['akun.html?view=articles', 'Kabar & Artikel'],
+        ['akun.html?view=payments', 'Pembayaran'],
         ['belajar.html', 'Panduan Usaha']
       ]
     };
@@ -581,6 +582,7 @@ async function setupHeaderActions() {
         ['akun.html?view=products', 'Etalase Produk'],
         ['akun.html?view=orders', 'Pesanan masuk'],
         ['akun.html?view=articles', 'Kabar & Artikel'],
+        ['akun.html?view=payments', 'Pembayaran'],
         ['belajar.html', 'Panduan Usaha']
       ]
     };

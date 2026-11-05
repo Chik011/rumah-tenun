@@ -378,6 +378,28 @@ const Backend = {
     if (file.size > 10 * 1024 * 1024) {
       throw new Error('Ukuran gambar maksimal 10 MB.');
     }
+
+    // 1. Coba unggah ke Supabase Storage (bucket public: 'images')
+    try {
+      const ext = file.name.split('.').pop() || 'png';
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${ext}`;
+      const { data: uploadData, error: uploadErr } = await supabaseClient
+        .storage
+        .from('images')
+        .upload(`uploads/${fileName}`, file, { cacheControl: '3600', upsert: true });
+
+      if (!uploadErr && uploadData) {
+        const { data: publicUrlData } = supabaseClient
+          .storage
+          .from('images')
+          .getPublicUrl(`uploads/${fileName}`);
+        if (publicUrlData && publicUrlData.publicUrl) {
+          return publicUrlData.publicUrl;
+        }
+      }
+    } catch (_) {}
+
+    // 2. Coba unggah ke Cloudinary melalui Edge Function signature
     try {
       const { data: signed, error: signError } = await supabaseClient.functions.invoke('cloudinary-signature', { body: {} });
       if (!signError && signed && signed.signature) {
@@ -398,6 +420,7 @@ const Backend = {
       }
     } catch (_) {}
 
+    // 3. Fallback: Base64 data URL
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
@@ -531,7 +554,7 @@ const Backend = {
 
   async simpanPengaturanPembayaran(item, fileQr) {
     const user = await this.penggunaAktif();
-    if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat mengatur metode pembayaran.');
+    if (!user || !['Admin', 'Penjual'].includes(user.peran)) throw new Error('Hanya admin atau penjual yang dapat mengatur metode pembayaran.');
 
     let imageUrl = item.image_url || '';
     if (fileQr) {
@@ -574,7 +597,7 @@ const Backend = {
 
   async hapusPengaturanPembayaran(id) {
     const user = await this.penggunaAktif();
-    if (!user || user.peran !== 'Admin') throw new Error('Hanya admin yang dapat menghapus metode pembayaran.');
+    if (!user || !['Admin', 'Penjual'].includes(user.peran)) throw new Error('Hanya admin atau penjual yang dapat menghapus metode pembayaran.');
     const { error } = await supabaseClient.from('payment_settings').delete().eq('id', id);
     if (error) {
       console.error('Supabase delete payment_settings error:', error);

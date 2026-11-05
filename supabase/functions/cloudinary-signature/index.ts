@@ -32,8 +32,8 @@ Deno.serve(async request => {
     .select('role')
     .eq('id', user.id)
     .single();
-  if (profileError || profile.role !== 'seller') {
-    return jsonResponse({ error: 'Akun ini tidak diizinkan mengunggah produk.' }, 403);
+  if (profileError || !['seller', 'admin'].includes(profile.role)) {
+    return jsonResponse({ error: 'Akun ini tidak diizinkan mengunggah gambar.' }, 403);
   }
 
   const cloudName = Deno.env.get('CLOUDINARY_CLOUD_NAME');
